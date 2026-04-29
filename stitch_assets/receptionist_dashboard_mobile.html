@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Receptionist Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;600;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error": "#ffffff",
+                        "surface-container-high": "#e7e8e9",
+                        "on-tertiary-container": "#d1dae4",
+                        "on-secondary-container": "#5f656b",
+                        "primary-fixed": "#d6e3ff",
+                        "on-surface-variant": "#424752",
+                        "surface-tint": "#005db6",
+                        "outline": "#727783",
+                        "tertiary-container": "#576068",
+                        "on-error-container": "#93000a",
+                        "surface-container": "#edeeef",
+                        "inverse-surface": "#2e3132",
+                        "tertiary-fixed": "#dbe4ed",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container-highest": "#e1e3e4",
+                        "on-primary-fixed-variant": "#00468c",
+                        "on-primary-fixed": "#001b3d",
+                        "error": "#ba1a1a",
+                        "surface-container-low": "#f3f4f5",
+                        "primary-container": "#005eb8",
+                        "outline-variant": "#c2c6d4",
+                        "secondary-fixed": "#dee3ea",
+                        "inverse-on-surface": "#f0f1f2",
+                        "on-tertiary": "#ffffff",
+                        "on-surface": "#191c1d",
+                        "surface": "#f8f9fa",
+                        "inverse-primary": "#a9c7ff",
+                        "secondary-container": "#dee3ea",
+                        "primary-fixed-dim": "#a9c7ff",
+                        "surface-variant": "#e1e3e4",
+                        "on-tertiary-fixed": "#141d23",
+                        "on-secondary-fixed-variant": "#42474d",
+                        "on-secondary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-primary-container": "#c8daff",
+                        "tertiary": "#404850",
+                        "secondary-fixed-dim": "#c2c7ce",
+                        "on-tertiary-fixed-variant": "#3f484f",
+                        "background": "#f8f9fa",
+                        "primary": "#00478d",
+                        "on-background": "#191c1d",
+                        "surface-bright": "#f8f9fa",
+                        "tertiary-fixed-dim": "#bfc8d0",
+                        "secondary": "#595f65",
+                        "on-secondary-fixed": "#171c21",
+                        "surface-dim": "#d9dadb",
+                        "on-primary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-max": "1200px",
+                        "xs": "4px",
+                        "lg": "48px",
+                        "gutter": "24px",
+                        "base": "8px",
+                        "xl": "80px",
+                        "sm": "12px",
+                        "md": "24px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "headline-md": ["Manrope"],
+                        "label-caps": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-xl": ["Manrope"],
+                        "button-text": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                        "label-caps": ["11px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                        "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "headline-xl": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                        "button-text": ["14px", {"lineHeight": "1", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        body {
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased overflow-x-hidden">
+<!-- TopAppBar -->
+<header class="bg-white dark:bg-slate-950 shadow-sm shadow-blue-900/5 docked full-width top-0 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center w-full px-6 h-16 sticky top-0 z-50">
+<div class="flex items-center gap-3 active:opacity-80 transition-opacity">
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-fixed">
+<img alt="Receptionist Profile" class="w-full h-full object-cover" data-alt="Professional headshot of a female healthcare receptionist with a friendly smile in a modern clinic setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBj34gfl1ao1p6j0aJinT66BSaqMfy7rFuycWGFzw8bKZ00oApXUIE15XhRpO-pJUPGGw1_xPe9f5bpzOhjE54umLrSOlJ8DKqfgxTiwkYbF8MOMjyGLoR_5yQRBgXb3AZjxOonDW5yDEGKLyWOW2m_ZdTzS-Y2KVgsTsiCSP6xc_qaWwFyusYC8qXfZBA3lgd0a6HzY0YUyDUoc1vPvNI3dVBD3OlEH2pwFwzQ59wX-inhQTtc9JQCwnI6-pfubJ9KGSAWmR66E6E"/>
+</div>
+<h1 class="text-lg font-bold text-slate-900 dark:text-slate-100 font-manrope tracking-tight">Reception Desk</h1>
+</div>
+<button class="text-blue-700 dark:text-blue-500 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors p-2 rounded-lg relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-white"></span>
+</button>
+</header>
+<main class="px-6 py-8 space-y-md pb-28">
+<!-- Live Queue Manager Card -->
+<section class="w-full">
+<div class="bg-surface-container-lowest rounded-xl shadow-[0_4px_20px_rgba(0,94,184,0.05)] border-l-4 border-primary overflow-hidden">
+<div class="p-md">
+<div class="flex justify-between items-start mb-4">
+<h2 class="font-headline-md text-headline-md text-on-surface">Live Queue Manager</h2>
+<span class="bg-primary-container/10 text-primary px-3 py-1 rounded-full text-label-caps font-label-caps flex items-center gap-1">
+<span class="w-2 h-2 bg-primary rounded-full animate-pulse"></span>
+                            LIVE
+                        </span>
+</div>
+<div class="bg-surface-container-low rounded-lg p-md mb-md flex items-center justify-between">
+<div class="space-y-1">
+<p class="text-label-caps font-label-caps text-secondary">CURRENT NEXT</p>
+<p class="font-headline-md text-headline-md text-primary">A-124: Sarah Jenkins</p>
+</div>
+<div class="text-right">
+<p class="text-label-caps font-label-caps text-secondary">WAIT TIME</p>
+<p class="font-body-lg text-body-lg font-bold text-on-surface">04:20</p>
+</div>
+</div>
+<button class="w-full bg-primary text-on-primary py-4 px-6 rounded-lg font-button-text text-button-text flex justify-center items-center gap-2 active:scale-[0.98] transition-transform">
+                        CALL NEXT PATIENT
+                        <span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Appointment Stats Grid -->
+<section class="space-y-sm">
+<h3 class="text-label-caps font-label-caps text-secondary px-1 uppercase tracking-widest">Today's Performance</h3>
+<div class="grid grid-cols-2 gap-sm">
+<div class="bg-surface-container-lowest p-md rounded-xl shadow-[0_4px_20px_rgba(0,94,184,0.05)]">
+<p class="text-label-caps font-label-caps text-secondary">COMPLETED</p>
+<div class="flex items-end justify-between mt-1">
+<span class="font-headline-xl text-headline-xl text-on-surface">24</span>
+<span class="text-primary-container font-bold">+12%</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-md rounded-xl shadow-[0_4px_20px_rgba(0,94,184,0.05)]">
+<p class="text-label-caps font-label-caps text-secondary">PENDING</p>
+<div class="flex items-end justify-between mt-1">
+<span class="font-headline-xl text-headline-xl text-on-surface">08</span>
+<span class="text-secondary font-medium">L-04</span>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-md rounded-xl shadow-[0_4px_20px_rgba(0,94,184,0.05)] flex items-center justify-between">
+<div>
+<p class="text-label-caps font-label-caps text-secondary">TOTAL APPOINTMENTS</p>
+<p class="font-headline-xl text-headline-xl text-on-surface">32</p>
+</div>
+<div class="h-12 w-12 rounded-full border-4 border-primary-container border-t-transparent animate-spin-slow"></div>
+</div>
+</section>
+<!-- Quick Actions -->
+<section class="space-y-sm">
+<h3 class="text-label-caps font-label-caps text-secondary px-1 uppercase tracking-widest">Administrative Tools</h3>
+<div class="space-y-sm">
+<button class="w-full bg-[#eff4fb] border-2 border-transparent focus:border-primary px-md py-4 rounded-xl flex items-center justify-between text-on-surface hover:bg-primary-fixed transition-colors active:scale-[0.99] transition-transform">
+<div class="flex items-center gap-md">
+<div class="bg-white p-2 rounded-lg shadow-sm">
+<span class="material-symbols-outlined text-primary" data-icon="add_box">add_box</span>
+</div>
+<span class="font-body-lg text-body-lg font-bold">Book New Appointment</span>
+</div>
+<span class="material-symbols-outlined text-outline" data-icon="chevron_right">chevron_right</span>
+</button>
+<button class="w-full bg-[#eff4fb] border-2 border-transparent focus:border-primary px-md py-4 rounded-xl flex items-center justify-between text-on-surface hover:bg-primary-fixed transition-colors active:scale-[0.99] transition-transform">
+<div class="flex items-center gap-md">
+<div class="bg-white p-2 rounded-lg shadow-sm">
+<span class="material-symbols-outlined text-primary" data-icon="folder_shared">folder_shared</span>
+</div>
+<span class="font-body-lg text-body-lg font-bold">Access Patient Files</span>
+</div>
+<span class="material-symbols-outlined text-outline" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</section>
+<!-- Doctor on Duty / Status -->
+<section class="space-y-sm">
+<div class="flex justify-between items-end px-1">
+<h3 class="text-label-caps font-label-caps text-secondary uppercase tracking-widest">Today's Appointments</h3>
+<a class="text-primary font-bold text-xs flex items-center gap-1 hover:underline" href="#">
+      View All History
+      <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+<div class="bg-surface-container-lowest rounded-xl shadow-[0_4px_20px_rgba(0,94,184,0.05)] overflow-hidden">
+<div class="p-8 flex flex-col items-center justify-center text-center space-y-3">
+<div class="w-12 h-12 rounded-full bg-surface-container-low flex items-center justify-center">
+<span class="material-symbols-outlined text-outline" data-icon="event_busy">event_busy</span>
+</div>
+<p class="text-on-surface font-medium">No appointments for today.</p>
+<p class="text-secondary text-sm">Check back later or view the full schedule.</p>
+</div>
+</div>
+</section><section class="bg-on-primary-fixed rounded-xl p-md text-white shadow-xl">
+<div class="flex items-center justify-between mb-md">
+<h4 class="font-manrope font-bold text-lg">Shift Oversight</h4>
+<span class="text-primary-fixed-dim text-xs font-bold uppercase tracking-widest">DR. MORRISON</span>
+</div>
+<div class="flex -space-x-2">
+<img alt="Doctor 1" class="w-10 h-10 rounded-full border-2 border-on-primary-fixed object-cover" data-alt="Close up of a male doctor in a white coat looking confident in a clinic corridor" src="https://lh3.googleusercontent.com/aida-public/AB6AXuANihBFb2zH9-0P0joahzrCMGAJo5X4yX1mG6T0s8kcOi6jPUqDiI2-zrMQbq1J9IN4FiJGDM-3HOfCYQkXJT0-x0l2YNCbOuaziKFQJKi6O7B78kPTE_Fq3i5NbRYn-Fm2pFQRmRLbZb0CdqON8eCOckX3TkNAoCU8Oa4Sk1vfzZTcEJ8GqGGeCrKfffvFTvFlBicNVt-YVPl49N98MBoWJG1YkbdMBZKTmvqbkrqFHmBHcJbbC_CKVf9ZpXUNV-khMvLo1k0IRkA"/>
+<img alt="Doctor 2" class="w-10 h-10 rounded-full border-2 border-on-primary-fixed object-cover" data-alt="Female medical professional with stethoscope in a modern medical office" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpNdi0pb4TV0QSzSO3hJle5_izKyhBVEhNIBJfIH6lWOWm2XUtwkeR3MTrUZetUtHdUnlxe7-QDOXmQO7AwDctIGViS_mz9jPTBwCApoW3Yd0_oIG2VeLmq6vv_IPomLt-VgsIBTSGsd6Gi8t5JeQVP6jHsOJ2Vs__chyFfPAg79m5iDpAPfsGVeo1v-kcuo0L576bYJBITJGECkxwZrpk17TuiQiM7WugaNbRsaXFmwyT_YcymiSrWOAMbI7m4Z_rJ1nAvZ76tDo"/>
+<div class="w-10 h-10 rounded-full border-2 border-on-primary-fixed bg-tertiary-container flex items-center justify-center text-[10px] font-bold">+4</div>
+</div>
+<p class="mt-md text-on-primary-container text-body-md">All examination rooms currently at 85% capacity. Expected peak at 14:00.</p>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-20 px-4 pb-safe bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border-t border-slate-100 dark:border-slate-800 shadow-[0_-4px_20px_rgba(0,94,184,0.05)]">
+<a class="flex flex-col items-center justify-center text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 rounded-lg py-1 px-3 scale-95 active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="format_list_numbered" style="font-variation-settings: 'FILL' 1;">format_list_numbered</span>
+<span class="font-manrope text-[10px] font-bold uppercase tracking-wider mt-1">Queue</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-300 transition-all scale-95 active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_month">calendar_month</span>
+<span class="font-manrope text-[10px] font-bold uppercase tracking-wider mt-1">Schedule</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-300 transition-all scale-95 active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-manrope text-[10px] font-bold uppercase tracking-wider mt-1">Patients</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-300 transition-all scale-95 active:scale-90 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-manrope text-[10px] font-bold uppercase tracking-wider mt-1">Admin</span>
+</a>
+</nav>
+</body></html>
