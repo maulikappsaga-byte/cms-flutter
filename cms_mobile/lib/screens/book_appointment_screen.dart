@@ -58,7 +58,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                 children: [
                   Text('YOUR TOKEN NUMBER', style: Theme.of(context).textTheme.labelLarge),
                   Text(
-                    'TOKEN #108',
+                    '108',
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                           color: AppColors.primary,
                           fontWeight: FontWeight.w900,
