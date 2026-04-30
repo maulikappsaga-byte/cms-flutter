@@ -1,8 +1,71 @@
 import 'package:flutter/material.dart';
 import '../theme.dart';
 
-class AppointmentsScreen extends StatelessWidget {
+class AppointmentsScreen extends StatefulWidget {
   const AppointmentsScreen({super.key});
+
+  @override
+  State<AppointmentsScreen> createState() => _AppointmentsScreenState();
+}
+
+class _AppointmentsScreenState extends State<AppointmentsScreen> {
+  String _selectedFilter = 'Today';
+  String _searchQuery = '';
+  final TextEditingController _searchController = TextEditingController();
+
+  final List<Map<String, dynamic>> _allAppointments = [
+    {
+      'token': 'TOKEN #104',
+      'name': 'Eleanor Penhaligon',
+      'status': 'Upcoming',
+      'date': 'Oct 24, 2023',
+      'time': '10:30 AM',
+      'color': AppColors.primaryContainer,
+      'showCheckIn': true,
+    },
+    {
+      'token': 'TOKEN #102',
+      'name': 'Arthur Sterling',
+      'status': 'Completed',
+      'date': 'Oct 24, 2023',
+      'time': '09:15 AM',
+      'color': const Color(0xFFE2E8F0),
+      'statusColor': Colors.green,
+    },
+    {
+      'token': 'TOKEN #105',
+      'name': 'Clara Abernathy',
+      'status': 'Waitlist',
+      'date': 'Oct 24, 2023',
+      'time': '11:00 AM',
+      'color': Colors.amber,
+      'statusColor': Colors.orange[700],
+      'footer': 'Patient has arrived',
+    },
+    {
+      'token': 'TOKEN #101',
+      'name': 'Julian Vance',
+      'status': 'No Show',
+      'date': 'Oct 24, 2023',
+      'time': '08:45 AM',
+      'color': AppColors.error,
+      'statusColor': AppColors.error,
+      'opacity': 0.6,
+    },
+  ];
+
+  List<Map<String, dynamic>> get _filteredAppointments {
+    return _allAppointments.where((appointment) {
+      final matchesSearch = appointment['name'].toLowerCase().contains(_searchQuery.toLowerCase()) ||
+          appointment['token'].toLowerCase().contains(_searchQuery.toLowerCase());
+      
+      if (_selectedFilter == 'All') return matchesSearch;
+      if (_selectedFilter == 'Today') return matchesSearch; // For demo, all are today
+      if (_selectedFilter == 'Completed') return matchesSearch && appointment['status'] == 'Completed';
+      
+      return matchesSearch;
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,8 +76,10 @@ class AppointmentsScreen extends StatelessWidget {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          onPressed: () {},
-          icon: const Icon(Icons.menu, color: AppColors.onSurfaceVariant),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: const Icon(Icons.arrow_back, color: AppColors.onSurfaceVariant),
         ),
         title: Text(
           'ClinicOS',
@@ -27,8 +92,42 @@ class AppointmentsScreen extends StatelessWidget {
         ),
         actions: [
           IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.notifications_none, color: AppColors.onSurfaceVariant),
+            onPressed: () {
+              setState(() {
+                _searchQuery = '';
+                _selectedFilter = 'Today';
+                _searchController.clear();
+              });
+              
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => Center(
+                  child: Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: const Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(height: 16),
+                        Text('Refreshing...', style: TextStyle(decoration: TextDecoration.none, fontSize: 16, color: Colors.black, fontWeight: FontWeight.normal)),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+
+              Future.delayed(const Duration(seconds: 1), () {
+                if (Navigator.canPop(context)) {
+                  Navigator.pop(context);
+                }
+              });
+            },
+            icon: const Icon(Icons.refresh, color: AppColors.onSurfaceVariant),
           ),
           Container(
             margin: const EdgeInsets.only(right: 16),
@@ -48,19 +147,45 @@ class AppointmentsScreen extends StatelessWidget {
           child: Container(color: Colors.black.withOpacity(0.05), height: 1),
         ),
       ),
-      body: Column(
-        children: [
-          // Search and Filters
-          Container(
-            color: Colors.white,
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              children: [
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await Future.delayed(const Duration(seconds: 1));
+          setState(() {
+            _searchQuery = '';
+            _selectedFilter = 'Today';
+            _searchController.clear();
+          });
+        },
+        child: Column(
+          children: [
+            // Search and Filters
+            Container(
+              color: Colors.white,
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                children: [
                 TextField(
+                  controller: _searchController,
+                  onChanged: (value) {
+                    setState(() {
+                      _searchQuery = value;
+                    });
+                  },
                   decoration: InputDecoration(
                     hintText: 'Search patient or token...',
                     prefixIcon: const Icon(Icons.search, size: 20),
                     fillColor: AppColors.inputBackground,
+                    suffixIcon: _searchQuery.isNotEmpty 
+                      ? IconButton(
+                          icon: const Icon(Icons.clear, size: 18),
+                          onPressed: () {
+                            _searchController.clear();
+                            setState(() {
+                              _searchQuery = '';
+                            });
+                          },
+                        )
+                      : null,
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -68,13 +193,13 @@ class AppointmentsScreen extends StatelessWidget {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      _buildFilterChip('All', false, context),
+                      _buildFilterChip('All', _selectedFilter == 'All', context),
                       const SizedBox(width: 8),
-                      _buildFilterChip('Today', true, context),
+                      _buildFilterChip('Today', _selectedFilter == 'Today', context),
                       const SizedBox(width: 8),
-                      _buildFilterChip('This Week', false, context),
+                      _buildFilterChip('This Week', _selectedFilter == 'This Week', context),
                       const SizedBox(width: 8),
-                      _buildFilterChip('Completed', false, context),
+                      _buildFilterChip('Completed', _selectedFilter == 'Completed', context),
                     ],
                   ),
                 ),
@@ -86,100 +211,70 @@ class AppointmentsScreen extends StatelessWidget {
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               children: [
-                Text('Today\'s List', style: textTheme.headlineMedium?.copyWith(fontSize: 18)),
-                const SizedBox(height: 16),
-                _buildAppointmentCard(
-                  context,
-                  'TOKEN #104',
-                  'Eleanor Penhaligon',
-                  'Upcoming',
-                  'Oct 24, 2023',
-                  '10:30 AM',
-                  AppColors.primaryContainer,
-                  textTheme,
-                  showCheckIn: true,
+                Text(
+                  _searchQuery.isEmpty ? '$_selectedFilter\'s List' : 'Search Results', 
+                  style: textTheme.headlineMedium?.copyWith(fontSize: 18)
                 ),
                 const SizedBox(height: 16),
-                _buildAppointmentCard(
-                  context,
-                  'TOKEN #102',
-                  'Arthur Sterling',
-                  'Completed',
-                  'Oct 24, 2023',
-                  '09:15 AM',
-                  const Color(0xFFE2E8F0),
-                  textTheme,
-                  statusColor: Colors.green,
-                ),
-                const SizedBox(height: 16),
-                _buildAppointmentCard(
-                  context,
-                  'TOKEN #105',
-                  'Clara Abernathy',
-                  'Waitlist',
-                  'Oct 24, 2023',
-                  '11:00 AM',
-                  Colors.amber,
-                  textTheme,
-                  statusColor: Colors.amber[700],
-                  footer: 'Patient has arrived',
-                ),
-                const SizedBox(height: 16),
-                _buildAppointmentCard(
-                  context,
-                  'TOKEN #101',
-                  'Julian Vance',
-                  'No Show',
-                  'Oct 24, 2023',
-                  '08:45 AM',
-                  AppColors.error,
-                  textTheme,
-                  statusColor: AppColors.error,
-                  opacity: 0.6,
-                ),
+                ..._filteredAppointments.map((appt) => Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: _buildAppointmentCard(
+                    context,
+                    appt['token'],
+                    appt['name'],
+                    appt['status'],
+                    appt['date'],
+                    appt['time'],
+                    appt['color'],
+                    textTheme,
+                    showCheckIn: appt['showCheckIn'] ?? false,
+                    statusColor: appt['statusColor'],
+                    footer: appt['footer'],
+                    opacity: appt['opacity'] ?? 1.0,
+                  ),
+                )),
+                if (_filteredAppointments.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 60),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          const Icon(Icons.search_off, size: 64, color: AppColors.outline),
+                          const SizedBox(height: 16),
+                          Text('No results found', style: textTheme.bodyLarge),
+                        ],
+                      ),
+                    ),
+                  ),
                 const SizedBox(height: 100),
               ],
             ),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        backgroundColor: AppColors.primaryContainer,
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 1,
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: AppColors.primaryContainer,
-        unselectedItemColor: AppColors.outline,
-        onTap: (index) {
-          if (index == 0) {
-            Navigator.pushReplacementNamed(context, '/dashboard');
-          } else if (index == 2) {
-            Navigator.pushReplacementNamed(context, '/book-appointment');
-          }
-        },
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.grid_view), label: 'OVERVIEW'),
-          BottomNavigationBarItem(icon: Icon(Icons.history), label: 'HISTORY'),
-          BottomNavigationBarItem(icon: Icon(Icons.add_box), label: 'BOOK APPT'),
-        ],
-      ),
+    ),
     );
   }
 
-  Widget _buildFilterChip(String label, bool selected, BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-      decoration: BoxDecoration(
-        color: selected ? AppColors.primaryContainer : AppColors.inputBackground,
-        borderRadius: BorderRadius.circular(30),
-      ),
-      child: Text(
-        label,
-        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-          color: selected ? Colors.white : AppColors.onSurfaceVariant,
+  Widget _buildFilterChip(String label, bool isSelected, BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedFilter = label;
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.primaryContainer : AppColors.inputBackground,
+          borderRadius: BorderRadius.circular(24),
+        ),
+        child: Text(
+          label,
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                color: isSelected ? Colors.white : AppColors.onSurfaceVariant,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
         ),
       ),
     );
@@ -192,21 +287,19 @@ class AppointmentsScreen extends StatelessWidget {
     String status,
     String date,
     String time,
-    Color borderColor,
+    Color accentColor,
     TextTheme textTheme, {
-    Color? statusColor,
     bool showCheckIn = false,
+    Color? statusColor,
     String? footer,
     double opacity = 1.0,
   }) {
     return Opacity(
       opacity: opacity,
       child: Container(
-        padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border(left: BorderSide(color: borderColor, width: 4)),
+          borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.05),
@@ -215,91 +308,125 @@ class AppointmentsScreen extends StatelessWidget {
             ),
           ],
         ),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(token, style: textTheme.labelLarge?.copyWith(color: Colors.grey)),
-                    const SizedBox(height: 4),
-                    Text(name, style: textTheme.headlineMedium?.copyWith(fontSize: 18)),
-                  ],
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: (statusColor ?? AppColors.primaryContainer).withOpacity(0.05),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    status.toUpperCase(),
-                    style: textTheme.labelLarge?.copyWith(
-                      color: statusColor ?? AppColors.primaryContainer,
-                      fontSize: 10,
-                    ),
+        child: IntrinsicHeight(
+          child: Row(
+            children: [
+              Container(
+                width: 6,
+                decoration: BoxDecoration(
+                  color: accentColor,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(16),
+                    bottomLeft: Radius.circular(16),
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Icon(Icons.calendar_today, size: 14, color: AppColors.outline),
-                const SizedBox(width: 8),
-                Text(date, style: textTheme.bodyMedium),
-                const SizedBox(width: 24),
-                Icon(Icons.schedule, size: 14, color: AppColors.outline),
-                const SizedBox(width: 8),
-                Text(time, style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold)),
-              ],
-            ),
-            if (showCheckIn) ...[
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {},
-                      child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text('CHECK IN'),
-                          SizedBox(width: 8),
-                          Icon(Icons.arrow_forward, size: 16),
+                          Text(token, style: textTheme.labelLarge),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: (statusColor ?? AppColors.primaryContainer).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              status.toUpperCase(),
+                              style: textTheme.labelSmall?.copyWith(
+                                color: statusColor ?? AppColors.primaryContainer,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ),
                         ],
                       ),
-                    ),
+                      const SizedBox(height: 4),
+                      Text(name, style: textTheme.headlineMedium?.copyWith(fontSize: 18)),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Icon(Icons.calendar_today, size: 16, color: AppColors.outline),
+                          const SizedBox(width: 8),
+                          Text(date, style: textTheme.bodyMedium),
+                          const SizedBox(width: 16),
+                          Icon(Icons.access_time, size: 16, color: AppColors.outline),
+                          const SizedBox(width: 8),
+                          Text(time, style: textTheme.bodyMedium),
+                        ],
+                      ),
+                      if (showCheckIn) ...[
+                        const SizedBox(height: 20),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Checking in $name...'),
+                                      backgroundColor: AppColors.primaryContainer,
+                                      behavior: SnackBarBehavior.floating,
+                                    ),
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primaryContainer,
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                ),
+                                child: const Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text('CHECK IN'),
+                                    SizedBox(width: 8),
+                                    Icon(Icons.arrow_forward, size: 16),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: AppColors.inputBackground,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(Icons.more_vert, color: AppColors.primaryContainer),
+                            ),
+                          ],
+                        ),
+                      ],
+                      if (footer != null) ...[
+                        const SizedBox(height: 16),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.green.withOpacity(0.05),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: Colors.green.withOpacity(0.1)),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.info_outline, size: 14, color: Colors.green),
+                              const SizedBox(width: 8),
+                              Text(footer, style: textTheme.bodySmall?.copyWith(color: Colors.green)),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
-                  const SizedBox(width: 12),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.inputBackground,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.more_vert, color: AppColors.primaryContainer),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ],
-            if (footer != null) ...[
-              const SizedBox(height: 16),
-              const Divider(),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  const Icon(Icons.info_outline, size: 14, color: Colors.grey),
-                  const SizedBox(width: 8),
-                  Text(footer, style: textTheme.bodyMedium?.copyWith(color: Colors.grey, fontStyle: FontStyle.italic)),
-                ],
-              ),
-            ],
-          ],
+          ),
         ),
       ),
     );

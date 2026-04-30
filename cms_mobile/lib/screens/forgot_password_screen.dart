@@ -12,19 +12,18 @@ class ForgotPasswordScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Row(
-          children: [
-            const Icon(Icons.medical_services, color: AppColors.primary),
-            const SizedBox(width: 8),
-            Text(
-              'HEALTHPORTAL',
-              style: textTheme.headlineMedium?.copyWith(
-                fontSize: 20,
-                color: AppColors.primary,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-          ],
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back, color: AppColors.onSurfaceVariant),
+        ),
+        title: Text(
+          'ClinicOS',
+          style: textTheme.headlineMedium?.copyWith(
+            fontSize: 20,
+            color: AppColors.primaryContainer,
+            fontWeight: FontWeight.w900,
+            letterSpacing: -1,
+          ),
         ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
@@ -114,30 +113,33 @@ class ForgotPasswordScreen extends StatelessWidget {
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () {
-                            Navigator.pushNamed(context, '/reset-password');
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Recovery link sent to your email!'),
+                                behavior: SnackBarBehavior.floating,
+                                backgroundColor: AppColors.primary,
+                              ),
+                            );
+                            Future.delayed(const Duration(seconds: 2), () {
+                              if (context.mounted) {
+                                Navigator.pushNamed(context, '/reset-password');
+                              }
+                            });
                           },
-                          child: const Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text('SEND LINK'),
-                              SizedBox(width: 8),
-                              Icon(Icons.arrow_forward, size: 20),
-                            ],
-                          ),
+                          child: const Text('SEND RECOVERY LINK'),
                         ),
                       ),
                       const SizedBox(height: 32),
                       // Back to Login
-                      TextButton.icon(
+                      TextButton(
                         onPressed: () {
                           Navigator.pop(context);
                         },
-                        icon: const Icon(Icons.arrow_back, size: 16),
-                        label: Text(
+                        child: Text(
                           'BACK TO LOGIN',
                           style: textTheme.labelLarge?.copyWith(
                             color: AppColors.primary,
-                            letterSpacing: 2,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),

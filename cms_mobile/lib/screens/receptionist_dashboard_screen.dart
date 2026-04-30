@@ -34,26 +34,36 @@ class ReceptionistDashboardScreen extends StatelessWidget {
           ],
         ),
         actions: [
-          Stack(
-            children: [
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.notifications_none, color: AppColors.primary),
-              ),
-              Positioned(
-                top: 12,
-                right: 12,
-                child: Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: AppColors.error,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
+          IconButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (context) => Center(
+                  child: Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: const Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(height: 16),
+                        Text('Refreshing...', style: TextStyle(decoration: TextDecoration.none, fontSize: 16, color: Colors.black, fontWeight: FontWeight.normal)),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              );
+              Future.delayed(const Duration(seconds: 1), () {
+                if (Navigator.canPop(context)) {
+                  Navigator.pop(context);
+                }
+              });
+            },
+            icon: const Icon(Icons.refresh, color: AppColors.primary),
           ),
           const SizedBox(width: 8),
         ],
@@ -62,11 +72,25 @@ class ReceptionistDashboardScreen extends StatelessWidget {
           child: Container(color: Colors.black.withOpacity(0.05), height: 1),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+      body: RefreshIndicator(
+        onRefresh: () async {
+          // Simulate a network delay or data fetch
+          await Future.delayed(const Duration(seconds: 1));
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Dashboard updated'),
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(), // Ensure it's scrollable for RefreshIndicator
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
             // Live Queue Manager
             Container(
               decoration: BoxDecoration(
@@ -127,7 +151,7 @@ class ReceptionistDashboardScreen extends StatelessWidget {
                             children: [
                               Text('CURRENT NEXT', style: textTheme.labelLarge),
                               const SizedBox(height: 4),
-                              Text('A-124: Sarah Jenkins', style: textTheme.headlineMedium?.copyWith(fontSize: 18, color: AppColors.primary)),
+                              Text('01 Dipakabhai sir', style: textTheme.headlineMedium?.copyWith(fontSize: 18, color: AppColors.primary)),
                             ],
                           ),
                           Column(
@@ -145,7 +169,9 @@ class ReceptionistDashboardScreen extends StatelessWidget {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/call-next');
+                        },
                         child: const Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
@@ -220,7 +246,9 @@ class ReceptionistDashboardScreen extends StatelessWidget {
               Navigator.pushNamed(context, '/book-appointment');
             }),
             const SizedBox(height: 12),
-            _buildActionButton(context, Icons.folder_shared, 'Access Patient Files', textTheme, onTap: () {}),
+            _buildActionButton(context, Icons.folder_shared, 'Access Patient Files', textTheme, onTap: () {
+              Navigator.pushNamed(context, '/patient-files');
+            }),
             const SizedBox(height: 32),
             // Today's Appointments
             Row(
@@ -235,22 +263,11 @@ class ReceptionistDashboardScreen extends StatelessWidget {
                 ),
               ],
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 40),
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: AppColors.surfaceContainerLowest,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                children: [
-                  const Icon(Icons.event_busy, color: AppColors.outline, size: 48),
-                  const SizedBox(height: 12),
-                  Text('No appointments for today.', style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500)),
-                  Text('Check back later or view the full schedule.', style: textTheme.bodyMedium),
-                ],
-              ),
-            ),
+            _buildAppointmentItem(context, '09:00 AM', 'Eleanor Penhaligon', 'Check-up', 'Token #104', textTheme),
+            const SizedBox(height: 12),
+            _buildAppointmentItem(context, '10:30 AM', 'Arthur Sterling', 'Follow-up', 'Token #102', textTheme),
+            const SizedBox(height: 12),
+            _buildAppointmentItem(context, '11:45 AM', 'Clara Abernathy', 'Consultation', 'Token #105', textTheme),
             const SizedBox(height: 24),
             // Shift Oversight
             Container(
@@ -298,6 +315,7 @@ class ReceptionistDashboardScreen extends StatelessWidget {
           ],
         ),
       ),
+    ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: 0,
         type: BottomNavigationBarType.fixed,
@@ -310,6 +328,8 @@ class ReceptionistDashboardScreen extends StatelessWidget {
         onTap: (index) {
           if (index == 1) {
             Navigator.pushReplacementNamed(context, '/appointments');
+          } else if (index == 2) {
+            Navigator.pushNamed(context, '/patient-files');
           }
         },
         items: const [
@@ -393,6 +413,42 @@ class ReceptionistDashboardScreen extends StatelessWidget {
         shape: BoxShape.circle,
         border: Border.all(color: AppColors.onBackground, width: 2),
         image: DecorationImage(image: NetworkImage(url), fit: BoxFit.cover),
+      ),
+    );
+  }
+
+  Widget _buildAppointmentItem(BuildContext context, String time, String name, String service, String token, TextTheme textTheme) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 4, offset: const Offset(0, 2)),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: AppColors.primaryContainer.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(time, style: textTheme.labelLarge?.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(name, style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)),
+                Text(service, style: textTheme.labelLarge),
+              ],
+            ),
+          ),
+          Text(token, style: textTheme.labelLarge?.copyWith(color: AppColors.outline)),
+        ],
       ),
     );
   }

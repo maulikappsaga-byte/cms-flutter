@@ -53,9 +53,25 @@ class BookAppointmentAppScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 16),
-            Text('Book an Appointment', style: textTheme.headlineLarge?.copyWith(fontSize: 32, color: AppColors.primary)),
+            Center(
+              child: Text(
+                'Book New Appointment',
+                textAlign: TextAlign.center,
+                style: textTheme.headlineLarge?.copyWith(
+                  fontSize: 32,
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
             const SizedBox(height: 8),
-            Text('Please provide your details to secure your clinical slot.', style: textTheme.bodyLarge?.copyWith(color: AppColors.secondary)),
+            Center(
+              child: Text(
+                'Please provide your details to secure your clinical slot.',
+                textAlign: TextAlign.center,
+                style: textTheme.bodyLarge?.copyWith(color: AppColors.secondary),
+              ),
+            ),
             const SizedBox(height: 48),
             // Form Card
             Container(
@@ -200,18 +216,6 @@ class BookAppointmentAppScreen extends StatelessWidget {
             const SizedBox(height: 100),
           ],
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 2,
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: AppColors.primaryContainer,
-        unselectedItemColor: AppColors.outline,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'SCHEDULE'),
-          BottomNavigationBarItem(icon: Icon(Icons.group), label: 'PATIENTS'),
-          BottomNavigationBarItem(icon: Icon(Icons.event_available), label: 'BOOKINGS'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'SETTINGS'),
-        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
