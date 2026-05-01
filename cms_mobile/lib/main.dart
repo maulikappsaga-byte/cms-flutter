@@ -9,7 +9,11 @@ import 'screens/appointments_screen.dart';
 import 'screens/book_appointment_screen.dart';
 import 'screens/book_appointment_app_screen.dart';
 
-void main() {
+import 'services/pusher_service.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await PusherService().init();
   runApp(const MainApp());
 }
 
