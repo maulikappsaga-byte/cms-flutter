@@ -140,7 +140,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                         color: AppColors.surfaceContainerLowest,
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
-                          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 20),
+                          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 20),
                         ],
                       ),
                       child: Column(
@@ -204,7 +204,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
               // Contextual Footer
               Container(
                 padding: const EdgeInsets.all(24),
-                color: AppColors.inputBackground.withOpacity(0.5),
+                color: AppColors.inputBackground.withValues(alpha: 0.5),
                 child: Row(
                   children: [
                     Container(
@@ -213,7 +213,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(8),
                         boxShadow: [
-                          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4),
+                          BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4),
                         ],
                       ),
                       child: const Icon(Icons.calendar_today, color: AppColors.primary),
@@ -236,19 +236,25 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: 2,
         type: BottomNavigationBarType.fixed,
-        selectedItemColor: AppColors.primaryContainer,
+        selectedItemColor: AppColors.primary,
         unselectedItemColor: AppColors.outline,
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
+        selectedLabelStyle: textTheme.labelLarge?.copyWith(fontSize: 10),
+        unselectedLabelStyle: textTheme.labelLarge?.copyWith(fontSize: 10),
         onTap: (index) {
           if (index == 0) {
             Navigator.pushReplacementNamed(context, '/dashboard');
           } else if (index == 1) {
             Navigator.pushReplacementNamed(context, '/appointments');
+          } else if (index == 2) {
+            Navigator.pushReplacementNamed(context, '/book-appointment');
           }
         },
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.grid_view), label: 'OVERVIEW'),
-          BottomNavigationBarItem(icon: Icon(Icons.history), label: 'HISTORY'),
-          BottomNavigationBarItem(icon: Icon(Icons.add_box), label: 'BOOK APPT'),
+          BottomNavigationBarItem(icon: Icon(Icons.dashboard_rounded), label: 'DASHBOARD'),
+          BottomNavigationBarItem(icon: Icon(Icons.calendar_month), label: 'APPOINTMENTS'),
+          BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline), label: 'BOOK APPOINTMENT'),
         ],
       ),
     );

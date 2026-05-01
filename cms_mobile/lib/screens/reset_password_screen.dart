@@ -27,7 +27,7 @@ class ResetPasswordScreen extends StatelessWidget {
         ),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(color: Colors.black.withOpacity(0.05), height: 1),
+          child: Container(color: Colors.black.withValues(alpha: 0.05), height: 1),
         ),
       ),
       body: SingleChildScrollView(
@@ -43,7 +43,7 @@ class ResetPasswordScreen extends StatelessWidget {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primary.withOpacity(0.05),
+                    color: AppColors.primary.withValues(alpha: 0.05),
                     blurRadius: 20,
                     offset: const Offset(0, 4),
                   ),
@@ -58,7 +58,7 @@ class ResetPasswordScreen extends StatelessWidget {
                       width: 64,
                       height: 64,
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.1),
+                        color: AppColors.primary.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -160,7 +160,7 @@ class ResetPasswordScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
                 decoration: BoxDecoration(
-                  color: AppColors.outline.withOpacity(0.05),
+                  color: AppColors.outline.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: Row(

@@ -53,7 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primary.withOpacity(0.05),
+                      color: AppColors.primary.withValues(alpha: 0.05),
                       blurRadius: 20,
                       offset: const Offset(0, 4),
                     ),
@@ -211,7 +211,7 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 24),
               Text(
                 '© 2024 HEALTHCARE SYSTEMS. SECURE CLINICAL PORTAL.',
-                style: textTheme.labelLarge?.copyWith(color: Colors.grey.withOpacity(0.6)),
+                style: textTheme.labelLarge?.copyWith(color: Colors.grey.withValues(alpha: 0.6)),
               ),
               const SizedBox(height: 24),
             ],

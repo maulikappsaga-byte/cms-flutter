@@ -26,7 +26,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               width: 300,
               height: 300,
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.1),
+                color: AppColors.primary.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
             ),
@@ -38,7 +38,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               width: 300,
               height: 300,
               decoration: BoxDecoration(
-                color: AppColors.primary.withOpacity(0.05),
+                color: AppColors.primary.withValues(alpha: 0.05),
                 shape: BoxShape.circle,
               ),
             ),
@@ -60,7 +60,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.1),
+                              color: Colors.black.withValues(alpha: 0.1),
                               blurRadius: 10,
                               offset: const Offset(0, 4),
                             ),
@@ -101,7 +101,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.primary.withOpacity(0.05),
+                          color: AppColors.primary.withValues(alpha: 0.05),
                           blurRadius: 20,
                           offset: const Offset(0, 4),
                         ),
@@ -232,7 +232,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
                     decoration: BoxDecoration(
-                      color: AppColors.outline.withOpacity(0.05),
+                      color: AppColors.outline.withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -242,7 +242,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         const SizedBox(width: 4),
                         Text('HIPAA COMPLIANT', style: textTheme.labelLarge?.copyWith(fontSize: 10)),
                         const SizedBox(width: 12),
-                        Container(width: 1, height: 16, color: AppColors.outline.withOpacity(0.2)),
+                        Container(width: 1, height: 16, color: AppColors.outline.withValues(alpha: 0.2)),
                         const SizedBox(width: 12),
                         const Icon(Icons.lock, size: 14, color: AppColors.outline),
                         const SizedBox(width: 4),

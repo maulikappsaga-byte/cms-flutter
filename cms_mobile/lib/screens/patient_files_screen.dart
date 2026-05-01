@@ -98,6 +98,7 @@ class _PatientFilesScreenState extends State<PatientFilesScreen> {
                 ),
               );
               Future.delayed(const Duration(seconds: 1), () {
+                if (!context.mounted) return;
                 if (Navigator.canPop(context)) {
                   Navigator.pop(context);
                 }
@@ -184,7 +185,7 @@ class _PatientFilesScreenState extends State<PatientFilesScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),

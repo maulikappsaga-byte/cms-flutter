@@ -122,6 +122,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
               );
 
               Future.delayed(const Duration(seconds: 1), () {
+                if (!context.mounted) return;
                 if (Navigator.canPop(context)) {
                   Navigator.pop(context);
                 }
@@ -144,7 +145,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(color: Colors.black.withOpacity(0.05), height: 1),
+          child: Container(color: Colors.black.withValues(alpha: 0.05), height: 1),
         ),
       ),
       body: RefreshIndicator(
@@ -253,6 +254,30 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
         ],
       ),
     ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: 1,
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: AppColors.primary,
+        unselectedItemColor: AppColors.outline,
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
+        selectedLabelStyle: textTheme.labelLarge?.copyWith(fontSize: 10),
+        unselectedLabelStyle: textTheme.labelLarge?.copyWith(fontSize: 10),
+        onTap: (index) {
+          if (index == 0) {
+            Navigator.pushReplacementNamed(context, '/dashboard');
+          } else if (index == 1) {
+            Navigator.pushReplacementNamed(context, '/appointments');
+          } else if (index == 2) {
+            Navigator.pushNamed(context, '/book-appointment');
+          }
+        },
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.dashboard_rounded), label: 'DASHBOARD'),
+          BottomNavigationBarItem(icon: Icon(Icons.calendar_month), label: 'APPOINTMENTS'),
+          BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline), label: 'BOOK APPOINTMENT'),
+        ],
+      ),
     );
   }
 
@@ -302,7 +327,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 20,
               offset: const Offset(0, 4),
             ),
@@ -334,7 +359,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
-                              color: (statusColor ?? AppColors.primaryContainer).withOpacity(0.1),
+                              color: (statusColor ?? AppColors.primaryContainer).withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
@@ -408,9 +433,9 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                           decoration: BoxDecoration(
-                            color: Colors.green.withOpacity(0.05),
+                            color: Colors.green.withValues(alpha: 0.05),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.green.withOpacity(0.1)),
+                            border: Border.all(color: Colors.green.withValues(alpha: 0.1)),
                           ),
                           child: Row(
                             children: [

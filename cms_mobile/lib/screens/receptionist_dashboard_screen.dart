@@ -19,7 +19,7 @@ class ReceptionistDashboardScreen extends StatelessWidget {
               height: 40,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: AppColors.primaryContainer.withOpacity(0.2), width: 2),
+                border: Border.all(color: AppColors.primaryContainer.withValues(alpha: 0.2), width: 2),
                 image: const DecorationImage(
                   image: NetworkImage('https://lh3.googleusercontent.com/aida-public/AB6AXuBj34gfl1ao1p6j0aJinT66BSaqMfy7rFuycWGFzw8bKZ00oApXUIE15XhRpO-pJUPGGw1_xPe9f5bpzOhjE54umLrSOlJ8DKqfgxTiwkYbF8MOMjyGLoR_5yQRBgXb3AZjxOonDW5yDEGKLyWOW2m_ZdTzS-Y2KVgsTsiCSP6xc_qaWwFyusYC8qXfZBA3lgd0a6HzY0YUyDUoc1vPvNI3dVBD3OlEH2pwFwzQ59wX-inhQTtc9JQCwnI6-pfubJ9KGSAWmR66E6E'),
                   fit: BoxFit.cover,
@@ -58,6 +58,7 @@ class ReceptionistDashboardScreen extends StatelessWidget {
                 ),
               );
               Future.delayed(const Duration(seconds: 1), () {
+                if (!context.mounted) return;
                 if (Navigator.canPop(context)) {
                   Navigator.pop(context);
                 }
@@ -69,7 +70,7 @@ class ReceptionistDashboardScreen extends StatelessWidget {
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(color: Colors.black.withOpacity(0.05), height: 1),
+          child: Container(color: Colors.black.withValues(alpha: 0.05), height: 1),
         ),
       ),
       body: RefreshIndicator(
@@ -101,7 +102,7 @@ class ReceptionistDashboardScreen extends StatelessWidget {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primary.withOpacity(0.05),
+                    color: AppColors.primary.withValues(alpha: 0.05),
                     blurRadius: 20,
                     offset: const Offset(0, 4),
                   ),
@@ -119,7 +120,7 @@ class ReceptionistDashboardScreen extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withOpacity(0.05),
+                            color: AppColors.primary.withValues(alpha: 0.05),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Row(
@@ -209,7 +210,7 @@ class ReceptionistDashboardScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.02),
+                    color: Colors.black.withValues(alpha: 0.02),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -245,10 +246,7 @@ class ReceptionistDashboardScreen extends StatelessWidget {
             _buildActionButton(context, Icons.add_box, 'Book New Appointment', textTheme, onTap: () {
               Navigator.pushNamed(context, '/book-appointment');
             }),
-            const SizedBox(height: 12),
-            _buildActionButton(context, Icons.folder_shared, 'Access Patient Files', textTheme, onTap: () {
-              Navigator.pushNamed(context, '/patient-files');
-            }),
+          
             const SizedBox(height: 32),
             // Today's Appointments
             Row(
@@ -283,7 +281,7 @@ class ReceptionistDashboardScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text('Shift Oversight', style: textTheme.headlineMedium?.copyWith(color: Colors.white, fontSize: 18)),
-                      Text('DR. MORRISON', style: textTheme.labelLarge?.copyWith(color: Colors.white.withOpacity(0.6))),
+                      Text('DR. MORRISON', style: textTheme.labelLarge?.copyWith(color: Colors.white.withValues(alpha: 0.6))),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -297,7 +295,7 @@ class ReceptionistDashboardScreen extends StatelessWidget {
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(
-                          color: AppColors.outline.withOpacity(0.3),
+                          color: AppColors.outline.withValues(alpha: 0.3),
                           shape: BoxShape.circle,
                         ),
                         child: const Center(child: Text('+4', style: TextStyle(color: Colors.white, fontSize: 12))),
@@ -307,7 +305,7 @@ class ReceptionistDashboardScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   Text(
                     'All examination rooms currently at 85% capacity. Expected peak at 14:00.',
-                    style: textTheme.bodyMedium?.copyWith(color: Colors.white.withOpacity(0.8)),
+                    style: textTheme.bodyMedium?.copyWith(color: Colors.white.withValues(alpha: 0.8)),
                   ),
                 ],
               ),
@@ -326,17 +324,18 @@ class ReceptionistDashboardScreen extends StatelessWidget {
         selectedLabelStyle: textTheme.labelLarge?.copyWith(fontSize: 10),
         unselectedLabelStyle: textTheme.labelLarge?.copyWith(fontSize: 10),
         onTap: (index) {
-          if (index == 1) {
+          if (index == 0) {
+            Navigator.pushReplacementNamed(context, '/dashboard');
+          } else if (index == 1) {
             Navigator.pushReplacementNamed(context, '/appointments');
           } else if (index == 2) {
-            Navigator.pushNamed(context, '/patient-files');
+            Navigator.pushNamed(context, '/book-appointment');
           }
         },
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.format_list_numbered), label: 'QUEUE'),
-          BottomNavigationBarItem(icon: Icon(Icons.calendar_month), label: 'SCHEDULE'),
-          BottomNavigationBarItem(icon: Icon(Icons.group), label: 'PATIENTS'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'ADMIN'),
+          BottomNavigationBarItem(icon: Icon(Icons.dashboard_rounded), label: 'DASHBOARD'),
+          BottomNavigationBarItem(icon: Icon(Icons.calendar_month), label: 'APPOINTMENTS'),
+          BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline), label: 'BOOK APPOINTMENT'),
         ],
       ),
     );
@@ -350,7 +349,7 @@ class ReceptionistDashboardScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -391,7 +390,7 @@ class ReceptionistDashboardScreen extends StatelessWidget {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(8),
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4),
+                  BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4),
                 ],
               ),
               child: Icon(icon, color: AppColors.primary),
@@ -424,7 +423,7 @@ class ReceptionistDashboardScreen extends StatelessWidget {
         color: AppColors.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 4, offset: const Offset(0, 2)),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 4, offset: const Offset(0, 2)),
         ],
       ),
       child: Row(
@@ -432,7 +431,7 @@ class ReceptionistDashboardScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: AppColors.primaryContainer.withOpacity(0.1),
+              color: AppColors.primaryContainer.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(time, style: textTheme.labelLarge?.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),

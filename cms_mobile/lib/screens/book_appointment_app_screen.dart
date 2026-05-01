@@ -44,7 +44,7 @@ class BookAppointmentAppScreen extends StatelessWidget {
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
-          child: Container(color: Colors.black.withOpacity(0.05), height: 1),
+          child: Container(color: Colors.black.withValues(alpha: 0.05), height: 1),
         ),
       ),
       body: SingleChildScrollView(
@@ -82,7 +82,7 @@ class BookAppointmentAppScreen extends StatelessWidget {
                 border: const Border(left: BorderSide(color: AppColors.primary, width: 4)),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 20,
                     offset: const Offset(0, 4),
                   ),
@@ -147,9 +147,9 @@ class BookAppointmentAppScreen extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: AppColors.inputBackground.withOpacity(0.5),
+                color: AppColors.inputBackground.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppColors.outline.withOpacity(0.1)),
+                border: Border.all(color: AppColors.outline.withValues(alpha: 0.1)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -177,7 +177,7 @@ class BookAppointmentAppScreen extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.green.withOpacity(0.1),
+                      color: Colors.green.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: const Text('ACTIVE', style: TextStyle(color: Colors.green, fontSize: 10, fontWeight: FontWeight.bold)),
@@ -205,7 +205,7 @@ class BookAppointmentAppScreen extends StatelessWidget {
                         end: Alignment.bottomCenter,
                         colors: [
                           Colors.transparent,
-                          AppColors.background.withOpacity(0.8),
+                          AppColors.background.withValues(alpha: 0.8),
                         ],
                       ),
                     ),
