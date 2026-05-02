@@ -10,7 +10,7 @@ class PusherService {
 
   Future<void> init() async {
     try {
-      print("Pusher: Initializing...");
+      log("Pusher: Initializing...");
       await _pusher.init(
         apiKey: "0885b0f4711b8de140c5",
         cluster: "ap2",
@@ -23,37 +23,37 @@ class PusherService {
         onMemberAdded: onMemberAdded,
         onMemberRemoved: onMemberRemoved,
       );
-      print("Pusher: Connecting...");
+      log("Pusher: Connecting...");
       await _pusher.connect();
     } catch (e) {
-      print("Pusher initialization error: $e");
+      log("Pusher initialization error: $e");
     }
   }
 
   Future<void> subscribe(String channelName) async {
-    print("Pusher: Subscribing to $channelName");
+    log("Pusher: Subscribing to $channelName");
     await _pusher.subscribe(channelName: channelName);
   }
 
   Future<void> unsubscribe(String channelName) async {
-    print("Pusher: Unsubscribing from $channelName");
+    log("Pusher: Unsubscribing from $channelName");
     await _pusher.unsubscribe(channelName: channelName);
   }
 
   void onConnectionStateChange(dynamic currentState, dynamic previousState) {
-    print("Pusher Connection State Change: $previousState -> $currentState");
+    log("Pusher Connection State Change: $previousState -> $currentState");
   }
 
   void onError(String message, int? code, dynamic e) {
-    print("Pusher Error: $message (code: $code) $e");
+    log("Pusher Error: $message (code: $code) $e");
   }
 
   void onSubscriptionSucceeded(String channelName, dynamic data) {
-    print("Pusher Subscription Succeeded: $channelName data: $data");
+    log("Pusher Subscription Succeeded: $channelName data: $data");
   }
 
   void onEvent(PusherEvent event) {
-    print("Pusher Event Received: ${event.eventName} on ${event.channelName} with data: ${event.data}");
+    log("Pusher Event Received: ${event.eventName} on ${event.channelName} with data: ${event.data}");
   }
 
   void onSubscriptionError(String message, dynamic e) {

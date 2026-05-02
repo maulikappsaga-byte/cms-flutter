@@ -9,6 +9,7 @@ import 'screens/appointments_screen.dart';
 import 'screens/book_appointment_screen.dart';
 import 'screens/book_appointment_app_screen.dart';
 import 'screens/labhuba_overview_screen.dart';
+import 'screens/clinicos_overview_screen.dart';
 
 import 'services/pusher_service.dart';
 
@@ -38,6 +39,7 @@ class MainApp extends StatelessWidget {
         '/book-appointment': (context) => const BookAppointmentScreen(),
         '/book-appointment-app': (context) => const BookAppointmentAppScreen(),
         '/labhuba-overview': (context) => const LabhubaOverviewScreen(),
+        '/clinicos-overview': (context) => const ClinicosOverviewScreen(),
       },
     );
   }
