@@ -12,6 +12,8 @@ class ReceptionistDashboardScreen extends StatefulWidget {
 
 class _ReceptionistDashboardScreenState
     extends State<ReceptionistDashboardScreen> {
+  bool _isRefreshing = false;
+
   @override
   void initState() {
     super.initState();
@@ -22,6 +24,22 @@ class _ReceptionistDashboardScreenState
   void dispose() {
     PusherService().unsubscribe("clinic-updates");
     super.dispose();
+  }
+
+  Future<void> _refresh() async {
+    if (_isRefreshing) return;
+    setState(() => _isRefreshing = true);
+    await Future.delayed(const Duration(seconds: 1));
+    if (mounted) {
+      setState(() => _isRefreshing = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Dashboard updated'),
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 1),
+        ),
+      );
+    }
   }
 
   @override
@@ -63,44 +81,17 @@ class _ReceptionistDashboardScreenState
         ),
         actions: [
           IconButton(
-            onPressed: () {
-              showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (context) => Center(
-                  child: Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
+            onPressed: _isRefreshing ? null : _refresh,
+            icon: _isRefreshing
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppColors.primary,
                     ),
-                    child: const Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        CircularProgressIndicator(),
-                        SizedBox(height: 16),
-                        Text(
-                          'Refreshing...',
-                          style: TextStyle(
-                            decoration: TextDecoration.none,
-                            fontSize: 16,
-                            color: Colors.black,
-                            fontWeight: FontWeight.normal,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-              Future.delayed(const Duration(seconds: 1), () {
-                if (!context.mounted) return;
-                if (Navigator.canPop(context)) {
-                  Navigator.pop(context);
-                }
-              });
-            },
-            icon: const Icon(Icons.refresh, color: AppColors.primary),
+                  )
+                : const Icon(Icons.refresh, color: AppColors.primary),
           ),
           const SizedBox(width: 8),
         ],
@@ -113,18 +104,7 @@ class _ReceptionistDashboardScreenState
         ),
       ),
       body: RefreshIndicator(
-        onRefresh: () async {
-          // Simulate a network delay or data fetch
-          await Future.delayed(const Duration(seconds: 1));
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('Dashboard updated'),
-                behavior: SnackBarBehavior.floating,
-              ),
-            );
-          }
-        },
+        onRefresh: _refresh,
         child: SingleChildScrollView(
           physics:
               const AlwaysScrollableScrollPhysics(), // Ensure it's scrollable for RefreshIndicator
@@ -467,39 +447,6 @@ class _ReceptionistDashboardScreenState
             ],
           ),
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0,
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: AppColors.outline,
-        showSelectedLabels: true,
-        showUnselectedLabels: true,
-        selectedLabelStyle: textTheme.labelLarge?.copyWith(fontSize: 10),
-        unselectedLabelStyle: textTheme.labelLarge?.copyWith(fontSize: 10),
-        onTap: (index) {
-          if (index == 0) {
-            Navigator.pushReplacementNamed(context, '/dashboard');
-          } else if (index == 1) {
-            Navigator.pushReplacementNamed(context, '/appointments');
-          } else if (index == 2) {
-            Navigator.pushNamed(context, '/book-appointment');
-          }
-        },
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard_rounded),
-            label: 'DASHBOARD',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_month),
-            label: 'APPOINTMENTS',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add_circle_outline),
-            label: 'BOOK APPOINTMENT',
-          ),
-        ],
       ),
     );
   }
