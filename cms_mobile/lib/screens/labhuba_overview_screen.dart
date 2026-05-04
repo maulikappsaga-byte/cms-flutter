@@ -97,10 +97,7 @@ class _LabhubaOverviewScreenState extends State<LabhubaOverviewScreen>
                       color: Color(0xFF00478D),
                     ),
                   )
-                : const Icon(
-                    Icons.refresh,
-                    color: Color(0xFF00478D),
-                  ),
+                : const Icon(Icons.refresh, color: Color(0xFF00478D)),
           ),
           const SizedBox(width: 8),
         ],
@@ -115,7 +112,10 @@ class _LabhubaOverviewScreenState extends State<LabhubaOverviewScreen>
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 24.0,
+              vertical: 32.0,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -245,7 +245,7 @@ class _LabhubaOverviewScreenState extends State<LabhubaOverviewScreen>
                     color: Colors.white,
                     fontSize: 11,
                     fontWeight: FontWeight.bold,
-                    ),
+                  ),
                 ),
               ],
             ),

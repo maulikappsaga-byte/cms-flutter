@@ -28,7 +28,7 @@ class MainApp extends StatelessWidget {
       title: 'ClinicOS',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      initialRoute: '/labhuba-overview',
+      initialRoute: '/clinicos-overview',
       routes: {
         '/': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
