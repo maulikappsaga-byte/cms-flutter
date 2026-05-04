@@ -10,8 +10,11 @@ import 'screens/book_appointment_screen.dart';
 import 'screens/book_appointment_app_screen.dart';
 import 'screens/labhuba_overview_screen.dart';
 import 'screens/clinicos_overview_screen.dart';
+import 'screens/clinic_details_screen.dart';
 
 import 'services/pusher_service.dart';
+
+import 'screens/doctor_details_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,6 +44,8 @@ class MainApp extends StatelessWidget {
         '/book-appointment-app': (context) => const BookAppointmentAppScreen(),
         '/labhuba-overview': (context) => const LabhubaOverviewScreen(),
         '/clinicos-overview': (context) => const ClinicosOverviewScreen(),
+        '/clinic-details': (context) => const ClinicDetailsScreen(),
+        '/doctor-details': (context) => const DoctorDetailsScreen(),
       },
     );
   }

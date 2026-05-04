@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme.dart';
 
-class LabhubaOverviewScreen extends StatefulWidget {
-  const LabhubaOverviewScreen({super.key});
+class ClinicosOverviewScreen extends StatefulWidget {
+  const ClinicosOverviewScreen({super.key});
 
   @override
-  State<LabhubaOverviewScreen> createState() => _LabhubaOverviewScreenState();
+  State<ClinicosOverviewScreen> createState() => _ClinicosOverviewScreenState();
 }
 
-class _LabhubaOverviewScreenState extends State<LabhubaOverviewScreen>
+class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
