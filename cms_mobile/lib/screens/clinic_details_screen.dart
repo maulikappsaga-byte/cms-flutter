@@ -1,12 +1,105 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme.dart';
+import '../services/api_service.dart';
 
-class ClinicDetailsScreen extends StatelessWidget {
-  const ClinicDetailsScreen({super.key});
+class ClinicDetailsScreen extends StatefulWidget {
+  final int doctorId;
+  final String name;
+  final String phone;
+  final String date;
+
+  const ClinicDetailsScreen({
+    super.key,
+    this.doctorId = 1,
+    this.name = "himanshu",
+    this.phone = "1234567891",
+    this.date = "2026-05-01",
+  });
+
+  @override
+  State<ClinicDetailsScreen> createState() => _ClinicDetailsScreenState();
+}
+
+class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
+  final ApiService _apiService = ApiService();
+  Map<String, dynamic>? _clinicData;
+  bool _isLoading = true;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchClinicDetails();
+  }
+
+  Future<void> _fetchClinicDetails() async {
+    try {
+      final data = await _apiService.getClinicDetails(
+        doctorId: widget.doctorId,
+        name: widget.name,
+        phone: widget.phone,
+        date: widget.date,
+      );
+      setState(() {
+        _clinicData = data;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_errorMessage != null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Error')),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Error: $_errorMessage'),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _isLoading = true;
+                    _errorMessage = null;
+                  });
+                  _fetchClinicDetails();
+                },
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // Safely extract data from the 'data' object in the API response
+    final data = _clinicData?['data'];
+    
+    final clinicName = data?['name'] ?? 'Clinic Name Not Available';
+    final clinicType = 'Medical Center'; 
+    final about = 'Description not available.'; 
+    final address = data?['address'] ?? 'Address not available';
+    final workingHours = 'Information not available'; 
+    final contactNumber = 'Not available'; 
+    final email = 'Not available'; 
+    
+    // Use the logo from API if available, otherwise use a generic placeholder icon logic in the widget
+    final imageUrl = data?['logo'];
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -30,92 +123,95 @@ class ClinicDetailsScreen extends StatelessWidget {
           child: Container(color: const Color(0xFFF1F5F9), height: 1),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Clinic Header Card
-            _buildHeaderCard(),
-            const SizedBox(height: 32),
+      body: RefreshIndicator(
+        onRefresh: _fetchClinicDetails,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Clinic Header Card
+              _buildHeaderCard(clinicName, clinicType, imageUrl),
+              const SizedBox(height: 32),
 
-            // Info Sections
-            _buildInfoSection(
-              title: 'ABOUT CLINIC',
-              content:
-                  'A leading healthcare facility dedicated to providing comprehensive medical services with a patient-centered approach. Equipped with state-of-the-art technology and a team of expert specialists.',
-            ),
-            const SizedBox(height: 24),
+              // Info Sections
+              _buildInfoSection(
+                title: 'ABOUT CLINIC',
+                content: about,
+              ),
+              const SizedBox(height: 24),
 
-            _buildDetailRow(
-              icon: Icons.location_on,
-              title: 'Address',
-              subtitle: '123 Healthcare Plaza, Medical District, NY 10001',
-            ),
-            const SizedBox(height: 16),
+              _buildDetailRow(
+                icon: Icons.location_on,
+                title: 'Address',
+                subtitle: address,
+              ),
+              const SizedBox(height: 16),
 
-            _buildDetailRow(
-              icon: Icons.access_time_filled,
-              title: 'Working Hours',
-              subtitle: 'Mon - Sat: 09:00 AM - 08:00 PM\nSun: Emergency Only',
-            ),
-            const SizedBox(height: 16),
+              _buildDetailRow(
+                icon: Icons.access_time_filled,
+                title: 'Working Hours',
+                subtitle: workingHours,
+              ),
+              const SizedBox(height: 16),
 
-            _buildDetailRow(
-              icon: Icons.phone,
-              title: 'Contact Number',
-              subtitle: '+1 (555) 012-3456',
-            ),
-            const SizedBox(height: 16),
+              _buildDetailRow(
+                icon: Icons.phone,
+                title: 'Contact Number',
+                subtitle: contactNumber,
+              ),
+              const SizedBox(height: 16),
 
-            _buildDetailRow(
-              icon: Icons.email,
-              title: 'Email Address',
-              subtitle: 'info@clinicos-hms.com',
-            ),
-            const SizedBox(height: 32),
+              _buildDetailRow(
+                icon: Icons.email,
+                title: 'Email Address',
+                subtitle: email,
+              ),
+              const SizedBox(height: 32),
 
-            // Action Buttons
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.directions, color: Colors.white),
-                label: const Text('GET DIRECTIONS'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+              // Action Buttons
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: ElevatedButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(Icons.directions, color: Colors.white),
+                  label: const Text('GET DIRECTIONS'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: OutlinedButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.call, color: AppColors.primary),
-                label: const Text('CALL CLINIC'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.primary,
-                  side: const BorderSide(color: AppColors.primary),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: OutlinedButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(Icons.call, color: AppColors.primary),
+                  label: const Text('CALL CLINIC'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.primary,
+                    side: const BorderSide(color: AppColors.primary),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildHeaderCard() {
+  Widget _buildHeaderCard(String name, String type, String? imageUrl) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -138,17 +234,21 @@ class ClinicDetailsScreen extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(color: const Color(0xFFD6E3FF), width: 3),
-              image: const DecorationImage(
-                image: NetworkImage(
-                  'https://lh3.googleusercontent.com/aida-public/AB6AXuA__J41_xC8zaUMSCleBUb2ogdYUlz59mfLXy6O4eT-qUnHawPEDAGglm-6AS4Mp_Kzr6qsxrJh5i_NqP0C5gx-x7P4LVlsZReRmzqHaVS-YJ7AWAWSZ7PiiUrPIc-QMNZY1TSDExh2IH9UUGshLN91Gfc8Ug7_4upctS2vsWqO6gR48K5iPtq1Vr2hMJrZvbW86MavYTfNSNZiLtSSvo-IZodH-3UQACs9AnC_vaUz7qXsHErxoZ9qz25-UYCJn63GrOi8wcvwIbc',
-                ),
-                fit: BoxFit.cover,
-              ),
+              image: imageUrl != null && imageUrl.isNotEmpty
+                  ? DecorationImage(
+                      image: NetworkImage(imageUrl),
+                      fit: BoxFit.cover,
+                    )
+                  : null,
             ),
+            child: (imageUrl == null || imageUrl.isEmpty)
+                ? const Icon(Icons.business, size: 40, color: AppColors.primary)
+                : null,
           ),
           const SizedBox(height: 16),
           Text(
-            'ClinicOS Healthcare',
+            name,
+            textAlign: TextAlign.center,
             style: GoogleFonts.manrope(
               fontSize: 24,
               fontWeight: FontWeight.w800,
@@ -157,7 +257,8 @@ class ClinicDetailsScreen extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'Multi-Specialty Medical Center',
+            type,
+            textAlign: TextAlign.center,
             style: GoogleFonts.inter(
               fontSize: 14,
               color: AppColors.onSurfaceVariant,
