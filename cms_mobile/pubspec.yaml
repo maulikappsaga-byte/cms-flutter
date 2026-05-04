@@ -13,6 +13,7 @@ dependencies:
   pusher_channels_flutter: ^2.6.0
   flutter_driver:
     sdk: flutter
+  http: ^1.2.0
 
 dev_dependencies:
   flutter_test:
