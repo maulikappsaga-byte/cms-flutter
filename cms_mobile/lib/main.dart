@@ -31,6 +31,7 @@ class MainApp extends StatelessWidget {
       initialRoute: '/clinicos-overview',
       routes: {
         '/': (context) => const LoginScreen(),
+        '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
         '/forgot-password': (context) => const ForgotPasswordScreen(),
         '/reset-password': (context) => const ResetPasswordScreen(),

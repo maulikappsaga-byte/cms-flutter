@@ -11,6 +11,8 @@ dependencies:
     sdk: flutter
   google_fonts: ^8.1.0
   pusher_channels_flutter: ^2.6.0
+  flutter_driver:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:

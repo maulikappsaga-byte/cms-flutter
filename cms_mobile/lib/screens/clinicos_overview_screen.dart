@@ -55,6 +55,7 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
         elevation: 0,
         scrolledUnderElevation: 0,
@@ -86,6 +87,13 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
           ],
         ),
         actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.pushNamed(context, '/login');
+            },
+            icon: const Icon(Icons.login, color: Color(0xFF00478D)),
+            tooltip: 'Login',
+          ),
           IconButton(
             onPressed: _isRefreshing ? null : _refresh,
             icon: _isRefreshing
