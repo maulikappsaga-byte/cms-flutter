@@ -89,13 +89,13 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
     // Safely extract data from the 'data' object in the API response
     final data = _clinicData?['data'];
     
-    final clinicName = data?['name'] ?? 'Clinic Name Not Available';
-    final clinicType = 'Medical Center'; 
-    final about = 'Description not available.'; 
+    final clinicName = data?['name'] ?? 'Clinic Name';
+    final clinicType = data?['type'] ?? 'Clinic'; 
+    final about = data?['about'] ?? 'No description available.'; 
     final address = data?['address'] ?? 'Address not available';
-    final workingHours = 'Information not available'; 
-    final contactNumber = 'Not available'; 
-    final email = 'Not available'; 
+    final workingHours = data?['working_hours'] ?? 'Not specified'; 
+    final contactNumber = data?['phone'] ?? 'Not specified'; 
+    final email = data?['email'] ?? 'Not specified'; 
     
     // Use the logo from API if available, otherwise use a generic placeholder icon logic in the widget
     final imageUrl = data?['logo'];

@@ -1,12 +1,120 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme.dart';
+import '../services/doctor_detail_api.dart';
 
-class DoctorDetailsScreen extends StatelessWidget {
-  const DoctorDetailsScreen({super.key});
+class DoctorDetailsScreen extends StatefulWidget {
+  final int doctorId;
+  final String name;
+  final String phone;
+  final String date;
+
+  const DoctorDetailsScreen({
+    super.key,
+    this.doctorId = 2,
+    this.name = "himanshu",
+    this.phone = "1234567891",
+    this.date = "2026-05-05",
+  });
+
+  @override
+  State<DoctorDetailsScreen> createState() => _DoctorDetailsScreenState();
+}
+
+class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
+  final DoctorDetailApi _apiService = DoctorDetailApi();
+  dynamic _doctorData;
+  bool _isLoading = true;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchDoctorDetails();
+  }
+
+  Future<void> _fetchDoctorDetails() async {
+    try {
+      final data = await _apiService.getDoctorDetails(
+        doctorId: widget.doctorId,
+        name: widget.name,
+        phone: widget.phone,
+        date: widget.date,
+      );
+      print('API Response: $data');
+      setState(() {
+        _doctorData = data;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_errorMessage != null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Error')),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Error: $_errorMessage'),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    _isLoading = true;
+                    _errorMessage = null;
+                  });
+                  _fetchDoctorDetails();
+                },
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // Safely extract data: handle various API response formats
+    dynamic data;
+    try {
+      if (_doctorData is List && _doctorData.isNotEmpty) {
+        data = _doctorData.first;
+      } else if (_doctorData is Map) {
+        final nestedData = _doctorData['data'];
+        if (nestedData is List && nestedData.isNotEmpty) {
+          data = nestedData.first;
+        } else if (nestedData is Map) {
+          data = nestedData;
+        } else {
+          data = _doctorData;
+        }
+      }
+    } catch (e) {
+      print('Error during data extraction: $e');
+    }
+
+    print('Extracted Data: $data');
+
+    final doctorName = (data is Map) ? (data['name'] ?? 'Doctor Name') : 'Doctor Name';
+    final specialty = (data is Map) ? (data['specialization'] ?? 'Specialist') : 'Specialist';
+    final about = (data is Map) ? (data['about'] ?? 'No biography available.') : 'No biography available.';
+    final qualification = (data is Map) ? (data['qualification'] ?? 'N/A') : 'N/A';
+    final languages = (data is Map) ? (data['languages'] ?? 'Not specified') : 'Not specified';
+    final imageUrl = (data is Map) ? data['profile_photo'] : null;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -30,91 +138,100 @@ class DoctorDetailsScreen extends StatelessWidget {
           child: Container(color: const Color(0xFFF1F5F9), height: 1),
         ),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Doctor Profile Card
-            _buildDoctorProfileCard(),
-            const SizedBox(height: 32),
+      body: RefreshIndicator(
+        onRefresh: _fetchDoctorDetails,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Doctor Profile Card
+              _buildDoctorProfileCard(doctorName, specialty, imageUrl),
+              const SizedBox(height: 32),
 
-            // Bio Section
-            _buildSection(
-              title: 'ABOUT DOCTOR',
-              content:
-                  'Dr. Sarah Mitchell is a board-certified Senior Consultant with over 15 years of experience in specialized healthcare. She has successfully treated thousands of patients and is known for her compassionate approach and diagnostic precision.',
-            ),
-            const SizedBox(height: 24),
-
-            // Specialty & Education
-            _buildInfoRow(
-              icon: Icons.workspace_premium,
-              title: 'Specialty',
-              subtitle: 'Senior Consultant, HMS Specialist',
-            ),
-            const SizedBox(height: 16),
-            _buildInfoRow(
-              icon: Icons.school,
-              title: 'Education',
-              subtitle: 'MD - Johns Hopkins University School of Medicine',
-            ),
-            const SizedBox(height: 16),
-            _buildInfoRow(
-              icon: Icons.language,
-              title: 'Languages',
-              subtitle: 'English, Spanish, French',
-            ),
-            const SizedBox(height: 32),
-
-            // Availability
-            Text(
-              'AVAILABILITY',
-              style: GoogleFonts.inter(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 1.2,
-                color: AppColors.onSurfaceVariant,
+              // Bio Section
+              _buildSection(
+                title: 'ABOUT DOCTOR',
+                content: about,
               ),
-            ),
-            const SizedBox(height: 16),
-            _buildAvailabilityRow('Mon - Wed', '09:00 AM - 01:00 PM'),
-            _buildAvailabilityRow('Thu - Fri', '02:00 PM - 06:00 PM'),
-            _buildAvailabilityRow('Saturday', '10:00 AM - 12:00 PM'),
-            const SizedBox(height: 40),
+              const SizedBox(height: 24),
 
-            // Action Button
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/book-appointment-app');
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 0,
-                ),
-                child: Text(
-                  'BOOK APPOINTMENT',
-                  style: GoogleFonts.inter(
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1,
-                  ),
+              // Specialty & Education
+              _buildInfoRow(
+                icon: Icons.workspace_premium,
+                title: 'Specialty',
+                subtitle: specialty,
+              ),
+              const SizedBox(height: 16),
+              _buildInfoRow(
+                icon: Icons.school,
+                title: 'Qualification',
+                subtitle: qualification,
+              ),
+              const SizedBox(height: 16),
+              _buildInfoRow(
+                icon: Icons.language,
+                title: 'Languages',
+                subtitle: languages,
+              ),
+              const SizedBox(height: 32),
+
+              // Availability
+              Text(
+                'AVAILABILITY',
+                style: GoogleFonts.inter(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.2,
+                  color: AppColors.onSurfaceVariant,
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              Text(
+                'Information not provided by API',
+                style: GoogleFonts.inter(
+                  fontSize: 14,
+                  color: AppColors.onSurfaceVariant,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+              const SizedBox(height: 40),
+
+              // Action Button
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/book-appointment-app');
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: Text(
+                    'BOOK APPOINTMENT',
+                    style: GoogleFonts.inter(
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildDoctorProfileCard() {
+  Widget _buildDoctorProfileCard(
+      String name, String specialty, String? imageUrl) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
@@ -137,17 +254,20 @@ class DoctorDetailsScreen extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(color: const Color(0xFFD6E3FF), width: 4),
-              image: const DecorationImage(
-                image: NetworkImage(
-                  'https://images.unsplash.com/photo-1559839734-2b71f1536783?auto=format&fit=crop&q=80&w=200&h=200',
-                ),
-                fit: BoxFit.cover,
-              ),
+              image: imageUrl != null && imageUrl.isNotEmpty
+                  ? DecorationImage(
+                      image: NetworkImage(imageUrl),
+                      fit: BoxFit.cover,
+                    )
+                  : null,
             ),
+            child: (imageUrl == null || imageUrl.isEmpty)
+                ? const Icon(Icons.person, size: 50, color: AppColors.primary)
+                : null,
           ),
           const SizedBox(height: 16),
           Text(
-            'Dr. Sarah Mitchell',
+            name,
             style: GoogleFonts.manrope(
               fontSize: 24,
               fontWeight: FontWeight.w800,
@@ -162,7 +282,7 @@ class DoctorDetailsScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
-              'Senior Specialist',
+              specialty,
               style: GoogleFonts.inter(
                 fontSize: 12,
                 color: AppColors.primary,
