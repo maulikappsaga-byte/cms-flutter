@@ -41,7 +41,7 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
         phone: widget.phone,
         date: widget.date,
       );
-      print('API Response: $data');
+      debugPrint('API Response: $data');
       setState(() {
         _doctorData = data;
         _isLoading = false;
@@ -103,10 +103,10 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
         }
       }
     } catch (e) {
-      print('Error during data extraction: $e');
+      debugPrint('Error during data extraction: $e');
     }
 
-    print('Extracted Data: $data');
+    debugPrint('Extracted Data: $data');
 
     final doctorName = (data is Map) ? (data['name'] ?? 'Doctor Name') : 'Doctor Name';
     final specialty = (data is Map) ? (data['specialization'] ?? 'Specialist') : 'Specialist';
@@ -364,30 +364,5 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
     );
   }
 
-  Widget _buildAvailabilityRow(String days, String time) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            days,
-            style: GoogleFonts.inter(
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
-              color: AppColors.onSurface,
-            ),
-          ),
-          Text(
-            time,
-            style: GoogleFonts.inter(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-              color: AppColors.primary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+
 }

@@ -7,8 +7,8 @@ import 'screens/reset_password_screen.dart';
 import 'screens/receptionist_dashboard_screen.dart';
 import 'screens/appointments_screen.dart';
 import 'screens/book_appointment_screen.dart';
-import 'screens/book_appointment_app_screen.dart';
-import 'screens/labhuba_overview_screen.dart';
+
+
 import 'screens/clinicos_overview_screen.dart';
 import 'screens/clinic_details_screen.dart';
 
@@ -41,8 +41,7 @@ class MainApp extends StatelessWidget {
         '/dashboard': (context) => const ReceptionistDashboardScreen(),
         '/appointments': (context) => const AppointmentsScreen(),
         '/book-appointment': (context) => const BookAppointmentScreen(),
-        '/book-appointment-app': (context) => const BookAppointmentAppScreen(),
-        '/labhuba-overview': (context) => const LabhubaOverviewScreen(),
+
         '/clinicos-overview': (context) => const ClinicosOverviewScreen(),
         '/clinic-details': (context) => const ClinicDetailsScreen(),
         '/doctor-details': (context) => const DoctorDetailsScreen(),

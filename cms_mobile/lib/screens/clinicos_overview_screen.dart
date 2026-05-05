@@ -359,7 +359,7 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
           textColor: Colors.white,
           hasBgIcon: true,
           onTap: () {
-            Navigator.pushNamed(context, '/book-appointment-app');
+            Navigator.pushNamed(context, '/book-appointment');
           },
         ),
         _buildActionCard(
