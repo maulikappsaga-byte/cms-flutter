@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-class ApiService {
+class ClinicDetailApi {
   final String baseUrl = "https://yourdomain.com/api";
 
   Future<List<dynamic>> getUsers() async {

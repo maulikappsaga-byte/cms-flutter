@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme.dart';
-import '../services/api_service.dart';
+import '../services/clinic_detail_api.dart';
 
 class ClinicDetailsScreen extends StatefulWidget {
   final int doctorId;
@@ -22,7 +22,7 @@ class ClinicDetailsScreen extends StatefulWidget {
 }
 
 class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
-  final ApiService _apiService = ApiService();
+  final ClinicDetailApi _apiService = ClinicDetailApi();
   Map<String, dynamic>? _clinicData;
   bool _isLoading = true;
   String? _errorMessage;
