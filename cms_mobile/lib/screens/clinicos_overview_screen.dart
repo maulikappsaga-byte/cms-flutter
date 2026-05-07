@@ -27,7 +27,7 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
   late Animation<double> _pulseAnimation;
   bool _isLoading = false;
   bool _isRefreshing = false;
-  
+
   // Dynamic data
   String _nowServing = '07';
   late String _yourToken;
@@ -95,7 +95,7 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
           // 2. Update user specific info from token API (Robust Parsing)
           if (tokenResponse != null) {
             dynamic data = tokenResponse['data'] ?? tokenResponse;
-            
+
             // If data contains an 'appointment' object (common pattern)
             if (data is Map && data['appointment'] != null) {
               data = data['appointment'];
@@ -103,17 +103,19 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
 
             if (data is Map) {
               // Try to find token in common field names
-              final newToken = data['token']?.toString() ?? 
-                              data['token_number']?.toString() ?? 
-                              data['appointment_token']?.toString();
-              
+              final newToken =
+                  data['token']?.toString() ??
+                  data['token_number']?.toString() ??
+                  data['appointment_token']?.toString();
+
               if (newToken != null) {
                 _yourToken = newToken;
                 // Also update UserSession so it persists during this session
                 UserSession.lastToken = newToken;
               }
 
-              final newName = data['name']?.toString() ?? data['patient_name']?.toString();
+              final newName =
+                  data['name']?.toString() ?? data['patient_name']?.toString();
               if (newName != null) {
                 _patientNameDisplay = newName;
                 UserSession.lastBookedName = newName;
@@ -132,9 +134,9 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
   Future<void> _refresh() async {
     if (_isRefreshing) return;
     setState(() => _isRefreshing = true);
-    
+
     await _fetchOverviewData();
-    
+
     if (mounted) {
       setState(() => _isRefreshing = false);
       CustomSnackBar.show(
@@ -221,11 +223,11 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
                 // Queue Indicator
                 _buildQueueIndicator(),
                 const SizedBox(height: 32),
-                
+
                 // Patient Status Card
                 _buildStatusCard(),
                 const SizedBox(height: 12),
-                
+
                 Text(
                   'Estimated wait time: $_waitTime',
                   style: GoogleFonts.inter(

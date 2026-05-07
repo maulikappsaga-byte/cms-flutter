@@ -9,8 +9,7 @@ class CustomSnackBar {
     required String message,
     SnackBarType type = SnackBarType.info,
   }) {
-    final theme = Theme.of(context);
-    
+
     Color backgroundColor;
     IconData icon;
     Color iconColor;
@@ -32,7 +31,6 @@ class CustomSnackBar {
         iconColor = Colors.orange[800]!;
         break;
       case SnackBarType.info:
-      default:
         backgroundColor = const Color(0xFFE3F2FD);
         icon = Icons.info_rounded;
         iconColor = const Color(0xFF00478D);

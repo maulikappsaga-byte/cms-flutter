@@ -177,13 +177,13 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
         });
 
         String errorMessage = "Failed to book appointment. Please try again.";
-        
+
         // Handle 422 Validation Errors
         if (e.toString().contains('422')) {
           try {
             final errorBody = e.toString().split(' - ').last;
             final Map<String, dynamic> decodedError = jsonDecode(errorBody);
-            
+
             if (decodedError['errors'] != null) {
               final errors = decodedError['errors'] as Map<String, dynamic>;
               if (errors.isNotEmpty) {
@@ -254,7 +254,10 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24.0,
+                  vertical: 32.0,
+                ),
                 child: Column(
                   children: [
                     Center(
