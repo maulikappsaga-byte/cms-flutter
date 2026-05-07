@@ -78,7 +78,16 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
       );
 
       // 2. Fetch specific patient token status (New API)
-      final tokenResponse = await _patientApi.checkToken(phone: phone);
+      final appointmentId = UserSession.lastAppointmentId;
+      dynamic tokenResponse;
+      if (appointmentId != null) {
+        tokenResponse = await _patientApi.checkToken(
+          phone: phone,
+          appointmentId: appointmentId,
+        );
+      } else {
+        log("Skipping token check: No appointment ID found in session");
+      }
 
       log("Doctor API Response: $doctorResponse");
       log("Token API Response: $tokenResponse");

@@ -18,6 +18,8 @@ class AppColors {
   static const Color onSecondaryContainer = Color(0xFF5F656B);
   static const Color primaryContainer = Color(0xFF005EB8);
   static const Color inputBackground = Color(0xFFEFF4FB);
+  static const Color accentBlue = Color(0xFFD6E3FF);
+  static const Color cardShadow = Color(0x0D000000);
 }
 
 class AppTheme {

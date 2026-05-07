@@ -145,19 +145,24 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
         log("API Response Type: ${response.runtimeType}");
         log("API Response Data: $response");
 
-        // Parsing token with multiple fallbacks
+        // Parsing token and ID with multiple fallbacks
         String token = "108";
+        String? appointmentId;
+        
         if (response is Map) {
           final data = response['data'];
           if (data is Map) {
             final appointment = data['appointment'];
             if (appointment is Map) {
               token = appointment['token']?.toString() ?? "108";
+              appointmentId = appointment['id']?.toString();
             } else {
               token = data['token_number']?.toString() ?? "108";
+              appointmentId = data['appointment_id']?.toString() ?? data['id']?.toString();
             }
-          } else if (response['token'] != null) {
-            token = response['token'].toString();
+          } else {
+            token = response['token']?.toString() ?? "108";
+            appointmentId = response['appointment_id']?.toString() ?? response['id']?.toString();
           }
         }
 
@@ -166,6 +171,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
           name: _nameController.text,
           phone: _phoneController.text,
           token: token,
+          appointmentId: appointmentId,
         );
 
         _showSuccessDialog(token);

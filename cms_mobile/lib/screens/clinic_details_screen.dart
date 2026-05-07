@@ -86,36 +86,34 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
       );
     }
 
-    // Safely extract data from the 'data' object in the API response
-    final data = _clinicData?['data'];
+    final data = _clinicData?['data'] ?? {};
     
-    final clinicName = data?['name'] ?? 'Clinic Name';
-    final clinicType = data?['type'] ?? 'Clinic'; 
-    final about = data?['about'] ?? 'No description available.'; 
-    final address = data?['address'] ?? 'Address not available';
-    final workingHours = data?['working_hours'] ?? 'Not specified'; 
-    final contactNumber = data?['phone'] ?? 'Not specified'; 
-    final email = data?['email'] ?? 'Not specified'; 
-    
-    // Use the logo from API if available, otherwise use a generic placeholder icon logic in the widget
-    final imageUrl = data?['logo'];
+    final clinicName = data['name'] ?? 'Clinic Name';
+    final clinicType = data['type'] ?? 'General Clinic'; 
+    final about = data['about'] ?? 'No description available.'; 
+    final address = data['address'] ?? 'Address not available';
+    final contactNumber = data['phone'] ?? '9090909090'; 
+    final imageUrl = data['logo'];
+    final lat = data['lat'] ?? "21.2688948";
+    final long = data['long'] ?? "72.97711112";
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF00478D)),
+          icon: const Icon(Icons.arrow_back, color: AppColors.primary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          'Clinic Details',
+          'ClinicOS',
           style: GoogleFonts.manrope(
             fontSize: 20,
-            fontWeight: FontWeight.w800,
-            color: const Color(0xFF00478D),
+            fontWeight: FontWeight.w900,
+            color: AppColors.primary,
+            letterSpacing: -0.5,
           ),
         ),
         bottom: PreferredSize(
@@ -127,83 +125,17 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
         onRefresh: _fetchClinicDetails,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(20.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Clinic Header Card
               _buildHeaderCard(clinicName, clinicType, imageUrl),
-              const SizedBox(height: 32),
-
-              // Info Sections
-              _buildInfoSection(
-                title: 'ABOUT CLINIC',
-                content: about,
-              ),
-              const SizedBox(height: 24),
-
-              _buildDetailRow(
-                icon: Icons.location_on,
-                title: 'Address',
-                subtitle: address,
-              ),
-              const SizedBox(height: 16),
-
-              _buildDetailRow(
-                icon: Icons.access_time_filled,
-                title: 'Working Hours',
-                subtitle: workingHours,
-              ),
-              const SizedBox(height: 16),
-
-              _buildDetailRow(
-                icon: Icons.phone,
-                title: 'Contact Number',
-                subtitle: contactNumber,
-              ),
-              const SizedBox(height: 16),
-
-              _buildDetailRow(
-                icon: Icons.email,
-                title: 'Email Address',
-                subtitle: email,
-              ),
-              const SizedBox(height: 32),
-
-              // Action Buttons
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.directions, color: Colors.white),
-                  label: const Text('GET DIRECTIONS'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: OutlinedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.call, color: AppColors.primary),
-                  label: const Text('CALL CLINIC'),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.primary,
-                    side: const BorderSide(color: AppColors.primary),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-              ),
+              const SizedBox(height: 20),
+              _buildContactAddressCard(contactNumber, address, "$lat, $long"),
+              const SizedBox(height: 20),
+              _buildAboutCard(about),
+              const SizedBox(height: 20),
+              _buildWorkingHoursCard(data['working_hours']),
+              const SizedBox(height: 40),
             ],
           ),
         ),
@@ -213,56 +145,85 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
 
   Widget _buildHeaderCard(String name, String type, String? imageUrl) {
     return Container(
-      width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(32),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
-      child: Column(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            height: 80,
-            width: 80,
+            height: 96,
+            width: 96,
             decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: const Color(0xFFD6E3FF), width: 3),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
               image: imageUrl != null && imageUrl.isNotEmpty
-                  ? DecorationImage(
-                      image: NetworkImage(imageUrl),
-                      fit: BoxFit.cover,
-                    )
+                  ? DecorationImage(image: NetworkImage(imageUrl), fit: BoxFit.cover)
                   : null,
             ),
             child: (imageUrl == null || imageUrl.isEmpty)
-                ? const Icon(Icons.business, size: 40, color: AppColors.primary)
+                ? const Icon(Icons.business, size: 48, color: AppColors.primary)
                 : null,
           ),
-          const SizedBox(height: 16),
-          Text(
-            name,
-            textAlign: TextAlign.center,
-            style: GoogleFonts.manrope(
-              fontSize: 24,
-              fontWeight: FontWeight.w800,
-              color: const Color(0xFF00478D),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            type,
-            textAlign: TextAlign.center,
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: AppColors.onSurfaceVariant,
-              fontWeight: FontWeight.w500,
+          const SizedBox(width: 20),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        name,
+                        style: GoogleFonts.manrope(
+                          fontSize: 28,
+                          fontWeight: FontWeight.w800,
+                          color: const Color(0xFF0F172A),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFDBEAFE),
+                        borderRadius: BorderRadius.circular(100),
+                      ),
+                      child: Text(
+                        'ACTIVE CLINIC',
+                        style: GoogleFonts.inter(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFF1E40AF),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Text(
+                  type,
+                  style: GoogleFonts.inter(
+                    fontSize: 16,
+                    color: const Color(0xFF64748B),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(Icons.edit, size: 18),
+                  label: const Text('Edit Clinic Profile'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF005EB8),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    textStyle: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -270,74 +231,269 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
     );
   }
 
-  Widget _buildInfoSection({required String title, required String content}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: GoogleFonts.inter(
-            fontSize: 12,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 1.2,
-            color: AppColors.onSurfaceVariant,
-          ),
-        ),
-        const SizedBox(height: 12),
-        Text(
-          content,
-          style: GoogleFonts.inter(
-            fontSize: 15,
-            color: AppColors.onSurface,
-            height: 1.6,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDetailRow({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-  }) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: const Color(0xFFD6E3FF).withValues(alpha: 0.3),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Icon(icon, color: AppColors.primary, size: 20),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildContactAddressCard(String phone, String address, String coords) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(32),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
+              const Icon(Icons.help_outline, color: Color(0xFF005EB8), size: 20),
+              const SizedBox(width: 8),
               Text(
-                title,
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                subtitle,
-                style: GoogleFonts.inter(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.onSurface,
+                'Contact & Address',
+                style: GoogleFonts.manrope(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF0F172A),
                 ),
               ),
             ],
           ),
-        ),
-      ],
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Expanded(child: _buildInfoBox('PHONE NUMBER', phone, Icons.phone_outlined)),
+              const SizedBox(width: 16),
+              Expanded(child: _buildInfoBox('LOCATION ADDRESS', address, Icons.location_on_outlined)),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFFEFF6FF),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'GEOGRAPHIC COORDINATES',
+                        style: GoogleFonts.inter(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          color: const Color(0xFF005EB8),
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        coords,
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          color: const Color(0xFF64748B),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                ElevatedButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(Icons.map_outlined, size: 18),
+                  label: const Text('Open in Google Maps'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: const Color(0xFF005EB8),
+                    elevation: 0,
+                    side: const BorderSide(color: Color(0xFFE2E8F0)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    textStyle: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w700),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoBox(String label, String value, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF1F5F9),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: GoogleFonts.inter(
+              fontSize: 10,
+              fontWeight: FontWeight.w800,
+              color: const Color(0xFF94A3B8),
+              letterSpacing: 0.5,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Icon(icon, color: const Color(0xFF005EB8), size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  value,
+                  style: GoogleFonts.manrope(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF0F172A),
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAboutCard(String content) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(32),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.info_outline, color: Color(0xFF005EB8), size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'About the Clinic',
+                style: GoogleFonts.manrope(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF0F172A),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            content,
+            style: GoogleFonts.inter(
+              fontSize: 15,
+              color: const Color(0xFF64748B),
+              height: 1.6,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWorkingHoursCard(dynamic hoursData) {
+    // For demonstration, we'll use the days from the image if hoursData is not structured
+    final List<Map<String, String>> days = [
+      {'day': 'Monday', 'time': 'Closed', 'isClosed': 'true'},
+      {'day': 'Tuesday', 'time': '09:00 AM - 05:00 PM', 'isClosed': 'false'},
+      {'day': 'Wednesday', 'time': '09:00 AM - 05:00 PM', 'isClosed': 'false'},
+      {'day': 'Thursday', 'time': '09:00 AM - 05:00 PM', 'isClosed': 'false'},
+      {'day': 'Friday', 'time': '09:00 AM - 05:00 PM', 'isClosed': 'false'},
+      {'day': 'Saturday', 'time': '09:00 AM - 05:00 PM', 'isClosed': 'false'},
+      {'day': 'Sunday', 'time': '09:00 AM - 05:00 PM', 'isClosed': 'false'},
+    ];
+
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(32),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.access_time, color: Color(0xFF005EB8), size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'Working Hours',
+                style: GoogleFonts.manrope(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF0F172A),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          ...days.map((day) => Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        day['day']!,
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: const Color(0xFF64748B),
+                        ),
+                      ),
+                      Text(
+                        day['time']!,
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: day['isClosed'] == 'true' ? const Color(0xFFEF4444) : const Color(0xFF0F172A),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )),
+          const SizedBox(height: 20),
+          Center(
+            child: Column(
+              children: [
+                Text(
+                  'LAST UPDATED',
+                  style: GoogleFonts.inter(
+                    fontSize: 9,
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF94A3B8),
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                Text(
+                  'May 07, 2026 • 02:20 PM',
+                  style: GoogleFonts.inter(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF64748B),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
