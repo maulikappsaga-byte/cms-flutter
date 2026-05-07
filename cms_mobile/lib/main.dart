@@ -10,13 +10,13 @@ import 'screens/book_appointment_screen.dart';
 
 import 'screens/clinicos_overview_screen.dart';
 import 'screens/clinic_details_screen.dart';
-
-import 'services/pusher_service.dart';
-
 import 'screens/doctor_details_screen.dart';
+import 'services/user_session.dart';
+import 'services/pusher_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await UserSession.init();
   await PusherService().init();
   runApp(const MainApp());
 }

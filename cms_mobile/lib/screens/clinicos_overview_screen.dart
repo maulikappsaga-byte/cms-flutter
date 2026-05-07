@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'dart:developer';
 import '../theme.dart';
 import '../services/doctor_detail_api.dart';
+import '../services/patient_api.dart';
 import '../services/user_session.dart';
 import '../widgets/custom_snackbar.dart';
 
@@ -34,6 +35,7 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
   late String _patientNameDisplay;
 
   final _doctorApi = DoctorDetailApi();
+  final _patientApi = PatientApi();
 
   @override
   void initState() {
@@ -49,32 +51,74 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
 
-    _fetchOverviewData();
+    // Only fetch if we have a valid 10-digit phone
+    final phone = widget.patientPhone ?? UserSession.lastBookedPhone;
+    if (phone != null && phone.length == 10) {
+      _fetchOverviewData();
+    }
   }
 
   Future<void> _fetchOverviewData() async {
+    final name = widget.patientName ?? UserSession.lastBookedName ?? "Guest";
+    final phone = widget.patientPhone ?? UserSession.lastBookedPhone;
+
+    if (phone == null || phone.length != 10) {
+      log("Skipping fetch: Invalid phone number '$phone'");
+      return;
+    }
+
     if (mounted) setState(() => _isLoading = true);
     try {
-      final name = widget.patientName ?? UserSession.lastBookedName ?? "Deepas";
-      final phone = widget.patientPhone ?? UserSession.lastBookedPhone ?? "+917096850798";
-      
-      final response = await _doctorApi.getDoctorDetails(
+      // 1. Fetch general doctor/queue details
+      final doctorResponse = await _doctorApi.getDoctorDetails(
         doctorId: 2,
         name: name,
         phone: phone,
         date: "2026-05-07",
       );
 
-      log("Overview API Response for $name ($phone): $response");
+      // 2. Fetch specific patient token status (New API)
+      final tokenResponse = await _patientApi.checkToken(phone: phone);
 
-      if (mounted && response != null) {
-        final data = response['data'];
+      log("Doctor API Response: $doctorResponse");
+      log("Token API Response: $tokenResponse");
+
+      if (mounted) {
         setState(() {
-          if (data != null) {
-            _nowServing = data['now_serving']?.toString() ?? '07';
-            _yourToken = data['token_number']?.toString() ?? UserSession.lastToken ?? '11';
-            _waitTime = data['estimated_wait']?.toString() ?? '~30 mins';
-            _patientNameDisplay = data['name'] ?? name;
+          // 1. Update queue info from doctor API
+          if (doctorResponse != null && doctorResponse['data'] != null) {
+            final data = doctorResponse['data'];
+            _nowServing = data['now_serving']?.toString() ?? _nowServing;
+            _waitTime = data['estimated_wait']?.toString() ?? _waitTime;
+          }
+
+          // 2. Update user specific info from token API (Robust Parsing)
+          if (tokenResponse != null) {
+            dynamic data = tokenResponse['data'] ?? tokenResponse;
+            
+            // If data contains an 'appointment' object (common pattern)
+            if (data is Map && data['appointment'] != null) {
+              data = data['appointment'];
+            }
+
+            if (data is Map) {
+              // Try to find token in common field names
+              final newToken = data['token']?.toString() ?? 
+                              data['token_number']?.toString() ?? 
+                              data['appointment_token']?.toString();
+              
+              if (newToken != null) {
+                _yourToken = newToken;
+                // Also update UserSession so it persists during this session
+                UserSession.lastToken = newToken;
+              }
+
+              final newName = data['name']?.toString() ?? data['patient_name']?.toString();
+              if (newName != null) {
+                _patientNameDisplay = newName;
+                UserSession.lastBookedName = newName;
+              }
+            }
           }
         });
       }

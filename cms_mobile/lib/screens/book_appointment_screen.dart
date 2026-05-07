@@ -161,6 +161,13 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
           }
         }
 
+        // Save to session
+        await UserSession.updateSession(
+          name: _nameController.text,
+          phone: _phoneController.text,
+          token: token,
+        );
+
         _showSuccessDialog(token);
       }
     } catch (e) {
@@ -247,15 +254,21 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.all(24.0),
+                padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 32.0),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'BOOK NEW APPOINTMENT',
-                      style: textTheme.labelLarge?.copyWith(letterSpacing: 2),
+                    Center(
+                      child: Text(
+                        'BOOK NEW APPOINTMENT',
+                        textAlign: TextAlign.center,
+                        style: textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: -0.5,
+                          color: AppColors.primaryContainer,
+                        ),
+                      ),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 24),
                     Container(
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
@@ -271,11 +284,13 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'PATIENT INFORMATION',
-                            style: textTheme.labelLarge,
+                          Center(
+                            child: Text(
+                              'PATIENT INFORMATION',
+                              style: textTheme.labelLarge,
+                            ),
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 24),
                           Text('FULL NAME', style: textTheme.labelLarge),
                           const SizedBox(height: 8),
                           TextField(

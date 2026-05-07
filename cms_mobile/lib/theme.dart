@@ -76,20 +76,21 @@ class AppTheme {
         prefixIconColor: AppColors.outline,
         hintStyle: GoogleFonts.inter(
           color: AppColors.outline,
-          fontSize: 14,
+          fontSize: 16,
         ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           foregroundColor: AppColors.onPrimary,
           textStyle: GoogleFonts.inter(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
           ),
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 32),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(12),
           ),
         ),
       ),

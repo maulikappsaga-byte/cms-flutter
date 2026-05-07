@@ -14,6 +14,7 @@ dependencies:
   flutter_driver:
     sdk: flutter
   http: ^1.2.0
+  shared_preferences: ^2.5.2
 
 dev_dependencies:
   flutter_test:
