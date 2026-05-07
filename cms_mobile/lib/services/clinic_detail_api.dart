@@ -8,8 +8,14 @@ class ClinicDetailApi {
     String? date,
   }) async {
     try {
-      // The curl command used --data '' which indicates a POST request
-      final response = await ApiService.post('/clinic/details', {});
+      final Map<String, dynamic> queryParams = {};
+      if (doctorId != null) queryParams['doctor_id'] = doctorId;
+      if (name != null) queryParams['name'] = name;
+      if (phone != null) queryParams['phone'] = phone;
+      if (date != null) queryParams['date'] = date;
+
+      // Passing query parameters to the GET request
+      final response = await ApiService.get('/clinic/details', queryParams: queryParams);
       return response as Map<String, dynamic>;
     } catch (e) {
       throw Exception('Error fetching clinic details: $e');

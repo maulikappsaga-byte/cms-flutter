@@ -56,9 +56,7 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     if (_errorMessage != null) {
@@ -86,16 +84,22 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
       );
     }
 
-    final data = _clinicData?['data'] ?? {};
+    // Correct mapping based on API response: data -> clinic
+    final clinic = _clinicData?['data']?['clinic'] ?? {};
     
-    final clinicName = data['name'] ?? 'Clinic Name';
-    final clinicType = data['type'] ?? 'General Clinic'; 
-    final about = data['about'] ?? 'No description available.'; 
-    final address = data['address'] ?? 'Address not available';
-    final contactNumber = data['phone'] ?? '9090909090'; 
-    final imageUrl = data['logo'];
-    final lat = data['lat'] ?? "21.2688948";
-    final long = data['long'] ?? "72.97711112";
+    final clinicName = clinic['name'] ?? 'Clinic Name';
+    final clinicType = clinic['description'] ?? 'General Clinic'; 
+    final about = clinic['about_clinic'] ?? 'No description available.'; 
+    final address = clinic['address'] ?? 'Address not available';
+    final contactNumber = clinic['contact_number'] ?? 'Not specified'; 
+    final lat = clinic['latitude'] ?? "0.0";
+    final long = clinic['longitude'] ?? "0.0";
+    
+    // Handle relative logo path
+    String? imageUrl = clinic['logo'];
+    if (imageUrl != null && !imageUrl.startsWith('http')) {
+      imageUrl = 'http://13.126.47.19:8000/storage/$imageUrl';
+    }
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -134,7 +138,7 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
               const SizedBox(height: 20),
               _buildAboutCard(about),
               const SizedBox(height: 20),
-              _buildWorkingHoursCard(data['working_hours']),
+              _buildWorkingHoursCard(clinic['working_hours']),
               const SizedBox(height: 40),
             ],
           ),
@@ -401,16 +405,24 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
   }
 
   Widget _buildWorkingHoursCard(dynamic hoursData) {
-    // For demonstration, we'll use the days from the image if hoursData is not structured
-    final List<Map<String, String>> days = [
-      {'day': 'Monday', 'time': 'Closed', 'isClosed': 'true'},
-      {'day': 'Tuesday', 'time': '09:00 AM - 05:00 PM', 'isClosed': 'false'},
-      {'day': 'Wednesday', 'time': '09:00 AM - 05:00 PM', 'isClosed': 'false'},
-      {'day': 'Thursday', 'time': '09:00 AM - 05:00 PM', 'isClosed': 'false'},
-      {'day': 'Friday', 'time': '09:00 AM - 05:00 PM', 'isClosed': 'false'},
-      {'day': 'Saturday', 'time': '09:00 AM - 05:00 PM', 'isClosed': 'false'},
-      {'day': 'Sunday', 'time': '09:00 AM - 05:00 PM', 'isClosed': 'false'},
-    ];
+    final List<Map<String, String>> days = [];
+    
+    if (hoursData is Map) {
+      final List<String> dayNames = [
+        'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
+      ];
+      
+      for (var day in dayNames) {
+        final time = hoursData[day.toLowerCase()]?.toString() ?? 'Not specified';
+        days.add({
+          'day': day,
+          'time': time,
+          'isClosed': (time.toLowerCase() == 'closed').toString(),
+        });
+      }
+    } else {
+      return const SizedBox.shrink();
+    }
 
     return Container(
       padding: const EdgeInsets.all(24),
