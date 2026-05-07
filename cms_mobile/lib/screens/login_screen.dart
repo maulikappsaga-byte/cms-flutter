@@ -158,7 +158,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
-                          Navigator.pushNamed(context, '/dashboard');
+                          Navigator.pushReplacementNamed(context, '/clinicos-overview');
                         },
                         child: const Row(
                           mainAxisAlignment: MainAxisAlignment.center,

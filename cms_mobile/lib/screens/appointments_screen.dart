@@ -265,7 +265,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
         unselectedLabelStyle: textTheme.labelLarge?.copyWith(fontSize: 10),
         onTap: (index) {
           if (index == 0) {
-            Navigator.pushReplacementNamed(context, '/dashboard');
+            Navigator.pushReplacementNamed(context, '/clinicos-overview');
           } else if (index == 1) {
             Navigator.pushReplacementNamed(context, '/appointments');
           } else if (index == 2) {
@@ -273,7 +273,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
           }
         },
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.dashboard_rounded), label: 'DASHBOARD'),
+          BottomNavigationBarItem(icon: Icon(Icons.dashboard_rounded), label: 'OVERVIEW'),
           BottomNavigationBarItem(icon: Icon(Icons.calendar_month), label: 'APPOINTMENTS'),
           BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline), label: 'BOOK APPOINTMENT'),
         ],

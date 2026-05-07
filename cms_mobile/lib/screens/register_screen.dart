@@ -189,7 +189,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           child: ElevatedButton(
                             onPressed: () {
                               // Perform registration logic here
-                              Navigator.pushReplacementNamed(context, '/dashboard');
+                              Navigator.pushReplacementNamed(context, '/clinicos-overview');
                             },
                             child: const Row(
                               mainAxisAlignment: MainAxisAlignment.center,

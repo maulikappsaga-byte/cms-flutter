@@ -10,18 +10,33 @@ class ApiService {
       };
 
   static Future<dynamic> get(String endpoint, {Map<String, dynamic>? queryParams}) async {
+    String queryString = '';
+    if (queryParams != null && queryParams.isNotEmpty) {
+      final uri = Uri.parse('${ApiConstants.baseUrl}$endpoint').replace(
+        queryParameters: queryParams.map((key, value) => MapEntry(key, value.toString())),
+      );
+      queryString = uri.query;
+    }
+    
+    final url = Uri.parse('${ApiConstants.baseUrl}$endpoint${queryString.isNotEmpty ? '?$queryString' : ''}');
+    
+    try {
+      final response = await http.get(url, headers: _headers);
+      return _handleResponse(response);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  static Future<dynamic> post(String endpoint, dynamic body) async {
     final url = Uri.parse('${ApiConstants.baseUrl}$endpoint');
     
     try {
-      final request = http.Request('GET', url)
-        ..headers.addAll(_headers);
-      
-      if (queryParams != null) {
-        request.body = jsonEncode(queryParams);
-      }
-
-      final streamedResponse = await request.send();
-      final response = await http.Response.fromStream(streamedResponse);
+      final response = await http.post(
+        url,
+        headers: _headers,
+        body: jsonEncode(body),
+      );
       return _handleResponse(response);
     } catch (e) {
       rethrow;
@@ -29,10 +44,10 @@ class ApiService {
   }
 
   static dynamic _handleResponse(http.Response response) {
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200 || response.statusCode == 201) {
       return jsonDecode(response.body);
     } else {
-      throw Exception('Failed to load data: ${response.statusCode}');
+      throw Exception('Failed request: ${response.statusCode} - ${response.body}');
     }
   }
 }

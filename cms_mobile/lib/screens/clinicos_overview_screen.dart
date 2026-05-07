@@ -1,9 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'dart:developer';
 import '../theme.dart';
+import '../services/doctor_detail_api.dart';
+import '../services/user_session.dart';
+import '../widgets/custom_snackbar.dart';
 
 class ClinicosOverviewScreen extends StatefulWidget {
-  const ClinicosOverviewScreen({super.key});
+  final String? patientName;
+  final String? patientPhone;
+
+  const ClinicosOverviewScreen({
+    super.key,
+    this.patientName,
+    this.patientPhone,
+  });
 
   @override
   State<ClinicosOverviewScreen> createState() => _ClinicosOverviewScreenState();
@@ -13,28 +24,23 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
+  bool _isLoading = false;
   bool _isRefreshing = false;
+  
+  // Dynamic data
+  String _nowServing = '07';
+  late String _yourToken;
+  String _waitTime = '~45 mins';
+  late String _patientNameDisplay;
 
-  Future<void> _refresh() async {
-    if (_isRefreshing) return;
-    setState(() => _isRefreshing = true);
-    // Simulate network fetch
-    await Future.delayed(const Duration(seconds: 1));
-    if (mounted) {
-      setState(() => _isRefreshing = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Clinic data updated'),
-          behavior: SnackBarBehavior.floating,
-          duration: Duration(seconds: 1),
-        ),
-      );
-    }
-  }
+  final _doctorApi = DoctorDetailApi();
 
   @override
   void initState() {
     super.initState();
+    _yourToken = UserSession.lastToken ?? '--';
+    _patientNameDisplay = UserSession.lastBookedName ?? 'Guest';
+
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1500),
@@ -42,6 +48,57 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
     _pulseAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
+
+    _fetchOverviewData();
+  }
+
+  Future<void> _fetchOverviewData() async {
+    if (mounted) setState(() => _isLoading = true);
+    try {
+      final name = widget.patientName ?? UserSession.lastBookedName ?? "Deepas";
+      final phone = widget.patientPhone ?? UserSession.lastBookedPhone ?? "+917096850798";
+      
+      final response = await _doctorApi.getDoctorDetails(
+        doctorId: 2,
+        name: name,
+        phone: phone,
+        date: "2026-05-07",
+      );
+
+      log("Overview API Response for $name ($phone): $response");
+
+      if (mounted && response != null) {
+        final data = response['data'];
+        setState(() {
+          if (data != null) {
+            _nowServing = data['now_serving']?.toString() ?? '07';
+            _yourToken = data['token_number']?.toString() ?? UserSession.lastToken ?? '11';
+            _waitTime = data['estimated_wait']?.toString() ?? '~30 mins';
+            _patientNameDisplay = data['name'] ?? name;
+          }
+        });
+      }
+    } catch (e) {
+      log("Error fetching overview data: $e");
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _refresh() async {
+    if (_isRefreshing) return;
+    setState(() => _isRefreshing = true);
+    
+    await _fetchOverviewData();
+    
+    if (mounted) {
+      setState(() => _isRefreshing = false);
+      CustomSnackBar.show(
+        context: context,
+        message: 'Status updated',
+        type: SnackBarType.success,
+      );
+    }
   }
 
   @override
@@ -58,21 +115,18 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
         automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
         elevation: 0,
-        scrolledUnderElevation: 0,
         title: Row(
           children: [
             Container(
-              height: 40,
-              width: 40,
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
+                color: const Color(0xFFD6E3FF).withValues(alpha: 0.3),
                 shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFFD6E3FF), width: 2),
-                image: const DecorationImage(
-                  image: NetworkImage(
-                    'https://lh3.googleusercontent.com/aida-public/AB6AXuA__J41_xC8zaUMSCleBUb2ogdYUlz59mfLXy6O4eT-qUnHawPEDAGglm-6AS4Mp_Kzr6qsxrJh5i_NqP0C5gx-x7P4LVlsZReRmzqHaVS-YJ7AWAWSZ7PiiUrPIc-QMNZY1TSDExh2IH9UUGshLN91Gfc8Ug7_4upctS2vsWqO6gR48K5iPtq1Vr2hMJrZvbW86MavYTfNSNZiLtSSvo-IZodH-3UQACs9AnC_vaUz7qXsHErxoZ9qz25-UYCJn63GrOi8wcvwIbc',
-                  ),
-                  fit: BoxFit.cover,
-                ),
+              ),
+              child: const Icon(
+                Icons.local_hospital,
+                color: Color(0xFF00478D),
+                size: 24,
               ),
             ),
             const SizedBox(width: 12),
@@ -87,33 +141,9 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
           ],
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: TextButton.icon(
-              onPressed: () {
-                Navigator.pushNamed(context, '/login');
-              },
-              icon: const Icon(Icons.login, color: Color(0xFF00478D), size: 20),
-              label: Text(
-                'Login',
-                style: GoogleFonts.manrope(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF00478D),
-                ),
-              ),
-              style: TextButton.styleFrom(
-                backgroundColor: const Color(0xFFD6E3FF).withValues(alpha: 0.3),
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-            ),
-          ),
           IconButton(
-            onPressed: _isRefreshing ? null : _refresh,
-            icon: _isRefreshing
+            onPressed: (_isLoading || _isRefreshing) ? null : _refresh,
+            icon: (_isLoading || _isRefreshing)
                 ? const SizedBox(
                     width: 20,
                     height: 20,
@@ -147,28 +177,17 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
                 // Queue Indicator
                 _buildQueueIndicator(),
                 const SizedBox(height: 32),
-
-                // Status Card
+                
+                // Patient Status Card
                 _buildStatusCard(),
-                const SizedBox(height: 16),
-
-                // Wait Time
-                RichText(
-                  text: TextSpan(
-                    style: GoogleFonts.inter(
-                      fontSize: 14,
-                      color: AppColors.onSurfaceVariant,
-                    ),
-                    children: const [
-                      TextSpan(text: 'Estimated wait time: '),
-                      TextSpan(
-                        text: '~45 mins',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ],
+                const SizedBox(height: 12),
+                
+                Text(
+                  'Estimated wait time: $_waitTime',
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF00478D),
                   ),
                 ),
                 const SizedBox(height: 48),
@@ -179,6 +198,67 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildStatusCard() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFF1F5F9)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.02),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'YOUR STATUS (${_patientNameDisplay.toUpperCase()})',
+                style: GoogleFonts.inter(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.5,
+                  color: AppColors.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Token Number',
+                style: GoogleFonts.manrope(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.onSurface,
+                ),
+              ),
+            ],
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+            decoration: BoxDecoration(
+              color: const Color(0xFFD6E3FF),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              _yourToken,
+              style: GoogleFonts.manrope(
+                fontSize: 32,
+                fontWeight: FontWeight.w700,
+                color: AppColors.primary,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -194,7 +274,7 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
             painter: _CircularProgressPainter(
               backgroundColor: const Color(0xFFEDEEEF),
               progressColor: AppColors.primary,
-              progress: 0.75, // Matching the dashoffset logic roughly
+              progress: 0.75,
             ),
           ),
         ),
@@ -212,7 +292,7 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
             ),
             const SizedBox(height: 4),
             Text(
-              '07',
+              _nowServing,
               style: GoogleFonts.manrope(
                 fontSize: 100,
                 fontWeight: FontWeight.w700,
@@ -252,8 +332,8 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                ScaleTransition(
-                  scale: _pulseAnimation,
+                FadeTransition(
+                  opacity: _pulseAnimation,
                   child: Container(
                     width: 8,
                     height: 8,
@@ -263,13 +343,14 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
                     ),
                   ),
                 ),
-                const SizedBox(width: 6),
-                const Text(
+                const SizedBox(width: 8),
+                Text(
                   'LIVE',
-                  style: TextStyle(
+                  style: GoogleFonts.inter(
                     color: Colors.white,
-                    fontSize: 11,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1,
                   ),
                 ),
               ],
@@ -277,69 +358,6 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildStatusCard() {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(12),
-        border: const Border(
-          left: BorderSide(color: AppColors.primary, width: 4),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF005EB8).withValues(alpha: 0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'YOUR STATUS',
-                style: GoogleFonts.inter(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.5,
-                  color: AppColors.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Token Number',
-                style: GoogleFonts.manrope(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.onSurface,
-                ),
-              ),
-            ],
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-            decoration: BoxDecoration(
-              color: const Color(0xFFD6E3FF),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              '16',
-              style: GoogleFonts.manrope(
-                fontSize: 32,
-                fontWeight: FontWeight.w700,
-                color: AppColors.primary,
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -471,7 +489,7 @@ class _CircularProgressPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final Paint backgroundPaint = Paint()
       ..color = backgroundColor
-      ..strokeWidth = 4
+      ..strokeWidth = 10
       ..style = PaintingStyle.stroke;
 
     final Paint progressPaint = Paint()

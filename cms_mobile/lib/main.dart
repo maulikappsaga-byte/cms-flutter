@@ -8,7 +8,6 @@ import 'screens/receptionist_dashboard_screen.dart';
 import 'screens/appointments_screen.dart';
 import 'screens/book_appointment_screen.dart';
 
-
 import 'screens/clinicos_overview_screen.dart';
 import 'screens/clinic_details_screen.dart';
 
