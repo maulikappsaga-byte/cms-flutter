@@ -6,6 +6,7 @@ import '../services/doctor_detail_api.dart';
 import '../services/patient_api.dart';
 import '../services/user_session.dart';
 import '../widgets/custom_snackbar.dart';
+import '../services/queue_detail_api.dart';
 
 class ClinicosOverviewScreen extends StatefulWidget {
   final String? patientName;
@@ -30,12 +31,15 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
 
   // Dynamic data
   String _nowServing = '07';
+  // Call API api/queue/live' and set value of _nowServing
+
   late String _yourToken;
   String _waitTime = '~45 mins';
   late String _patientNameDisplay;
 
   final _doctorApi = DoctorDetailApi();
   final _patientApi = PatientApi();
+  final _queueApi = QueueApi();
 
   @override
   void initState() {
@@ -76,6 +80,14 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
         phone: phone,
         date: "2026-05-07",
       );
+
+      final queueResponse = await _queueApi.getQueueDetails(doctorId: 2);
+      log("Queue API Response: $queueResponse");
+
+      // [log] Queue API Response: {data: {queue: {current_patient: {id: 33, token_number: 2, status: serving, called_at: 2026-05-07 17:52:14, appointment: {id: 33, patient_name: Deepak, patient_phone: +91709685088, status: pending}, doctor: {id: 2, name: Dr. Smith, specialization: General}}, clinic_name: All Clinic , date: 2026-05-07}, message: Current patient retrieved successfully}}
+      _nowServing = queueResponse['data']['queue']['current_patient']
+              ['token_number']
+          .toString();
 
       // 2. Fetch specific patient token status (New API)
       final appointmentId = UserSession.lastAppointmentId;

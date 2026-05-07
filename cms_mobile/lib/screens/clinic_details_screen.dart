@@ -149,85 +149,140 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
 
   Widget _buildHeaderCard(String name, String type, String? imageUrl) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFE8EDF2), width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF000000).withValues(alpha: 0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            height: 96,
-            width: 96,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
-              image: imageUrl != null && imageUrl.isNotEmpty
-                  ? DecorationImage(image: NetworkImage(imageUrl), fit: BoxFit.cover)
-                  : null,
-            ),
-            child: (imageUrl == null || imageUrl.isEmpty)
-                ? const Icon(Icons.business, size: 48, color: AppColors.primary)
-                : null,
-          ),
-          const SizedBox(width: 20),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        name,
-                        style: GoogleFonts.manrope(
-                          fontSize: 28,
-                          fontWeight: FontWeight.w800,
-                          color: const Color(0xFF0F172A),
-                        ),
-                      ),
+          // Logo + Name/Badge Row
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Clinic Logo
+              Container(
+                height: 88,
+                width: 88,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(color: const Color(0xFFE8EDF2), width: 1),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF000000).withValues(alpha: 0.06),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFDBEAFE),
-                        borderRadius: BorderRadius.circular(100),
-                      ),
-                      child: Text(
-                        'ACTIVE CLINIC',
-                        style: GoogleFonts.inter(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: const Color(0xFF1E40AF),
+                  ],
+                  image: imageUrl != null && imageUrl.isNotEmpty
+                      ? DecorationImage(
+                          image: NetworkImage(imageUrl),
+                          fit: BoxFit.cover,
+                        )
+                      : null,
+                ),
+                child: (imageUrl == null || imageUrl.isEmpty)
+                    ? const Icon(
+                        Icons.business_rounded,
+                        size: 44,
+                        color: AppColors.primary,
+                      )
+                    : null,
+              ),
+              const SizedBox(width: 16),
+
+              // Name, Badge & Type
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Name row with ACTIVE CLINIC badge
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            name,
+                            style: GoogleFonts.manrope(
+                              fontSize: 26,
+                              fontWeight: FontWeight.w800,
+                              color: const Color(0xFF0F172A),
+                              height: 1.15,
+                            ),
+                          ),
                         ),
+                        const SizedBox(width: 8),
+                        // Active badge
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFDCEAFE),
+                            borderRadius: BorderRadius.circular(100),
+                          ),
+                          child: Text(
+                            'ACTIVE CLINIC',
+                            style: GoogleFonts.inter(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: const Color(0xFF1D4ED8),
+                              letterSpacing: 0.3,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    // Clinic type / description
+                    Text(
+                      type.toUpperCase(),
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF94A3B8),
+                        letterSpacing: 0.5,
                       ),
                     ),
                   ],
                 ),
-                Text(
-                  type,
-                  style: GoogleFonts.inter(
-                    fontSize: 16,
-                    color: const Color(0xFF64748B),
-                  ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 20),
+
+          // Full-width Edit Clinic Profile button
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: () {},
+              icon: const Icon(Icons.edit_rounded, size: 17),
+              label: Text(
+                'Edit Clinic Profile',
+                style: GoogleFonts.inter(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
                 ),
-                const SizedBox(height: 16),
-                ElevatedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.edit, size: 18),
-                  label: const Text('Edit Clinic Profile'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF005EB8),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    textStyle: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w700),
-                  ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF005EB8),
+                foregroundColor: Colors.white,
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
                 ),
-              ],
+              ),
             ),
           ),
         ],
