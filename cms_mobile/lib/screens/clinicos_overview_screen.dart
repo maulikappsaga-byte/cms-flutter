@@ -29,6 +29,8 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
   late Animation<double> _pulseAnimation;
   bool _isLoading = false;
   bool _isRefreshing = false;
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      GlobalKey<RefreshIndicatorState>();
 
   // Dynamic data — sourced from /queue/live API
   String _nowServing = '--';
@@ -57,7 +59,7 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
     _fetchOverviewData();
 
     // Subscribe to Pusher for real-time updates
-    PusherService().subscribe("clinic-updates");
+    PusherService().subscribe("queue-updates.1");
     PusherService().addListener(_onPusherEvent);
   }
 
@@ -65,42 +67,45 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
   void _onPusherEvent(PusherEvent event) {
     log("ClinicosOverview: Pusher Event -> ${event.eventName} : ${event.data}");
 
-    try {
-      final data = jsonDecode(event.data ?? '{}');
-      
-      // Check if it's a booking event as requested
-      if (data['type'] == 'booked') {
-        log("ClinicosOverview: Booking event received, refreshing data...");
-        _fetchOverviewData(silent: true);
-        return;
-      }
+    if (event.eventName == 'queue-updated' ||
+        event.eventName == 'token-called' ||
+        event.eventName == 'App\\Events\\QueueUpdated') {
+      try {
+        final data = jsonDecode(event.data ?? '{}');
 
-      if (event.eventName == 'queue-updated' ||
-          event.eventName == 'token-called' ||
-          event.eventName == 'App\\Events\\QueueUpdated') {
-        final token = data['token_number']?.toString() ??
+        // Check for specific "booked" type to refresh all data
+        if (data['type'] == 'booked' ||
+            data['type'] == 'next' ||
+            data['type'] == 'completed') {
+          log("ClinicosOverview: Booking event detected, refreshing data...");
+          _refreshIndicatorKey.currentState?.show();
+          _fetchOverviewData();
+          return;
+        }
+
+        final token =
+            data['token_number']?.toString() ??
             data['now_serving']?.toString() ??
             data['token']?.toString();
-        
         if (token != null && mounted) {
           setState(() => _nowServing = token);
           log("ClinicosOverview: Real-time token update -> $_nowServing");
         } else {
-          // Fallback: re-fetch from API
-          _fetchOverviewData(silent: true);
+          // Fallback: trigger visual refresh
+          _refreshIndicatorKey.currentState?.show();
         }
+      } catch (e) {
+        log("ClinicosOverview: Error parsing Pusher data: $e");
+        _fetchOverviewData();
       }
-    } catch (e) {
-      log("ClinicosOverview: Error parsing Pusher data: $e");
-      _fetchOverviewData(silent: true);
     }
   }
 
   /// Fetches the current serving token from /queue/live.
   /// This is the single source of truth for "Now Serving".
-  Future<void> _fetchOverviewData({bool silent = false}) async {
+  Future<void> _fetchOverviewData() async {
     log("ClinicosOverview: Fetching live queue data...");
-    if (mounted && !silent) setState(() => _isLoading = true);
+    if (mounted) setState(() => _isLoading = true);
 
     try {
       final response = await _queueApi.getQueueDetails(doctorId: 2);
@@ -112,7 +117,8 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
           final currentPatient = queue['current_patient'];
           if (currentPatient != null) {
             // Backend may use 'token_number' or 'token'
-            final token = currentPatient['token_number']?.toString() ??
+            final token =
+                currentPatient['token_number']?.toString() ??
                 currentPatient['token']?.toString();
             log("ClinicosOverview: Now serving: $token");
             if (mounted && token != null) {
@@ -217,6 +223,7 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
         ),
       ),
       body: RefreshIndicator(
+        key: _refreshIndicatorKey,
         onRefresh: _refresh,
         color: const Color(0xFF00478D),
         child: SingleChildScrollView(

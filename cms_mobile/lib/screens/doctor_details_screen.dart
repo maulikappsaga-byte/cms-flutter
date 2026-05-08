@@ -89,8 +89,9 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen>
     }
 
     final data = _extractDoctorData();
-    if (data == null)
+    if (data == null) {
       return const Scaffold(body: Center(child: Text('Doctor not found')));
+    }
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),

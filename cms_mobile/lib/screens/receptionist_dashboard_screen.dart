@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 
 import '../theme.dart';
@@ -27,6 +28,8 @@ class _ReceptionistDashboardScreenState
   int _totalAppointments = 0;
   
   final int _doctorId = 2; // Default doctor for this receptionist
+  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
+      GlobalKey<RefreshIndicatorState>();
 
   @override
   void initState() {
@@ -48,14 +51,29 @@ class _ReceptionistDashboardScreenState
   }
 
   void _onPusherEvent(PusherEvent event) {
-    if (event.eventName == 'token-called' || event.eventName == 'queue-updated') {
-      debugPrint('Dashboard: Refreshing due to Pusher event: ${event.eventName}');
-      _fetchDashboardData(silent: true);
+    if (event.eventName == 'token-called' ||
+        event.eventName == 'queue-updated' ||
+        event.eventName == 'App\\Events\\QueueUpdated') {
+      try {
+        final data = jsonDecode(event.data ?? '{}');
+        if (data['type'] == 'booked') {
+          debugPrint('Dashboard: Booking event detected, triggering refresh indicator...');
+          _refreshIndicatorKey.currentState?.show();
+          return;
+        }
+      } catch (e) {
+        debugPrint('Dashboard: Pusher data parse error: $e');
+      }
+
+      debugPrint('Dashboard: Triggering refresh indicator due to Pusher event: ${event.eventName}');
+      _refreshIndicatorKey.currentState?.show();
     }
   }
 
   Future<void> _fetchDashboardData({bool silent = false}) async {
-    if (!silent) setState(() => _isLoading = true);
+    if (mounted) {
+      setState(() => _isLoading = true);
+    }
     
     try {
       final response = await _queueApi.getQueueDetails(doctorId: _doctorId);
@@ -187,6 +205,7 @@ class _ReceptionistDashboardScreenState
       body: _isLoading 
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
+        key: _refreshIndicatorKey,
         onRefresh: () => _fetchDashboardData(silent: true),
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
