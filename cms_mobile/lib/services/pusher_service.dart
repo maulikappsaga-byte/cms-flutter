@@ -7,6 +7,7 @@ class PusherService {
   PusherService._internal();
 
   final PusherChannelsFlutter _pusher = PusherChannelsFlutter.getInstance();
+  final List<void Function(PusherEvent)> _listeners = [];
 
   Future<void> init() async {
     try {
@@ -28,6 +29,14 @@ class PusherService {
     } catch (e) {
       log("Pusher initialization error: $e");
     }
+  }
+
+  void addListener(void Function(PusherEvent) listener) {
+    _listeners.add(listener);
+  }
+
+  void removeListener(void Function(PusherEvent) listener) {
+    _listeners.remove(listener);
   }
 
   Future<void> subscribe(String channelName) async {
@@ -54,6 +63,9 @@ class PusherService {
 
   void onEvent(PusherEvent event) {
     log("Pusher Event Received: ${event.eventName} on ${event.channelName} with data: ${event.data}");
+    for (var listener in _listeners) {
+      listener(event);
+    }
   }
 
   void onSubscriptionError(String message, dynamic e) {
@@ -76,3 +88,4 @@ class PusherService {
     await _pusher.disconnect();
   }
 }
+

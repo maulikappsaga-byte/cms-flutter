@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../theme.dart';
 import '../services/pusher_service.dart';
+import '../services/queue_detail_api.dart';
+import '../widgets/custom_snackbar.dart';
+import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
 
 class ReceptionistDashboardScreen extends StatefulWidget {
   const ReceptionistDashboardScreen({super.key});
@@ -12,33 +16,110 @@ class ReceptionistDashboardScreen extends StatefulWidget {
 
 class _ReceptionistDashboardScreenState
     extends State<ReceptionistDashboardScreen> {
-  bool _isRefreshing = false;
+  final QueueApi _queueApi = QueueApi();
+  bool _isLoading = true;
+  bool _isActionLoading = false;
+  
+  String _currentNextPatient = '--';
+  final String _waitTime = '00:00';
+  int _completedCount = 0;
+  int _pendingCount = 0;
+  int _totalAppointments = 0;
+  
+  final int _doctorId = 2; // Default doctor for this receptionist
 
   @override
   void initState() {
     super.initState();
+    _fetchDashboardData();
+    _setupPusher();
+  }
+
+  void _setupPusher() {
+    PusherService().addListener(_onPusherEvent);
     PusherService().subscribe("clinic-updates");
   }
 
   @override
   void dispose() {
+    PusherService().removeListener(_onPusherEvent);
     PusherService().unsubscribe("clinic-updates");
     super.dispose();
   }
 
-  Future<void> _refresh() async {
-    if (_isRefreshing) return;
-    setState(() => _isRefreshing = true);
-    await Future.delayed(const Duration(seconds: 1));
-    if (mounted) {
-      setState(() => _isRefreshing = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Dashboard updated'),
-          behavior: SnackBarBehavior.floating,
-          duration: Duration(seconds: 1),
-        ),
+  void _onPusherEvent(PusherEvent event) {
+    if (event.eventName == 'token-called' || event.eventName == 'queue-updated') {
+      debugPrint('Dashboard: Refreshing due to Pusher event: ${event.eventName}');
+      _fetchDashboardData(silent: true);
+    }
+  }
+
+  Future<void> _fetchDashboardData({bool silent = false}) async {
+    if (!silent) setState(() => _isLoading = true);
+    
+    try {
+      final response = await _queueApi.getQueueDetails(doctorId: _doctorId);
+      
+      if (response != null && response['data'] != null) {
+        final queueData = response['data']['queue'];
+        final currentPatient = queueData['current_patient'];
+        
+        setState(() {
+          if (currentPatient != null) {
+            final name = currentPatient['patient_name'] ?? 'Unknown';
+            final token = currentPatient['token_number'] ?? currentPatient['token'] ?? '--';
+            _currentNextPatient = '$token $name';
+          } else {
+            _currentNextPatient = 'No Patient';
+          }
+          
+          // These might need different endpoints, but we'll use placeholder logic for now
+          // or extract from queueData if available.
+          _totalAppointments = queueData['total_tokens'] ?? 0;
+          _completedCount = queueData['completed_tokens'] ?? 0;
+          _pendingCount = _totalAppointments - _completedCount;
+          
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error fetching dashboard data: $e');
+      if (!silent) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Future<void> _callNextPatient() async {
+    setState(() => _isActionLoading = true);
+    
+    try {
+      final response = await _queueApi.callNextPatient(doctorId: _doctorId);
+      
+      if (response != null && response['message'] != null) {
+        if (!mounted) return;
+        CustomSnackBar.show(
+          context: context,
+          message: response['message'],
+          type: SnackBarType.success,
+        );
+      }
+      
+      // Refresh data
+      await _fetchDashboardData(silent: true);
+    } catch (e) {
+      String errorMessage = e.toString().contains('already being served') 
+          ? "A patient is currently being served."
+          : "Failed to call next patient.";
+          
+      if (!mounted) return;
+      CustomSnackBar.show(
+        context: context,
+        message: errorMessage,
+        type: SnackBarType.error,
       );
+    } finally {
+      setState(() => _isActionLoading = false);
     }
   }
 
@@ -81,8 +162,8 @@ class _ReceptionistDashboardScreenState
         ),
         actions: [
           IconButton(
-            onPressed: _isRefreshing ? null : _refresh,
-            icon: _isRefreshing
+            onPressed: _isLoading ? null : () => _fetchDashboardData(),
+            icon: _isLoading
                 ? const SizedBox(
                     width: 20,
                     height: 20,
@@ -103,11 +184,12 @@ class _ReceptionistDashboardScreenState
           ),
         ),
       ),
-      body: RefreshIndicator(
-        onRefresh: _refresh,
+      body: _isLoading 
+          ? const Center(child: CircularProgressIndicator())
+          : RefreshIndicator(
+        onRefresh: () => _fetchDashboardData(silent: true),
         child: SingleChildScrollView(
-          physics:
-              const AlwaysScrollableScrollPhysics(), // Ensure it's scrollable for RefreshIndicator
+          physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.all(24.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -187,12 +269,12 @@ class _ReceptionistDashboardScreenState
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'CURRENT NEXT',
+                                  'NOW SERVING',
                                   style: textTheme.labelLarge,
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  '01 Dipakabhai sir',
+                                  _currentNextPatient,
                                   style: textTheme.headlineMedium?.copyWith(
                                     fontSize: 18,
                                     color: AppColors.primary,
@@ -206,7 +288,7 @@ class _ReceptionistDashboardScreenState
                                 Text('WAIT TIME', style: textTheme.labelLarge),
                                 const SizedBox(height: 4),
                                 Text(
-                                  '04:20',
+                                  _waitTime,
                                   style: textTheme.bodyLarge?.copyWith(
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -220,10 +302,10 @@ class _ReceptionistDashboardScreenState
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.pushNamed(context, '/call-next');
-                          },
-                          child: const Row(
+                          onPressed: _isActionLoading ? null : _callNextPatient,
+                          child: _isActionLoading 
+                              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                              : const Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text('CALL NEXT PATIENT'),
@@ -250,7 +332,7 @@ class _ReceptionistDashboardScreenState
                     child: _buildStatCard(
                       context,
                       'COMPLETED',
-                      '24',
+                      _completedCount.toString().padLeft(2, '0'),
                       '+12%',
                       textTheme,
                     ),
@@ -260,7 +342,7 @@ class _ReceptionistDashboardScreenState
                     child: _buildStatCard(
                       context,
                       'PENDING',
-                      '08',
+                      _pendingCount.toString().padLeft(2, '0'),
                       'L-04',
                       textTheme,
                     ),
@@ -289,7 +371,7 @@ class _ReceptionistDashboardScreenState
                       children: [
                         Text('TOTAL APPOINTMENTS', style: textTheme.labelLarge),
                         Text(
-                          '32',
+                          _totalAppointments.toString().padLeft(2, '0'),
                           style: textTheme.headlineLarge?.copyWith(
                             color: AppColors.onSurface,
                           ),
@@ -366,84 +448,7 @@ class _ReceptionistDashboardScreenState
                 'Token #102',
                 textTheme,
               ),
-              const SizedBox(height: 12),
-              _buildAppointmentItem(
-                context,
-                '11:45 AM',
-                'Clara Abernathy',
-                'Consultation',
-                'Token #105',
-                textTheme,
-              ),
               const SizedBox(height: 24),
-              // Shift Oversight
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: AppColors.onBackground,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Shift Oversight',
-                          style: textTheme.headlineMedium?.copyWith(
-                            color: Colors.white,
-                            fontSize: 18,
-                          ),
-                        ),
-                        Text(
-                          'DR. MORRISON',
-                          style: textTheme.labelLarge?.copyWith(
-                            color: Colors.white.withValues(alpha: 0.6),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        _buildAvatar(
-                          'https://lh3.googleusercontent.com/aida-public/AB6AXuANihBFb2zH9-0P0joahzrCMGAJo5X4yX1mG6T0s8kcOi6jPUqDiI2-zrMQbq1J9IN4FiJGDM-3HOfCYQkXJT0-x0l2YNCbOuaziKFQJKi6O7B78kPTE_Fq3i5NbRYn-Fm2pFQRmRLbZb0CdqON8eCOckX3TkNAoCU8Oa4Sk1vfzZTcEJ8GqGGeCrKfffvFTvFlBicNVt-YVPl49N98MBoWJG1YkbdMBZKTmvqbkrqFHmBHcJbbC_CKVf9ZpXUNV-khMvLo1k0IRkA',
-                        ),
-                        const SizedBox(width: 8),
-                        _buildAvatar(
-                          'https://lh3.googleusercontent.com/aida-public/AB6AXuCpNdi0pb4TV0QSzSO3hJle5_izKyhBVEhNIBJfIH6lWOWm2XUtwkeR3MTrUZetUtHdUnlxe7-QDOXmQO7AwDctIGViS_mz9jPTBwCApoW3Yd0_oIG2VeLmq6vv_IPomLt-VgsIBTSGsd6Gi8t5JeQVP6jHsOJ2Vs__chyFfPAg79m5iDpAPfsGVeo1v-kcuo0L576bYJBITJGECkxwZrpk17TuiQiM7WugaNbRsaXFmwyT_YcymiSrWOAMbI7m4Z_rJ1nAvZ76tDo',
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: AppColors.outline.withValues(alpha: 0.3),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Center(
-                            child: Text(
-                              '+4',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'All examination rooms currently at 85% capacity. Expected peak at 14:00.',
-                      style: textTheme.bodyMedium?.copyWith(
-                        color: Colors.white.withValues(alpha: 0.8),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             ],
           ),
         ),
@@ -544,18 +549,6 @@ class _ReceptionistDashboardScreenState
             const Icon(Icons.chevron_right, color: AppColors.outline),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildAvatar(String url) {
-    return Container(
-      width: 40,
-      height: 40,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(color: AppColors.onBackground, width: 2),
-        image: DecorationImage(image: NetworkImage(url), fit: BoxFit.cover),
       ),
     );
   }

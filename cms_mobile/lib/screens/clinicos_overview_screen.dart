@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:developer';
+import 'dart:convert';
+import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
 import '../theme.dart';
-import '../services/doctor_detail_api.dart';
-import '../services/patient_api.dart';
 import '../services/user_session.dart';
 import '../widgets/custom_snackbar.dart';
 import '../services/queue_detail_api.dart';
+import '../services/pusher_service.dart';
 
 class ClinicosOverviewScreen extends StatefulWidget {
   final String? patientName;
@@ -29,21 +30,18 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
   bool _isLoading = false;
   bool _isRefreshing = false;
 
-  // Dynamic data
-  String _nowServing = '07';
-  // Call API api/queue/live' and set value of _nowServing
+  // Dynamic data — sourced from /queue/live API
+  String _nowServing = '--';
+  String _yourToken = '--';
+  String _patientNameDisplay = 'Guest';
 
-  late String _yourToken;
-  String _waitTime = '~45 mins';
-  late String _patientNameDisplay;
-
-  final _doctorApi = DoctorDetailApi();
-  final _patientApi = PatientApi();
   final _queueApi = QueueApi();
 
   @override
   void initState() {
     super.initState();
+
+    // Load saved session values
     _yourToken = UserSession.lastToken ?? '--';
     _patientNameDisplay = UserSession.lastBookedName ?? 'Guest';
 
@@ -55,98 +53,70 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
 
-    // Only fetch if we have a valid 10-digit phone
-    final phone = widget.patientPhone ?? UserSession.lastBookedPhone;
-    if (phone != null && phone.length == 10) {
-      _fetchOverviewData();
+    // Fetch live queue on load
+    _fetchOverviewData();
+
+    // Subscribe to Pusher for real-time updates
+    PusherService().subscribe("clinic-updates");
+    PusherService().addListener(_onPusherEvent);
+  }
+
+  /// Handles incoming Pusher events and updates _nowServing in real time.
+  void _onPusherEvent(PusherEvent event) {
+    log("ClinicosOverview: Pusher Event -> ${event.eventName} : ${event.data}");
+
+    if (event.eventName == 'queue-updated' ||
+        event.eventName == 'token-called' ||
+        event.eventName == 'App\\Events\\QueueUpdated') {
+      try {
+        final data = jsonDecode(event.data ?? '{}');
+        final token = data['token_number']?.toString() ??
+            data['now_serving']?.toString() ??
+            data['token']?.toString();
+        if (token != null && mounted) {
+          setState(() => _nowServing = token);
+          log("ClinicosOverview: Real-time token update -> $_nowServing");
+        } else {
+          // Fallback: re-fetch from API
+          _fetchOverviewData();
+        }
+      } catch (e) {
+        log("ClinicosOverview: Error parsing Pusher data: $e");
+        _fetchOverviewData();
+      }
     }
   }
 
+  /// Fetches the current serving token from /queue/live.
+  /// This is the single source of truth for "Now Serving".
   Future<void> _fetchOverviewData() async {
-    final name = widget.patientName ?? UserSession.lastBookedName ?? "Guest";
-    final phone = widget.patientPhone ?? UserSession.lastBookedPhone;
-
-    if (phone == null || phone.length != 10) {
-      log("Skipping fetch: Invalid phone number '$phone'");
-      return;
-    }
-
+    log("ClinicosOverview: Fetching live queue data...");
     if (mounted) setState(() => _isLoading = true);
+
     try {
-      // 1. Fetch general doctor/queue details
-      final doctorResponse = await _doctorApi.getDoctorDetails(
-        doctorId: 2,
-        name: name,
-        phone: phone,
-        date: "2026-05-07",
-      );
+      final response = await _queueApi.getQueueDetails(doctorId: 2);
+      log("ClinicosOverview: /queue/live response: $response");
 
-      final queueResponse = await _queueApi.getQueueDetails(doctorId: 2);
-      log("Queue API Response: $queueResponse");
-
-      // [log] Queue API Response: {data: {queue: {current_patient: {id: 33, token_number: 2, status: serving, called_at: 2026-05-07 17:52:14, appointment: {id: 33, patient_name: Deepak, patient_phone: +91709685088, status: pending}, doctor: {id: 2, name: Dr. Smith, specialization: General}}, clinic_name: All Clinic , date: 2026-05-07}, message: Current patient retrieved successfully}}
-      _nowServing = queueResponse['data']['queue']['current_patient']
-              ['token_number']
-          .toString();
-
-      // 2. Fetch specific patient token status (New API)
-      final appointmentId = UserSession.lastAppointmentId;
-      dynamic tokenResponse;
-      if (appointmentId != null) {
-        tokenResponse = await _patientApi.checkToken(
-          phone: phone,
-          appointmentId: appointmentId,
-        );
-      } else {
-        log("Skipping token check: No appointment ID found in session");
-      }
-
-      log("Doctor API Response: $doctorResponse");
-      log("Token API Response: $tokenResponse");
-
-      if (mounted) {
-        setState(() {
-          // 1. Update queue info from doctor API
-          if (doctorResponse != null && doctorResponse['data'] != null) {
-            final data = doctorResponse['data'];
-            _nowServing = data['now_serving']?.toString() ?? _nowServing;
-            _waitTime = data['estimated_wait']?.toString() ?? _waitTime;
-          }
-
-          // 2. Update user specific info from token API (Robust Parsing)
-          if (tokenResponse != null) {
-            dynamic data = tokenResponse['data'] ?? tokenResponse;
-
-            // If data contains an 'appointment' object (common pattern)
-            if (data is Map && data['appointment'] != null) {
-              data = data['appointment'];
+      if (response != null && response['data'] != null) {
+        final queue = response['data']['queue'];
+        if (queue != null) {
+          final currentPatient = queue['current_patient'];
+          if (currentPatient != null) {
+            // Backend may use 'token_number' or 'token'
+            final token = currentPatient['token_number']?.toString() ??
+                currentPatient['token']?.toString();
+            log("ClinicosOverview: Now serving: $token");
+            if (mounted && token != null) {
+              setState(() => _nowServing = token);
             }
-
-            if (data is Map) {
-              // Try to find token in common field names
-              final newToken =
-                  data['token']?.toString() ??
-                  data['token_number']?.toString() ??
-                  data['appointment_token']?.toString();
-
-              if (newToken != null) {
-                _yourToken = newToken;
-                // Also update UserSession so it persists during this session
-                UserSession.lastToken = newToken;
-              }
-
-              final newName =
-                  data['name']?.toString() ?? data['patient_name']?.toString();
-              if (newName != null) {
-                _patientNameDisplay = newName;
-                UserSession.lastBookedName = newName;
-              }
-            }
+          } else {
+            log("ClinicosOverview: No active patient in queue");
+            if (mounted) setState(() => _nowServing = '--');
           }
-        });
+        }
       }
     } catch (e) {
-      log("Error fetching overview data: $e");
+      log("ClinicosOverview: Error fetching queue: $e");
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -155,6 +125,13 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
   Future<void> _refresh() async {
     if (_isRefreshing) return;
     setState(() => _isRefreshing = true);
+
+    // Reload session in case token was updated elsewhere
+    await UserSession.init();
+    setState(() {
+      _yourToken = UserSession.lastToken ?? '--';
+      _patientNameDisplay = UserSession.lastBookedName ?? 'Guest';
+    });
 
     await _fetchOverviewData();
 
@@ -170,6 +147,8 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
 
   @override
   void dispose() {
+    PusherService().removeListener(_onPusherEvent);
+    PusherService().unsubscribe("clinic-updates");
     _pulseController.dispose();
     super.dispose();
   }
@@ -247,17 +226,7 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
 
                 // Patient Status Card
                 _buildStatusCard(),
-                const SizedBox(height: 12),
-
-                Text(
-                  'Estimated wait time: $_waitTime',
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFF00478D),
-                  ),
-                ),
-                const SizedBox(height: 48),
+                const SizedBox(height: 32),
 
                 // Action Grid
                 _buildActionGrid(),
@@ -331,6 +300,13 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
   }
 
   Widget _buildQueueIndicator() {
+    double progress = 0.0;
+    try {
+      final current = int.parse(_nowServing);
+      // Scale progress: token / 20 (a reasonable max cycle), clamped 0-1
+      progress = (current / 20).clamp(0.05, 1.0);
+    } catch (_) {}
+
     return Stack(
       alignment: Alignment.center,
       children: [
@@ -341,7 +317,7 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
             painter: _CircularProgressPainter(
               backgroundColor: const Color(0xFFEDEEEF),
               progressColor: AppColors.primary,
-              progress: 0.75,
+              progress: progress,
             ),
           ),
         ),

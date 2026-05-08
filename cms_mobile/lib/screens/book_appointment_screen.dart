@@ -134,7 +134,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
         doctorId: 2, // Defaulting to 2 as per user's curl
         name: _nameController.text,
         phone: _phoneController.text,
-        date: "2026-05-07", // Defaulting to the date in curl
+        date: DateTime.now().toString().split(' ')[0], // Current date YYYY-MM-DD
       );
 
       if (mounted) {

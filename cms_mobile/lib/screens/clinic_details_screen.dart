@@ -56,7 +56,9 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
 
   Future<void> _openMap(String coords) async {
     try {
-      final Uri googleMapsUrl = Uri.parse("https://www.google.com/maps/search/?api=1&query=$coords");
+      final Uri googleMapsUrl = Uri.parse(
+        "https://www.google.com/maps/search/?api=1&query=$coords",
+      );
       if (await canLaunchUrl(googleMapsUrl)) {
         await launchUrl(googleMapsUrl, mode: LaunchMode.externalApplication);
       } else {
@@ -64,9 +66,9 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error opening maps: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error opening maps: $e')));
       }
     }
   }
@@ -490,18 +492,23 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
 
     if (hoursData is Map) {
       final List<String> dayNames = [
-        'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday',
+        'Sunday',
       ];
 
       for (var day in dayNames) {
-        String time = hoursData[day.toLowerCase()]?.toString() ?? 'Not specified';
-        
-        final isClosed = time.toLowerCase().contains('closed') || time.toLowerCase().contains('close');
-        days.add({
-          'day': day,
-          'time': time,
-          'isClosed': isClosed,
-        });
+        String time =
+            hoursData[day.toLowerCase()]?.toString() ?? 'Not specified';
+
+        final isClosed =
+            time.toLowerCase().contains('closed') ||
+            time.toLowerCase().contains('close');
+        days.add({'day': day, 'time': time, 'isClosed': isClosed});
       }
     } else {
       return const SizedBox.shrink();
@@ -533,7 +540,11 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
                   color: const Color(0xFFEFF6FF),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.alarm_on_rounded, color: Color(0xFF2563EB), size: 22),
+                child: const Icon(
+                  Icons.alarm_on_rounded,
+                  color: Color(0xFF2563EB),
+                  size: 22,
+                ),
               ),
               const SizedBox(width: 12),
               Text(
@@ -553,12 +564,19 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
             return Padding(
               padding: const EdgeInsets.only(bottom: 10),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 14,
+                ),
                 decoration: BoxDecoration(
-                  color: isClosed ? const Color(0xFFFEF2F2) : const Color(0xFFF8FAFC),
+                  color: isClosed
+                      ? const Color(0xFFFEF2F2)
+                      : const Color(0xFFF8FAFC),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: isClosed ? const Color(0xFFFEE2E2) : const Color(0xFFF1F5F9),
+                    color: isClosed
+                        ? const Color(0xFFFEE2E2)
+                        : const Color(0xFFF1F5F9),
                   ),
                 ),
                 child: Row(
@@ -568,11 +586,17 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
                       width: 8,
                       height: 8,
                       decoration: BoxDecoration(
-                        color: isClosed ? const Color(0xFFEF4444) : const Color(0xFF22C55E),
+                        color: isClosed
+                            ? const Color(0xFFEF4444)
+                            : const Color(0xFF22C55E),
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: (isClosed ? const Color(0xFFEF4444) : const Color(0xFF22C55E)).withValues(alpha: 0.3),
+                            color:
+                                (isClosed
+                                        ? const Color(0xFFEF4444)
+                                        : const Color(0xFF22C55E))
+                                    .withValues(alpha: 0.3),
                             blurRadius: 4,
                             spreadRadius: 1,
                           ),
@@ -585,9 +609,12 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
                       child: Text(
                         day['day'],
                         style: GoogleFonts.inter(
-                          fontSize: 12.5, // Slightly smaller to prevent wrapping
+                          fontSize:
+                              12.5, // Slightly smaller to prevent wrapping
                           fontWeight: FontWeight.w600,
-                          color: isClosed ? const Color(0xFF991B1B) : const Color(0xFF475569),
+                          color: isClosed
+                              ? const Color(0xFF991B1B)
+                              : const Color(0xFF475569),
                         ),
                       ),
                     ),
@@ -595,7 +622,10 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
                     Flexible(
                       flex: 12, // More room for the timing string
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(8),
@@ -610,20 +640,28 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           mainAxisSize: MainAxisSize.min,
-                          children: day['time'].toString().split(',').map<Widget>((t) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 2),
-                              child: Text(
-                                t.trim(),
-                                textAlign: TextAlign.right,
-                                style: GoogleFonts.manrope(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  color: isClosed ? const Color(0xFFEF4444) : const Color(0xFF0F172A),
-                                ),
-                              ),
-                            );
-                          }).toList(),
+                          children: day['time']
+                              .toString()
+                              .split(',')
+                              .map<Widget>((t) {
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 2,
+                                  ),
+                                  child: Text(
+                                    t.trim(),
+                                    textAlign: TextAlign.right,
+                                    style: GoogleFonts.manrope(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                      color: isClosed
+                                          ? const Color(0xFFEF4444)
+                                          : const Color(0xFF0F172A),
+                                    ),
+                                  ),
+                                );
+                              })
+                              .toList(),
                         ),
                       ),
                     ),
@@ -644,7 +682,11 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.history_rounded, size: 14, color: Color(0xFF94A3B8)),
+                const Icon(
+                  Icons.history_rounded,
+                  size: 14,
+                  color: Color(0xFF94A3B8),
+                ),
                 const SizedBox(width: 6),
                 Text(
                   'Last Updated: May 07, 2026',
