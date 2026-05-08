@@ -303,78 +303,125 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> with SingleTi
   Widget _buildScheduleSection(dynamic workingHours) {
     if (workingHours is! Map) return const SizedBox.shrink();
     final days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-
-    final List<String> daysToShow = _isScheduleExpanded ? days : days.take(3).toList();
+    // Show all 7 days when expanded, and show NOTHING when collapsed to ensure a full collapse as requested
+    final List<String> daysToShow = _isScheduleExpanded ? days : [];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text('Availability', style: GoogleFonts.manrope(fontSize: 18, fontWeight: FontWeight.w800, color: const Color(0xFF1E293B))),
-            GestureDetector(
-              onTap: () => setState(() => _isScheduleExpanded = !_isScheduleExpanded),
+            Text(
+              'Availability',
+              style: GoogleFonts.manrope(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: const Color(0xFF1E293B),
+              ),
+            ),
+            TextButton(
+              onPressed: () => setState(() => _isScheduleExpanded = !_isScheduleExpanded),
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
               child: Text(
                 _isScheduleExpanded ? 'See Less' : 'Full Week',
-                style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: const Color(0xFF005EB8)),
+                style: GoogleFonts.inter(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF005EB8),
+                ),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 16),
-        AnimatedContainer(
+        AnimatedSize(
           duration: const Duration(milliseconds: 300),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: const Color(0xFFF1F5F9)),
-          ),
-          child: Column(
-            children: daysToShow.map((day) {
-              final hours = workingHours[day];
-              bool isClosed = (hours == null || hours == "Closed" || (hours is List && hours.isEmpty));
-              
-              String timeStr = 'Closed';
-              if (!isClosed) {
-                if (hours is List) {
-                  timeStr = hours.map((slot) => "${slot['start_time']} - ${slot['end_time']}").join(", ");
-                } else {
-                  timeStr = hours.toString();
-                }
-              }
-
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          curve: Curves.easeInOut,
+          alignment: Alignment.topCenter,
+          child: _isScheduleExpanded ? Column(
+            children: [
+              const SizedBox(height: 16),
+              Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: const Color(0xFFF1F5F9)),
+                ),
+                child: Column(
                   children: [
-                    Text(day[0].toUpperCase() + day.substring(1),
-                        style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: isClosed ? const Color(0xFF94A3B8) : const Color(0xFF1E293B))),
-                    const SizedBox(width: 16), // Added spacing
-                    Flexible( // Added Flexible to prevent overflow
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: isClosed ? const Color(0xFFFEF2F2) : const Color(0xFFF0F9FF),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          timeStr,
-                          textAlign: TextAlign.right,
-                          style: GoogleFonts.manrope(
-                            fontSize: 13, 
-                            fontWeight: FontWeight.w700, 
-                            color: isClosed ? const Color(0xFFEF4444) : const Color(0xFF005EB8)
+                    ...daysToShow.asMap().entries.map((entry) {
+                      final int index = entry.key;
+                      final String day = entry.value;
+                      final hours = workingHours[day];
+                      bool isClosed = (hours == null || hours == "Closed" || (hours is List && hours.isEmpty));
+                      
+                      String timeStr = 'Closed';
+                      if (!isClosed) {
+                        if (hours is List) {
+                          timeStr = hours.map((slot) => "${slot['start_time']} - ${slot['end_time']}").join(", ");
+                        } else {
+                          timeStr = hours.toString();
+                        }
+                      }
+
+                      return Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    day[0].toUpperCase() + day.substring(1),
+                                    style: GoogleFonts.inter(
+                                      fontSize: 14, 
+                                      fontWeight: FontWeight.w600, 
+                                      color: isClosed ? const Color(0xFF94A3B8) : const Color(0xFF1E293B)
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Flexible(
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    decoration: BoxDecoration(
+                                      color: isClosed ? const Color(0xFFFEF2F2) : const Color(0xFFF0F9FF),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: Text(
+                                      timeStr,
+                                      textAlign: TextAlign.right,
+                                      style: GoogleFonts.manrope(
+                                        fontSize: 13, 
+                                        fontWeight: FontWeight.w700, 
+                                        color: isClosed ? const Color(0xFFEF4444) : const Color(0xFF005EB8)
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ),
-                    ),
+                          if (index != daysToShow.length - 1) 
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 24),
+                              child: Divider(height: 1, color: const Color(0xFFF1F5F9)),
+                            ),
+                        ],
+                      );
+                    }),
                   ],
                 ),
-              );
-            }).toList(),
-          ),
+              ),
+            ],
+          ) : const SizedBox.shrink(),
         ),
       ],
     );
