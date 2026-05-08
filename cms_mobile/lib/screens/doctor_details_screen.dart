@@ -20,6 +20,7 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> with SingleTi
   bool _isLoading = true;
   String? _errorMessage;
   late AnimationController _pulseController;
+  bool _isScheduleExpanded = false;
 
   @override
   void initState() {
@@ -247,11 +248,6 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> with SingleTi
             data['name'] ?? 'Dr. Unknown',
             style: GoogleFonts.manrope(fontSize: 28, fontWeight: FontWeight.w800, color: const Color(0xFF1E293B)),
           ),
-          const SizedBox(height: 4),
-          Text(
-            data['specialization'] ?? 'Specialist',
-            style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w600, color: const Color(0xFF64748B), letterSpacing: 0.5),
-          ),
         ],
       ),
     );
@@ -259,13 +255,23 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> with SingleTi
 
 
   Widget _buildStatsRow(dynamic data) {
-    return Row(
+    return Column(
       children: [
-        _buildStatItem('Experience', '${data['experience_years']}+ Yrs', Icons.military_tech_rounded),
-        const SizedBox(width: 8),
-        _buildStatItem('Qualification', data['qualification'] ?? 'N/A', Icons.school_rounded),
-        const SizedBox(width: 8),
-        _buildStatItem('Gender', data['gender'] ?? 'N/A', Icons.person_search_rounded),
+        Row(
+          children: [
+            _buildStatItem('Experience', '${data['experience_years']}+ Yrs', Icons.military_tech_rounded),
+            const SizedBox(width: 12),
+            _buildStatItem('Qualification', data['qualification'] ?? 'N/A', Icons.school_rounded),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            _buildStatItem('Gender', data['gender'] ?? 'N/A', Icons.person_search_rounded),
+            const SizedBox(width: 12),
+            _buildStatItem('Doctor ID', 'D-${data['id']}', Icons.badge_rounded),
+          ],
+        ),
       ],
     );
   }
@@ -298,6 +304,8 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> with SingleTi
     if (workingHours is! Map) return const SizedBox.shrink();
     final days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
 
+    final List<String> daysToShow = _isScheduleExpanded ? days : days.take(3).toList();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -305,21 +313,36 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> with SingleTi
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text('Availability', style: GoogleFonts.manrope(fontSize: 18, fontWeight: FontWeight.w800, color: const Color(0xFF1E293B))),
-            Text('Full Week', style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: const Color(0xFF005EB8))),
+            GestureDetector(
+              onTap: () => setState(() => _isScheduleExpanded = !_isScheduleExpanded),
+              child: Text(
+                _isScheduleExpanded ? 'See Less' : 'Full Week',
+                style: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w600, color: const Color(0xFF005EB8)),
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 16),
-        Container(
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(24),
             border: Border.all(color: const Color(0xFFF1F5F9)),
           ),
           child: Column(
-            children: days.map((day) {
+            children: daysToShow.map((day) {
               final hours = workingHours[day];
-              bool isClosed = (hours is! List || hours.isEmpty);
-              String timeStr = isClosed ? 'Closed' : '${hours.first['start_time']} - ${hours.first['end_time']}';
+              bool isClosed = (hours == null || hours == "Closed" || (hours is List && hours.isEmpty));
+              
+              String timeStr = 'Closed';
+              if (!isClosed) {
+                if (hours is List) {
+                  timeStr = hours.map((slot) => "${slot['start_time']} - ${slot['end_time']}").join(", ");
+                } else {
+                  timeStr = hours.toString();
+                }
+              }
 
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
@@ -328,14 +351,24 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> with SingleTi
                   children: [
                     Text(day[0].toUpperCase() + day.substring(1),
                         style: GoogleFonts.inter(fontSize: 14, fontWeight: FontWeight.w600, color: isClosed ? const Color(0xFF94A3B8) : const Color(0xFF1E293B))),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: isClosed ? const Color(0xFFFEF2F2) : const Color(0xFFF0F9FF),
-                        borderRadius: BorderRadius.circular(8),
+                    const SizedBox(width: 16), // Added spacing
+                    Flexible( // Added Flexible to prevent overflow
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: isClosed ? const Color(0xFFFEF2F2) : const Color(0xFFF0F9FF),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          timeStr,
+                          textAlign: TextAlign.right,
+                          style: GoogleFonts.manrope(
+                            fontSize: 13, 
+                            fontWeight: FontWeight.w700, 
+                            color: isClosed ? const Color(0xFFEF4444) : const Color(0xFF005EB8)
+                          ),
+                        ),
                       ),
-                      child: Text(timeStr,
-                          style: GoogleFonts.manrope(fontSize: 13, fontWeight: FontWeight.w700, color: isClosed ? const Color(0xFFEF4444) : const Color(0xFF005EB8))),
                     ),
                   ],
                 ),
