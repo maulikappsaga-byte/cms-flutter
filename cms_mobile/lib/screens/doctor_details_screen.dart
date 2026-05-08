@@ -268,8 +268,6 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> with SingleTi
         Row(
           children: [
             _buildStatItem('Gender', data['gender'] ?? 'N/A', Icons.person_search_rounded),
-            const SizedBox(width: 12),
-            _buildStatItem('Doctor ID', 'D-${data['id']}', Icons.badge_rounded),
           ],
         ),
       ],
@@ -340,8 +338,8 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> with SingleTi
           ],
         ),
         AnimatedSize(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.fastOutSlowIn, // Smoother downward expansion
           alignment: Alignment.topCenter,
           child: _isScheduleExpanded ? Column(
             children: [
