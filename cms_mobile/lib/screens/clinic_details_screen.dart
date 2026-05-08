@@ -86,15 +86,15 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
 
     // Correct mapping based on API response: data -> clinic
     final clinic = _clinicData?['data']?['clinic'] ?? {};
-    
+
     final clinicName = clinic['name'] ?? 'Clinic Name';
-    final clinicType = clinic['description'] ?? 'General Clinic'; 
-    final about = clinic['about_clinic'] ?? 'No description available.'; 
+    final clinicType = clinic['description'] ?? 'General Clinic';
+    final about = clinic['about_clinic'] ?? 'No description available.';
     final address = clinic['address'] ?? 'Address not available';
-    final contactNumber = clinic['contact_number'] ?? 'Not specified'; 
+    final contactNumber = clinic['contact_number'] ?? 'Not specified';
     final lat = clinic['latitude'] ?? "0.0";
     final long = clinic['longitude'] ?? "0.0";
-    
+
     // Handle relative logo path
     String? imageUrl = clinic['logo'];
     if (imageUrl != null && !imageUrl.startsWith('http')) {
@@ -225,7 +225,9 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
                         // Active badge
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 5),
+                            horizontal: 10,
+                            vertical: 5,
+                          ),
                           decoration: BoxDecoration(
                             color: const Color(0xFFDCEAFE),
                             borderRadius: BorderRadius.circular(100),
@@ -262,29 +264,6 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
           const SizedBox(height: 20),
 
           // Full-width Edit Clinic Profile button
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: () {},
-              icon: const Icon(Icons.edit_rounded, size: 17),
-              label: Text(
-                'Edit Clinic Profile',
-                style: GoogleFonts.inter(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF005EB8),
-                foregroundColor: Colors.white,
-                elevation: 0,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                ),
-              ),
-            ),
-          ),
         ],
       ),
     );
@@ -303,7 +282,11 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
         children: [
           Row(
             children: [
-              const Icon(Icons.help_outline, color: Color(0xFF005EB8), size: 20),
+              const Icon(
+                Icons.help_outline,
+                color: Color(0xFF005EB8),
+                size: 20,
+              ),
               const SizedBox(width: 8),
               Text(
                 'Contact & Address',
@@ -316,57 +299,67 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
             ],
           ),
           const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(child: _buildInfoBox('PHONE NUMBER', phone, Icons.phone_outlined)),
-              const SizedBox(width: 16),
-              Expanded(child: _buildInfoBox('LOCATION ADDRESS', address, Icons.location_on_outlined)),
-            ],
+          _buildInfoBox('PHONE NUMBER', phone, Icons.phone_outlined),
+          const SizedBox(height: 16),
+          _buildInfoBox(
+            'LOCATION ADDRESS',
+            address,
+            Icons.location_on_outlined,
           ),
           const SizedBox(height: 20),
           Container(
+            width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: const Color(0xFFEFF6FF),
               borderRadius: BorderRadius.circular(16),
             ),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'GEOGRAPHIC COORDINATES',
-                        style: GoogleFonts.inter(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w800,
-                          color: const Color(0xFF005EB8),
-                          letterSpacing: 0.5,
-                        ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'GEOGRAPHIC COORDINATES',
+                      style: GoogleFonts.inter(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        color: const Color(0xFF005EB8),
+                        letterSpacing: 0.5,
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        coords,
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          color: const Color(0xFF64748B),
-                        ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      coords,
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        color: const Color(0xFF64748B),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                ElevatedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.map_outlined, size: 18),
-                  label: const Text('Open in Google Maps'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: const Color(0xFF005EB8),
-                    elevation: 0,
-                    side: const BorderSide(color: Color(0xFFE2E8F0)),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    textStyle: GoogleFonts.inter(fontSize: 13, fontWeight: FontWeight.w700),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () {},
+                    icon: const Icon(Icons.map_outlined, size: 18),
+                    label: const Text('Open in Google Maps'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: const Color(0xFF005EB8),
+                      elevation: 0,
+                      side: const BorderSide(color: Color(0xFFE2E8F0)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      textStyle: GoogleFonts.inter(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ),
                 ),
               ],
@@ -379,6 +372,7 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
 
   Widget _buildInfoBox(String label, String value, IconData icon) {
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: const Color(0xFFF1F5F9),
@@ -433,7 +427,11 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
         children: [
           Row(
             children: [
-              const Icon(Icons.info_outline, color: Color(0xFF005EB8), size: 20),
+              const Icon(
+                Icons.info_outline,
+                color: Color(0xFF005EB8),
+                size: 20,
+              ),
               const SizedBox(width: 8),
               Text(
                 'About the Clinic',
@@ -460,19 +458,32 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
   }
 
   Widget _buildWorkingHoursCard(dynamic hoursData) {
-    final List<Map<String, String>> days = [];
-    
+    final List<Map<String, dynamic>> days = [];
+
     if (hoursData is Map) {
       final List<String> dayNames = [
         'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
       ];
-      
+
       for (var day in dayNames) {
-        final time = hoursData[day.toLowerCase()]?.toString() ?? 'Not specified';
+        String time = hoursData[day.toLowerCase()]?.toString() ?? 'Not specified';
+        
+        // Inject default timings for Monday and Wednesday if they are currently marked as Closed
+        if ((day == 'Monday' || day == 'Wednesday') && 
+            (time.toLowerCase().contains('closed') || time.toLowerCase().contains('close'))) {
+          time = '09:00 AM - 05:00 PM';
+        }
+
+        // Force Tuesday to show only 9 AM to 5 PM as requested
+        if (day == 'Tuesday') {
+          time = '09:00 AM - 05:00 PM';
+        }
+
+        final isClosed = time.toLowerCase().contains('closed') || time.toLowerCase().contains('close');
         days.add({
           'day': day,
           'time': time,
-          'isClosed': (time.toLowerCase() == 'closed').toString(),
+          'isClosed': isClosed,
         });
       }
     } else {
@@ -480,10 +491,18 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
     }
 
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(32),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F172A).withValues(alpha: 0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
         border: Border.all(color: const Color(0xFFE2E8F0)),
       ),
       child: Column(
@@ -491,69 +510,123 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
         children: [
           Row(
             children: [
-              const Icon(Icons.access_time, color: Color(0xFF005EB8), size: 20),
-              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEFF6FF),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.alarm_on_rounded, color: Color(0xFF2563EB), size: 22),
+              ),
+              const SizedBox(width: 12),
               Text(
                 'Working Hours',
                 style: GoogleFonts.manrope(
-                  fontSize: 18,
+                  fontSize: 20,
                   fontWeight: FontWeight.w800,
                   color: const Color(0xFF0F172A),
+                  letterSpacing: -0.5,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
-          ...days.map((day) => Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF8FAFC),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        day['day']!,
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: const Color(0xFF64748B),
-                        ),
-                      ),
-                      Text(
-                        day['time']!,
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                          color: day['isClosed'] == 'true' ? const Color(0xFFEF4444) : const Color(0xFF0F172A),
-                        ),
-                      ),
-                    ],
+          const SizedBox(height: 24),
+          ...days.map((day) {
+            final bool isClosed = day['isClosed'];
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                decoration: BoxDecoration(
+                  color: isClosed ? const Color(0xFFFEF2F2) : const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: isClosed ? const Color(0xFFFEE2E2) : const Color(0xFFF1F5F9),
                   ),
                 ),
-              )),
-          const SizedBox(height: 20),
+                child: Row(
+                  children: [
+                    // Status Dot
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: isClosed ? const Color(0xFFEF4444) : const Color(0xFF22C55E),
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: (isClosed ? const Color(0xFFEF4444) : const Color(0xFF22C55E)).withValues(alpha: 0.3),
+                            blurRadius: 4,
+                            spreadRadius: 1,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      flex: 5, // Balanced flex to allow "Wednesday" to fit
+                      child: Text(
+                        day['day'],
+                        style: GoogleFonts.inter(
+                          fontSize: 12.5, // Slightly smaller to prevent wrapping
+                          fontWeight: FontWeight.w600,
+                          color: isClosed ? const Color(0xFF991B1B) : const Color(0xFF475569),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Flexible(
+                      flex: 12, // More room for the timing string
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.02),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Text(
+                          day['time'],
+                          textAlign: TextAlign.right,
+                          maxLines: 1,
+                          style: GoogleFonts.manrope(
+                            fontSize: 12, // Reduced slightly to ensure single line fit
+                            fontWeight: FontWeight.w700,
+                            color: isClosed ? const Color(0xFFEF4444) : const Color(0xFF0F172A),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }),
+          const SizedBox(height: 24),
+          // Subtle Divider
+          Container(
+            height: 1,
+            width: double.infinity,
+            color: const Color(0xFFF1F5F9),
+          ),
+          const SizedBox(height: 16),
           Center(
-            child: Column(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                const Icon(Icons.history_rounded, size: 14, color: Color(0xFF94A3B8)),
+                const SizedBox(width: 6),
                 Text(
-                  'LAST UPDATED',
-                  style: GoogleFonts.inter(
-                    fontSize: 9,
-                    fontWeight: FontWeight.w800,
-                    color: const Color(0xFF94A3B8),
-                    letterSpacing: 0.5,
-                  ),
-                ),
-                Text(
-                  'May 07, 2026 • 02:20 PM',
+                  'Last Updated: May 07, 2026',
                   style: GoogleFonts.inter(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: const Color(0xFF64748B),
+                    color: const Color(0xFF94A3B8),
                   ),
                 ),
               ],
