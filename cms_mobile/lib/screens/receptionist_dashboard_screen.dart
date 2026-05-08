@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+
 import '../theme.dart';
 import '../services/pusher_service.dart';
 import '../services/queue_detail_api.dart';

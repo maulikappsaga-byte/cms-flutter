@@ -130,11 +130,26 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
     });
 
     try {
+      final today = DateTime.now().toString().split(' ')[0];
+      
+      // Prevent duplicate booking if already booked today
+      if (UserSession.lastBookingDate == today) {
+        if (mounted) {
+          setState(() => _isLoading = false);
+          CustomSnackBar.show(
+            context: context,
+            message: 'You have already booked an appointment for today.',
+            type: SnackBarType.warning,
+          );
+        }
+        return;
+      }
+
       final response = await _appointmentApi.bookAppointment(
         doctorId: 2, // Defaulting to 2 as per user's curl
         name: _nameController.text,
         phone: _phoneController.text,
-        date: DateTime.now().toString().split(' ')[0], // Current date YYYY-MM-DD
+        date: today, // Current date YYYY-MM-DD
       );
 
       if (mounted) {
@@ -172,6 +187,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
           phone: _phoneController.text,
           token: token,
           appointmentId: appointmentId,
+          bookingDate: DateTime.now().toString().split(' ')[0],
         );
 
         _showSuccessDialog(token);
@@ -327,7 +343,10 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: _isLoading ? null : _bookAppointment,
+                        onPressed: _isLoading 
+                            || (UserSession.lastBookingDate == DateTime.now().toString().split(' ')[0])
+                            ? null 
+                            : _bookAppointment,
                         child: _isLoading
                             ? const SizedBox(
                                 height: 20,
@@ -337,14 +356,16 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                                   strokeWidth: 2,
                                 ),
                               )
-                            : const Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text('Confirm & Book Appointment'),
-                                  SizedBox(width: 8),
-                                  Icon(Icons.arrow_forward, size: 20),
-                                ],
-                              ),
+                            : (UserSession.lastBookingDate == DateTime.now().toString().split(' ')[0])
+                                ? const Text('Already Booked Today')
+                                : const Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text('Confirm & Book Appointment'),
+                                      SizedBox(width: 8),
+                                      Icon(Icons.arrow_forward, size: 20),
+                                    ],
+                                  ),
                       ),
                     ),
                     const SizedBox(height: 24),

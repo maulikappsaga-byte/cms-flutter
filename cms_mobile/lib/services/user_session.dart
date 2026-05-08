@@ -5,11 +5,13 @@ class UserSession {
   static String? lastBookedPhone;
   static String? lastToken;
   static String? lastAppointmentId;
+  static String? lastBookingDate;
 
   static const String _keyName = 'last_booked_name';
   static const String _keyPhone = 'last_booked_phone';
   static const String _keyToken = 'last_token';
   static const String _keyAppointmentId = 'last_appointment_id';
+  static const String _keyBookingDate = 'last_booking_date';
 
   // Initialize session from local storage
   static Future<void> init() async {
@@ -18,6 +20,7 @@ class UserSession {
     lastBookedPhone = prefs.getString(_keyPhone);
     lastToken = prefs.getString(_keyToken);
     lastAppointmentId = prefs.getString(_keyAppointmentId);
+    lastBookingDate = prefs.getString(_keyBookingDate);
   }
 
   static Future<void> updateSession({
@@ -25,6 +28,7 @@ class UserSession {
     required String phone,
     String? token,
     String? appointmentId,
+    String? bookingDate,
   }) async {
     lastBookedName = name;
     lastBookedPhone = phone;
@@ -33,6 +37,9 @@ class UserSession {
     }
     if (appointmentId != null) {
       lastAppointmentId = appointmentId;
+    }
+    if (bookingDate != null) {
+      lastBookingDate = bookingDate;
     }
 
     final prefs = await SharedPreferences.getInstance();
@@ -44,6 +51,9 @@ class UserSession {
     if (appointmentId != null) {
       await prefs.setString(_keyAppointmentId, appointmentId);
     }
+    if (bookingDate != null) {
+      await prefs.setString(_keyBookingDate, bookingDate);
+    }
   }
 
   static Future<void> clear() async {
@@ -51,11 +61,13 @@ class UserSession {
     lastBookedPhone = null;
     lastToken = null;
     lastAppointmentId = null;
+    lastBookingDate = null;
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_keyName);
     await prefs.remove(_keyPhone);
     await prefs.remove(_keyToken);
     await prefs.remove(_keyAppointmentId);
+    await prefs.remove(_keyBookingDate);
   }
 }
