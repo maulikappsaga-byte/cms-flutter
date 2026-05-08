@@ -107,8 +107,11 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> with SingleTi
             child: CircleAvatar(
               backgroundColor: Colors.white,
               child: IconButton(
-                icon: const Icon(Icons.share_rounded, size: 20, color: Color(0xFF1E293B)),
-                onPressed: () {},
+                icon: const Icon(Icons.refresh_rounded, size: 22, color: Color(0xFF005EB8)),
+                onPressed: () {
+                  setState(() => _isLoading = true);
+                  _fetchDoctorDetails();
+                },
               ),
             ),
           ),
@@ -236,8 +239,6 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> with SingleTi
     return Row(
       children: [
         _buildStatItem('Experience', '${data['experience_years']}+ Yrs', Icons.military_tech_rounded),
-        _buildStatItem('Consultation', '₹${data['consultation_fee']}', Icons.account_balance_wallet_rounded),
-        _buildStatItem('Rating', '4.9 ★', Icons.star_rounded),
       ],
     );
   }
@@ -366,32 +367,19 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> with SingleTi
           boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 40, offset: const Offset(0, -10))],
           borderRadius: const BorderRadius.only(topLeft: Radius.circular(32), topRight: Radius.circular(32)),
         ),
-        child: Row(
-          children: [
-            Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Consultation Fee', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: const Color(0xFF64748B))),
-                const SizedBox(height: 2),
-                Text('₹${data['consultation_fee']}', style: GoogleFonts.manrope(fontSize: 22, fontWeight: FontWeight.w800, color: const Color(0xFF1E293B))),
-              ],
+        child: SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: () => Navigator.pushNamed(context, '/book-appointment-app'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF005EB8),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(vertical: 18),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              elevation: 0,
             ),
-            const SizedBox(width: 24),
-            Expanded(
-              child: ElevatedButton(
-                onPressed: () => Navigator.pushNamed(context, '/book-appointment-app'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF005EB8),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 18),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  elevation: 0,
-                ),
-                child: Text('Book Appointment', style: GoogleFonts.manrope(fontSize: 16, fontWeight: FontWeight.w800)),
-              ),
-            ),
-          ],
+            child: Text('Book Appointment', style: GoogleFonts.manrope(fontSize: 16, fontWeight: FontWeight.w800)),
+          ),
         ),
       ),
     );
