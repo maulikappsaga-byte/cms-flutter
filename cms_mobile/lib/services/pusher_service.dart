@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
+import '../constants/api_constants.dart';
 
 class PusherService {
   static final PusherService _instance = PusherService._internal();
@@ -13,8 +14,8 @@ class PusherService {
     try {
       log("Pusher: Initializing...");
       await _pusher.init(
-        apiKey: "0885b0f4711b8de140c5",
-        cluster: "ap2",
+        apiKey: ApiConstants.pusherAppKey,
+        cluster: ApiConstants.pusherCluster,
         onConnectionStateChange: onConnectionStateChange,
         onError: onError,
         onSubscriptionSucceeded: onSubscriptionSucceeded,

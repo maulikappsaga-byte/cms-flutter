@@ -5,16 +5,14 @@ import '../services/doctor_detail_api.dart';
 class DoctorDetailsScreen extends StatefulWidget {
   final int doctorId;
 
-  const DoctorDetailsScreen({
-    super.key,
-    this.doctorId = 2,
-  });
+  const DoctorDetailsScreen({super.key, this.doctorId = 2});
 
   @override
   State<DoctorDetailsScreen> createState() => _DoctorDetailsScreenState();
 }
 
-class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> with SingleTickerProviderStateMixin {
+class _DoctorDetailsScreenState extends State<DoctorDetailsScreen>
+    with SingleTickerProviderStateMixin {
   final DoctorDetailApi _apiService = DoctorDetailApi();
   dynamic _doctorData;
   bool _isLoading = true;
@@ -40,7 +38,9 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> with SingleTi
 
   Future<void> _fetchDoctorDetails() async {
     try {
-      final data = await _apiService.getDoctorDetails(doctorId: widget.doctorId);
+      final data = await _apiService.getDoctorDetails(
+        doctorId: widget.doctorId,
+      );
       if (mounted) {
         setState(() {
           _doctorData = data;
@@ -62,7 +62,9 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> with SingleTi
     if (_isLoading) {
       return const Scaffold(
         backgroundColor: Color(0xFFF8FAFC),
-        body: Center(child: CircularProgressIndicator(color: Color(0xFF005EB8))),
+        body: Center(
+          child: CircularProgressIndicator(color: Color(0xFF005EB8)),
+        ),
       );
     }
 
@@ -76,7 +78,10 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> with SingleTi
               const Icon(Icons.error_outline, size: 48, color: Colors.red),
               const SizedBox(height: 16),
               Text('Error: $_errorMessage'),
-              TextButton(onPressed: _fetchDoctorDetails, child: const Text('Retry')),
+              TextButton(
+                onPressed: _fetchDoctorDetails,
+                child: const Text('Retry'),
+              ),
             ],
           ),
         ),
@@ -84,7 +89,8 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> with SingleTi
     }
 
     final data = _extractDoctorData();
-    if (data == null) return const Scaffold(body: Center(child: Text('Doctor not found')));
+    if (data == null)
+      return const Scaffold(body: Center(child: Text('Doctor not found')));
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -97,7 +103,11 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> with SingleTi
           child: CircleAvatar(
             backgroundColor: Colors.white,
             child: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: Color(0xFF1E293B)),
+              icon: const Icon(
+                Icons.arrow_back_ios_new_rounded,
+                size: 18,
+                color: Color(0xFF1E293B),
+              ),
               onPressed: () => Navigator.pop(context),
             ),
           ),
@@ -108,7 +118,11 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> with SingleTi
             child: CircleAvatar(
               backgroundColor: Colors.white,
               child: IconButton(
-                icon: const Icon(Icons.refresh_rounded, size: 22, color: Color(0xFF005EB8)),
+                icon: const Icon(
+                  Icons.refresh_rounded,
+                  size: 22,
+                  color: Color(0xFF005EB8),
+                ),
                 onPressed: () {
                   setState(() => _isLoading = true);
                   _fetchDoctorDetails();
@@ -152,7 +166,10 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> with SingleTi
         final apiData = _doctorData['data'];
         if (apiData is Map && apiData.containsKey('doctors')) {
           final list = apiData['doctors'] as List;
-          return list.firstWhere((d) => d['id'] == widget.doctorId, orElse: () => list.first);
+          return list.firstWhere(
+            (d) => d['id'] == widget.doctorId,
+            orElse: () => list.first,
+          );
         }
       }
     } catch (e) {
@@ -164,7 +181,15 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> with SingleTi
   bool _isDoctorCurrentlyAvailable(dynamic workingHours) {
     if (workingHours is! Map) return false;
     final now = DateTime.now();
-    final dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+    final dayNames = [
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+      "Sunday",
+    ];
     final today = dayNames[now.weekday - 1];
 
     final hours = workingHours[today];
@@ -200,14 +225,19 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> with SingleTi
 
   Widget _buildHeroHeader(dynamic data) {
     final bool isAvailable = _isDoctorCurrentlyAvailable(data['working_hours']);
-    final Color statusColor = isAvailable ? const Color(0xFF10B981) : const Color(0xFFEF4444);
+    final Color statusColor = isAvailable
+        ? const Color(0xFF10B981)
+        : const Color(0xFFEF4444);
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(24, 120, 24, 40),
       decoration: const BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.only(bottomLeft: Radius.circular(40), bottomRight: Radius.circular(40)),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(40),
+          bottomRight: Radius.circular(40),
+        ),
       ),
       child: Column(
         children: [
@@ -221,10 +251,19 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> with SingleTi
                   shape: BoxShape.circle,
                   border: Border.all(color: const Color(0xFFF1F5F9), width: 4),
                   image: data['profile_photo'] != null
-                      ? DecorationImage(image: NetworkImage(data['profile_photo']), fit: BoxFit.cover)
+                      ? DecorationImage(
+                          image: NetworkImage(data['profile_photo']),
+                          fit: BoxFit.cover,
+                        )
                       : null,
                 ),
-                child: data['profile_photo'] == null ? const Icon(Icons.person, size: 60, color: Color(0xFFCBD5E1)) : null,
+                child: data['profile_photo'] == null
+                    ? const Icon(
+                        Icons.person,
+                        size: 60,
+                        color: Color(0xFFCBD5E1),
+                      )
+                    : null,
               ),
               ScaleTransition(
                 scale: Tween(begin: 1.0, end: 1.2).animate(_pulseController),
@@ -236,7 +275,11 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> with SingleTi
                     shape: BoxShape.circle,
                     border: Border.all(color: Colors.white, width: 3),
                     boxShadow: [
-                      BoxShadow(color: statusColor.withValues(alpha: 0.3), blurRadius: 10, spreadRadius: 2),
+                      BoxShadow(
+                        color: statusColor.withValues(alpha: 0.3),
+                        blurRadius: 10,
+                        spreadRadius: 2,
+                      ),
                     ],
                   ),
                 ),
@@ -246,28 +289,33 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> with SingleTi
           const SizedBox(height: 20),
           Text(
             data['name'] ?? 'Dr. Unknown',
-            style: GoogleFonts.manrope(fontSize: 28, fontWeight: FontWeight.w800, color: const Color(0xFF1E293B)),
+            style: GoogleFonts.manrope(
+              fontSize: 28,
+              fontWeight: FontWeight.w800,
+              color: const Color(0xFF1E293B),
+            ),
           ),
         ],
       ),
     );
   }
 
-
   Widget _buildStatsRow(dynamic data) {
     return Column(
       children: [
         Row(
           children: [
-            _buildStatItem('Experience', '${data['experience_years']}+ Yrs', Icons.military_tech_rounded),
+            _buildStatItem(
+              'Experience',
+              '${data['experience_years']}+ Yrs',
+              Icons.military_tech_rounded,
+            ),
             const SizedBox(width: 12),
-            _buildStatItem('Qualification', data['qualification'] ?? 'N/A', Icons.school_rounded),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            _buildStatItem('Gender', data['gender'] ?? 'N/A', Icons.person_search_rounded),
+            _buildStatItem(
+              'Qualification',
+              data['qualification'] ?? 'N/A',
+              Icons.school_rounded,
+            ),
           ],
         ),
       ],
@@ -282,25 +330,52 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> with SingleTi
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 20, offset: const Offset(0, 4))],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.02),
+              blurRadius: 20,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Column(
           children: [
             Icon(icon, size: 24, color: const Color(0xFF005EB8)),
             const SizedBox(height: 12),
-            Text(value, style: GoogleFonts.manrope(fontSize: 16, fontWeight: FontWeight.w800, color: const Color(0xFF1E293B))),
+            Text(
+              value,
+              style: GoogleFonts.manrope(
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+                color: const Color(0xFF1E293B),
+              ),
+            ),
             const SizedBox(height: 4),
-            Text(label, style: GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w600, color: const Color(0xFF94A3B8))),
+            Text(
+              label,
+              style: GoogleFonts.inter(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF94A3B8),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-
   Widget _buildScheduleSection(dynamic workingHours) {
     if (workingHours is! Map) return const SizedBox.shrink();
-    final days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+    final days = [
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+      'sunday',
+    ];
     // Show all 7 days when expanded, and show NOTHING when collapsed to ensure a full collapse as requested
     final List<String> daysToShow = _isScheduleExpanded ? days : [];
 
@@ -320,7 +395,8 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> with SingleTi
               ),
             ),
             TextButton(
-              onPressed: () => setState(() => _isScheduleExpanded = !_isScheduleExpanded),
+              onPressed: () =>
+                  setState(() => _isScheduleExpanded = !_isScheduleExpanded),
               style: TextButton.styleFrom(
                 padding: EdgeInsets.zero,
                 minimumSize: Size.zero,
@@ -341,85 +417,116 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> with SingleTi
           duration: const Duration(milliseconds: 400),
           curve: Curves.fastOutSlowIn, // Smoother downward expansion
           alignment: Alignment.topCenter,
-          child: _isScheduleExpanded ? Column(
-            children: [
-              const SizedBox(height: 16),
-              Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: const Color(0xFFF1F5F9)),
-                ),
-                child: Column(
+          child: _isScheduleExpanded
+              ? Column(
                   children: [
-                    ...daysToShow.asMap().entries.map((entry) {
-                      final int index = entry.key;
-                      final String day = entry.value;
-                      final hours = workingHours[day];
-                      bool isClosed = (hours == null || hours == "Closed" || (hours is List && hours.isEmpty));
-                      
-                      String timeStr = 'Closed';
-                      if (!isClosed) {
-                        if (hours is List) {
-                          timeStr = hours.map((slot) => "${slot['start_time']} - ${slot['end_time']}").join(", ");
-                        } else {
-                          timeStr = hours.toString();
-                        }
-                      }
-
-                      return Column(
+                    const SizedBox(height: 16),
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        border: Border.all(color: const Color(0xFFF1F5F9)),
+                      ),
+                      child: Column(
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          ...daysToShow.asMap().entries.map((entry) {
+                            final int index = entry.key;
+                            final String day = entry.value;
+                            final hours = workingHours[day];
+                            bool isClosed =
+                                (hours == null ||
+                                hours == "Closed" ||
+                                (hours is List && hours.isEmpty));
+
+                            String timeStr = 'Closed';
+                            if (!isClosed) {
+                              if (hours is List) {
+                                timeStr = hours
+                                    .map(
+                                      (slot) =>
+                                          "${slot['start_time']} - ${slot['end_time']}",
+                                    )
+                                    .join(", ");
+                              } else {
+                                timeStr = hours.toString();
+                              }
+                            }
+
+                            return Column(
                               children: [
-                                Expanded(
-                                  child: Text(
-                                    day[0].toUpperCase() + day.substring(1),
-                                    style: GoogleFonts.inter(
-                                      fontSize: 14, 
-                                      fontWeight: FontWeight.w600, 
-                                      color: isClosed ? const Color(0xFF94A3B8) : const Color(0xFF1E293B)
-                                    ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 24,
+                                    vertical: 18,
                                   ),
-                                ),
-                                const SizedBox(width: 12),
-                                Flexible(
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                    decoration: BoxDecoration(
-                                      color: isClosed ? const Color(0xFFFEF2F2) : const Color(0xFFF0F9FF),
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: Text(
-                                      timeStr,
-                                      textAlign: TextAlign.right,
-                                      style: GoogleFonts.manrope(
-                                        fontSize: 13, 
-                                        fontWeight: FontWeight.w700, 
-                                        color: isClosed ? const Color(0xFFEF4444) : const Color(0xFF005EB8)
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          day[0].toUpperCase() +
+                                              day.substring(1),
+                                          style: GoogleFonts.inter(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: isClosed
+                                                ? const Color(0xFF94A3B8)
+                                                : const Color(0xFF1E293B),
+                                          ),
+                                        ),
                                       ),
-                                    ),
+                                      const SizedBox(width: 12),
+                                      Flexible(
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 8,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: isClosed
+                                                ? const Color(0xFFFEF2F2)
+                                                : const Color(0xFFF0F9FF),
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            timeStr,
+                                            textAlign: TextAlign.right,
+                                            style: GoogleFonts.manrope(
+                                              fontSize: 13,
+                                              fontWeight: FontWeight.w700,
+                                              color: isClosed
+                                                  ? const Color(0xFFEF4444)
+                                                  : const Color(0xFF005EB8),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
+                                if (index != daysToShow.length - 1)
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 24,
+                                    ),
+                                    child: Divider(
+                                      height: 1,
+                                      color: const Color(0xFFF1F5F9),
+                                    ),
+                                  ),
                               ],
-                            ),
-                          ),
-                          if (index != daysToShow.length - 1) 
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 24),
-                              child: Divider(height: 1, color: const Color(0xFFF1F5F9)),
-                            ),
+                            );
+                          }),
                         ],
-                      );
-                    }),
+                      ),
+                    ),
                   ],
-                ),
-              ),
-            ],
-          ) : const SizedBox.shrink(),
+                )
+              : const SizedBox.shrink(),
         ),
       ],
     );
@@ -432,21 +539,39 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> with SingleTi
         padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
         decoration: BoxDecoration(
           color: Colors.white,
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 40, offset: const Offset(0, -10))],
-          borderRadius: const BorderRadius.only(topLeft: Radius.circular(32), topRight: Radius.circular(32)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 40,
+              offset: const Offset(0, -10),
+            ),
+          ],
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(32),
+            topRight: Radius.circular(32),
+          ),
         ),
         child: SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: () => Navigator.pushNamed(context, '/book-appointment-app'),
+            onPressed: () =>
+                Navigator.pushNamed(context, '/book-appointment-app'),
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF005EB8),
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 18),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
               elevation: 0,
             ),
-            child: Text('Book Appointment', style: GoogleFonts.manrope(fontSize: 16, fontWeight: FontWeight.w800)),
+            child: Text(
+              'Book Appointment',
+              style: GoogleFonts.manrope(
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
           ),
         ),
       ),

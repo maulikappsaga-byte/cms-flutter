@@ -9,6 +9,14 @@ class DoctorDetailApi {
     }
   }
 
+  Future<dynamic> createDoctor(Map<String, dynamic> doctorData) async {
+    try {
+      return await ApiService.post('/doctors', doctorData);
+    } catch (e) {
+      throw Exception('Error creating doctor: $e');
+    }
+  }
+
   Future<dynamic> getDoctorDetails({int? doctorId}) async {
     try {
       // For testing/demonstration purposes, adding a mock fallback for ID: 3
