@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../theme.dart';
 import '../services/clinic_detail_api.dart';
 
@@ -50,6 +50,23 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
         _errorMessage = e.toString();
         _isLoading = false;
       });
+    }
+  }
+
+  Future<void> _openMap(String coords) async {
+    try {
+      final Uri googleMapsUrl = Uri.parse("https://www.google.com/maps/search/?api=1&query=$coords");
+      if (await canLaunchUrl(googleMapsUrl)) {
+        await launchUrl(googleMapsUrl, mode: LaunchMode.externalApplication);
+      } else {
+        throw 'Could not launch $googleMapsUrl';
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error opening maps: $e')),
+        );
+      }
     }
   }
 
@@ -353,7 +370,7 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
-                    onPressed: () {},
+                    onPressed: () => _openMap(coords),
                     icon: const Icon(Icons.map_outlined, size: 18),
                     label: const Text('Open in Google Maps'),
                     style: ElevatedButton.styleFrom(
@@ -478,17 +495,6 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
       for (var day in dayNames) {
         String time = hoursData[day.toLowerCase()]?.toString() ?? 'Not specified';
         
-        // Inject default timings for Monday and Wednesday if they are currently marked as Closed
-        if ((day == 'Monday' || day == 'Wednesday') && 
-            (time.toLowerCase().contains('closed') || time.toLowerCase().contains('close'))) {
-          time = '09:00 AM - 05:00 PM';
-        }
-
-        // Force Tuesday to show only 9 AM to 5 PM as requested
-        if (day == 'Tuesday') {
-          time = '09:00 AM - 05:00 PM';
-        }
-
         final isClosed = time.toLowerCase().contains('closed') || time.toLowerCase().contains('close');
         days.add({
           'day': day,
@@ -600,15 +606,23 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
                             ),
                           ],
                         ),
-                        child: Text(
-                          day['time'],
-                          textAlign: TextAlign.right,
-                          maxLines: 1,
-                          style: GoogleFonts.manrope(
-                            fontSize: 12, // Reduced slightly to ensure single line fit
-                            fontWeight: FontWeight.w700,
-                            color: isClosed ? const Color(0xFFEF4444) : const Color(0xFF0F172A),
-                          ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          mainAxisSize: MainAxisSize.min,
+                          children: day['time'].toString().split(',').map<Widget>((t) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 2),
+                              child: Text(
+                                t.trim(),
+                                textAlign: TextAlign.right,
+                                style: GoogleFonts.manrope(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: isClosed ? const Color(0xFFEF4444) : const Color(0xFF0F172A),
+                                ),
+                              ),
+                            );
+                          }).toList(),
                         ),
                       ),
                     ),
