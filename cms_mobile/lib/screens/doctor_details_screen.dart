@@ -160,7 +160,47 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> with SingleTi
     return null;
   }
 
+  bool _isDoctorCurrentlyAvailable(dynamic workingHours) {
+    if (workingHours is! Map) return false;
+    final now = DateTime.now();
+    final dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+    final today = dayNames[now.weekday - 1];
+
+    final hours = workingHours[today];
+    if (hours == null || hours == "Closed") return false;
+
+    try {
+      final parts = hours.split(" - ");
+      if (parts.length != 2) return false;
+
+      final start = _parseTimeString(parts[0]);
+      final end = _parseTimeString(parts[1]);
+
+      final currentTime = now.hour * 60 + now.minute;
+      return currentTime >= start && currentTime <= end;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  int _parseTimeString(String time) {
+    final parts = time.split(" ");
+    if (parts.length < 2) return 0;
+    final timeParts = parts[0].split(":");
+    int hour = int.parse(timeParts[0]);
+    final int minute = int.parse(timeParts[1]);
+    final bool isPM = parts[1].toUpperCase() == "PM";
+
+    if (isPM && hour != 12) hour += 12;
+    if (!isPM && hour == 12) hour = 0;
+
+    return hour * 60 + minute;
+  }
+
   Widget _buildHeroHeader(dynamic data) {
+    final bool isAvailable = _isDoctorCurrentlyAvailable(data['working_hours']);
+    final Color statusColor = isAvailable ? const Color(0xFF10B981) : const Color(0xFFEF4444);
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(24, 120, 24, 40),
@@ -191,11 +231,11 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> with SingleTi
                   height: 24,
                   width: 24,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF10B981),
+                    color: statusColor,
                     shape: BoxShape.circle,
                     border: Border.all(color: Colors.white, width: 3),
                     boxShadow: [
-                      BoxShadow(color: const Color(0xFF10B981).withValues(alpha: 0.3), blurRadius: 10, spreadRadius: 2),
+                      BoxShadow(color: statusColor.withValues(alpha: 0.3), blurRadius: 10, spreadRadius: 2),
                     ],
                   ),
                 ),
@@ -212,61 +252,20 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> with SingleTi
             data['specialization'] ?? 'Specialist',
             style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w600, color: const Color(0xFF64748B), letterSpacing: 0.5),
           ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _buildSmallIDTag('Doctor ID: D-${data['id']}'),
-              const SizedBox(width: 8),
-              _buildSmallIDTag('Staff ID: S-9021'),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(color: const Color(0xFFF0F9FF), borderRadius: BorderRadius.circular(100)),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.verified_rounded, size: 16, color: Color(0xFF005EB8)),
-                const SizedBox(width: 6),
-                Text(
-                  'Verified Practitioner',
-                  style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w700, color: const Color(0xFF005EB8)),
-                ),
-              ],
-            ),
-          ),
         ],
       ),
     );
   }
 
-  Widget _buildSmallIDTag(String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF1F5F9),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Text(
-        text,
-        style: GoogleFonts.inter(
-          fontSize: 11,
-          fontWeight: FontWeight.w700,
-          color: const Color(0xFF64748B),
-          letterSpacing: 0.2,
-        ),
-      ),
-    );
-  }
 
   Widget _buildStatsRow(dynamic data) {
     return Row(
       children: [
         _buildStatItem('Experience', '${data['experience_years']}+ Yrs', Icons.military_tech_rounded),
-        const SizedBox(width: 12),
+        const SizedBox(width: 8),
         _buildStatItem('Qualification', data['qualification'] ?? 'N/A', Icons.school_rounded),
+        const SizedBox(width: 8),
+        _buildStatItem('Gender', data['gender'] ?? 'N/A', Icons.person_search_rounded),
       ],
     );
   }
