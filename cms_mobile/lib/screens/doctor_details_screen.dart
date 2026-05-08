@@ -131,8 +131,6 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> with SingleTi
                     children: [
                       _buildStatsRow(data),
                       const SizedBox(height: 32),
-                      _buildIdentificationSection(data),
-                      const SizedBox(height: 32),
                       _buildScheduleSection(data['working_hours']),
                       const SizedBox(height: 120),
                     ],
@@ -214,6 +212,15 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> with SingleTi
             data['specialization'] ?? 'Specialist',
             style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w600, color: const Color(0xFF64748B), letterSpacing: 0.5),
           ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildSmallIDTag('Doctor ID: D-${data['id']}'),
+              const SizedBox(width: 8),
+              _buildSmallIDTag('Staff ID: S-9021'),
+            ],
+          ),
           const SizedBox(height: 16),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -235,10 +242,31 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> with SingleTi
     );
   }
 
+  Widget _buildSmallIDTag(String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF1F5F9),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        text,
+        style: GoogleFonts.inter(
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          color: const Color(0xFF64748B),
+          letterSpacing: 0.2,
+        ),
+      ),
+    );
+  }
+
   Widget _buildStatsRow(dynamic data) {
     return Row(
       children: [
         _buildStatItem('Experience', '${data['experience_years']}+ Yrs', Icons.military_tech_rounded),
+        const SizedBox(width: 12),
+        _buildStatItem('Qualification', data['qualification'] ?? 'N/A', Icons.school_rounded),
       ],
     );
   }
@@ -266,43 +294,6 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> with SingleTi
     );
   }
 
-  Widget _buildIdentificationSection(dynamic data) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('System Details', style: GoogleFonts.manrope(fontSize: 18, fontWeight: FontWeight.w800, color: const Color(0xFF1E293B))),
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: const Color(0xFFF1F5F9)),
-          ),
-          child: Row(
-            children: [
-              _buildIDItem('Doctor ID', 'D-${data['id']}', const Color(0xFF005EB8)),
-              const Spacer(),
-              Container(width: 1, height: 40, color: const Color(0xFFF1F5F9)),
-              const Spacer(),
-              _buildIDItem('Clinic ID', 'CL-2024', const Color(0xFF64748B)),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildIDItem(String label, String id, Color color) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.w600, color: const Color(0xFF94A3B8))),
-        const SizedBox(height: 4),
-        Text(id, style: GoogleFonts.manrope(fontSize: 18, fontWeight: FontWeight.w800, color: color)),
-      ],
-    );
-  }
 
   Widget _buildScheduleSection(dynamic workingHours) {
     if (workingHours is! Map) return const SizedBox.shrink();
