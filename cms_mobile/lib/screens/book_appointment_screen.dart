@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:developer';
 import '../theme.dart';
 import '../services/appointment_api.dart';
+import '../services/doctor_detail_api.dart';
 import '../services/user_session.dart';
 import '../widgets/custom_snackbar.dart';
 
@@ -18,6 +19,31 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   final _phoneController = TextEditingController();
   bool _isLoading = false;
   final _appointmentApi = AppointmentApi();
+  final _doctorApi = DoctorDetailApi();
+  int? _doctorId;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchDoctorId();
+  }
+
+  Future<void> _fetchDoctorId() async {
+    try {
+      final response = await _doctorApi.getDoctors();
+      if (response != null && response['status'] == true) {
+        final doctors = response['data']?['doctors'];
+        if (doctors is List && doctors.isNotEmpty) {
+          setState(() {
+            _doctorId = int.tryParse(doctors.first['id'].toString());
+          });
+          log("Dynamically loaded doctor ID: $_doctorId");
+        }
+      }
+    } catch (e) {
+      log("Error fetching doctor ID from API: $e");
+    }
+  }
 
   @override
   void dispose() {
@@ -146,7 +172,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
       }
 
       final response = await _appointmentApi.bookAppointment(
-        doctorId: 2, // Defaulting to 2 as per user's curl
+        doctorId: _doctorId ?? 1, // Dynamic doctor ID from API, fallback to 1
         name: _nameController.text,
         phone: _phoneController.text,
         date: today, // Current date YYYY-MM-DD

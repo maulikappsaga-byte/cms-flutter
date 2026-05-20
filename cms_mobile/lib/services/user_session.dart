@@ -1,4 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import '../constants/api_constants.dart';
 
 class UserSession {
   static String? lastBookedName;
@@ -12,6 +13,7 @@ class UserSession {
   static const String _keyToken = 'last_token';
   static const String _keyAppointmentId = 'last_appointment_id';
   static const String _keyBookingDate = 'last_booking_date';
+  static const String _keyApiKey = 'api_key';
 
   // Initialize session from local storage
   static Future<void> init() async {
@@ -21,6 +23,17 @@ class UserSession {
     lastToken = prefs.getString(_keyToken);
     lastAppointmentId = prefs.getString(_keyAppointmentId);
     lastBookingDate = prefs.getString(_keyBookingDate);
+
+    final storedApiKey = prefs.getString(_keyApiKey);
+    if (storedApiKey != null && storedApiKey.isNotEmpty) {
+      ApiConstants.apiKey = storedApiKey;
+    }
+  }
+
+  static Future<void> setApiKey(String apiKey) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_keyApiKey, apiKey);
+    ApiConstants.apiKey = apiKey;
   }
 
   static Future<void> updateSession({

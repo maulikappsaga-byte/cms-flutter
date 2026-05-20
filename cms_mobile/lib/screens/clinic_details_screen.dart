@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../theme.dart';
 import '../services/clinic_detail_api.dart';
+import '../services/user_session.dart';
 
 class ClinicDetailsScreen extends StatefulWidget {
   final int doctorId;
@@ -42,6 +43,16 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
         phone: widget.phone,
         date: widget.date,
       );
+
+      // Dynamically extract and persist the clinic's API key if available
+      final clinic = data['data']?['clinic'];
+      if (clinic != null && clinic['api_key'] != null) {
+        final apiKey = clinic['api_key'].toString();
+        if (apiKey.isNotEmpty) {
+          await UserSession.setApiKey(apiKey);
+        }
+      }
+
       setState(() {
         _clinicData = data;
         _isLoading = false;
@@ -118,7 +129,8 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
     // Handle relative logo path
     String? imageUrl = clinic['logo'];
     if (imageUrl != null && !imageUrl.startsWith('http')) {
-      imageUrl = 'http://13.126.47.19:8000/storage/$imageUrl';
+      // imageUrl = 'http://13.126.47.19:8000/storage/$imageUrl';
+      imageUrl = 'http://localhost:8000/storage/$imageUrl';
     }
 
     return Scaffold(
