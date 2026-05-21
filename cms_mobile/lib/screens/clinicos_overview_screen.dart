@@ -8,6 +8,7 @@ import '../services/user_session.dart';
 import '../widgets/custom_snackbar.dart';
 import '../services/queue_detail_api.dart';
 import '../services/pusher_service.dart';
+import '../services/doctor_detail_api.dart';
 
 class ClinicosOverviewScreen extends StatefulWidget {
   final String? patientName;
@@ -38,6 +39,8 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
   String _patientNameDisplay = 'Guest';
 
   final _queueApi = QueueApi();
+  final _doctorApi = DoctorDetailApi();
+  int? _doctorId;
 
   @override
   void initState() {
@@ -108,7 +111,19 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
     if (mounted) setState(() => _isLoading = true);
 
     try {
-      final response = await _queueApi.getQueueDetails(doctorId: 2);
+      if (_doctorId == null) {
+        final doctorResponse = await _doctorApi.getDoctors();
+        if (doctorResponse != null && doctorResponse['status'] == true) {
+          final doctors = doctorResponse['data']?['doctors'];
+          if (doctors is List && doctors.isNotEmpty) {
+            _doctorId = int.tryParse(doctors.first['id'].toString());
+            log("ClinicosOverview: Dynamically loaded doctor ID: $_doctorId");
+          }
+        }
+      }
+
+      final docId = _doctorId ?? 1; // Fallback to 1 if we couldn't load it from API
+      final response = await _queueApi.getQueueDetails(doctorId: docId);
       log("ClinicosOverview: /queue/live response: $response");
 
       if (response != null && response['data'] != null) {

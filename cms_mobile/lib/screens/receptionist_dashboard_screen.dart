@@ -5,6 +5,7 @@ import '../theme.dart';
 import '../services/pusher_service.dart';
 import '../services/queue_detail_api.dart';
 import '../widgets/custom_snackbar.dart';
+import '../services/doctor_detail_api.dart';
 import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
 
 class ReceptionistDashboardScreen extends StatefulWidget {
@@ -27,7 +28,8 @@ class _ReceptionistDashboardScreenState
   int _pendingCount = 0;
   int _totalAppointments = 0;
   
-  final int _doctorId = 2; // Default doctor for this receptionist
+  final DoctorDetailApi _doctorApi = DoctorDetailApi();
+  int? _doctorId;
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
       GlobalKey<RefreshIndicatorState>();
 
@@ -76,7 +78,19 @@ class _ReceptionistDashboardScreenState
     }
     
     try {
-      final response = await _queueApi.getQueueDetails(doctorId: _doctorId);
+      if (_doctorId == null) {
+        final doctorResponse = await _doctorApi.getDoctors();
+        if (doctorResponse != null && doctorResponse['status'] == true) {
+          final doctors = doctorResponse['data']?['doctors'];
+          if (doctors is List && doctors.isNotEmpty) {
+            _doctorId = int.tryParse(doctors.first['id'].toString());
+            debugPrint("ReceptionistDashboard: Dynamically loaded doctor ID: $_doctorId");
+          }
+        }
+      }
+
+      final docId = _doctorId ?? 1;
+      final response = await _queueApi.getQueueDetails(doctorId: docId);
       
       if (response != null && response['data'] != null) {
         final queueData = response['data']['queue'];
@@ -112,7 +126,8 @@ class _ReceptionistDashboardScreenState
     setState(() => _isActionLoading = true);
     
     try {
-      final response = await _queueApi.callNextPatient(doctorId: _doctorId);
+      final docId = _doctorId ?? 1;
+      final response = await _queueApi.callNextPatient(doctorId: docId);
       
       if (response != null && response['message'] != null) {
         if (!mounted) return;

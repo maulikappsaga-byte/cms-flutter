@@ -3,9 +3,9 @@ import 'package:google_fonts/google_fonts.dart';
 import '../services/doctor_detail_api.dart';
 
 class DoctorDetailsScreen extends StatefulWidget {
-  final int doctorId;
+  final int? doctorId;
 
-  const DoctorDetailsScreen({super.key, this.doctorId = 2});
+  const DoctorDetailsScreen({super.key, this.doctorId});
 
   @override
   State<DoctorDetailsScreen> createState() => _DoctorDetailsScreenState();
@@ -18,6 +18,7 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen>
   bool _isLoading = true;
   String? _errorMessage;
   late AnimationController _pulseController;
+  int? _resolvedDoctorId;
   bool _isScheduleExpanded = false;
 
   @override
@@ -38,8 +39,23 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen>
 
   Future<void> _fetchDoctorDetails() async {
     try {
+      if (_resolvedDoctorId == null) {
+        if (widget.doctorId != null) {
+          _resolvedDoctorId = widget.doctorId;
+        } else {
+          final doctorsResponse = await _apiService.getDoctors();
+          if (doctorsResponse != null && doctorsResponse['status'] == true) {
+            final doctors = doctorsResponse['data']?['doctors'];
+            if (doctors is List && doctors.isNotEmpty) {
+              _resolvedDoctorId = int.tryParse(doctors.first['id'].toString());
+            }
+          }
+        }
+      }
+
+      final docId = _resolvedDoctorId ?? 1; // Fallback to 1
       final data = await _apiService.getDoctorDetails(
-        doctorId: widget.doctorId,
+        doctorId: docId,
       );
       if (mounted) {
         setState(() {
@@ -167,8 +183,9 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen>
         final apiData = _doctorData['data'];
         if (apiData is Map && apiData.containsKey('doctors')) {
           final list = apiData['doctors'] as List;
+          final docId = _resolvedDoctorId ?? 1;
           return list.firstWhere(
-            (d) => d['id'] == widget.doctorId,
+            (d) => d['id'] == docId,
             orElse: () => list.first,
           );
         }
