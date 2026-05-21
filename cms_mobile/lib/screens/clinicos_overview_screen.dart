@@ -9,6 +9,7 @@ import '../widgets/custom_snackbar.dart';
 import '../services/queue_detail_api.dart';
 import '../services/pusher_service.dart';
 import '../services/doctor_detail_api.dart';
+import '../constants/api_constants.dart';
 
 class ClinicosOverviewScreen extends StatefulWidget {
   final String? patientName;
@@ -58,11 +59,12 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
 
-    // Fetch live queue on load
+    // Fetch live queue on load — this also resolves the doctor ID and
+    // subscribes to the doctor-specific queue channel dynamically.
     _fetchOverviewData();
 
-    // Subscribe to Pusher for real-time updates
-    PusherService().subscribe("queue-updates.1");
+    // Subscribe to the receptionist channel so we receive call-next events.
+    PusherService().subscribe("clinic-updates");
     PusherService().addListener(_onPusherEvent);
   }
 
@@ -118,11 +120,16 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
           if (doctors is List && doctors.isNotEmpty) {
             _doctorId = int.tryParse(doctors.first['id'].toString());
             log("ClinicosOverview: Dynamically loaded doctor ID: $_doctorId");
+            // Subscribe to the doctor-specific live-queue channel.
+            if (_doctorId != null) {
+              PusherService().subscribe("queue-updates.${ApiConstants.apiKey}");
+            }
           }
         }
       }
 
-      final docId = _doctorId ?? 1; // Fallback to 1 if we couldn't load it from API
+      final docId =
+          _doctorId ?? 1; // Fallback to 1 if we couldn't load it from API
       final response = await _queueApi.getQueueDetails(doctorId: docId);
       log("ClinicosOverview: /queue/live response: $response");
 
@@ -179,6 +186,9 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
   void dispose() {
     PusherService().removeListener(_onPusherEvent);
     PusherService().unsubscribe("clinic-updates");
+    if (_doctorId != null) {
+      PusherService().unsubscribe("queue-updates.$_doctorId");
+    }
     _pulseController.dispose();
     super.dispose();
   }
