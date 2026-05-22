@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import '../theme.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -10,6 +13,128 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   bool _agreeToTerms = false;
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _register() async {
+    final name = _nameController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+    final confirmPassword = _confirmPasswordController.text;
+
+    if (name.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill all fields')),
+      );
+      return;
+    }
+
+    if (password != confirmPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Passwords do not match')),
+      );
+      return;
+    }
+
+    if (!_agreeToTerms) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please agree to the Terms and Privacy Policy')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      String getBaseUrl() {
+        if (kIsWeb) return 'http://127.0.0.1:8000';
+        if (defaultTargetPlatform == TargetPlatform.android) return 'http://10.0.2.2:8000';
+        return 'http://127.0.0.1:8000';
+      }
+
+      final baseUrl = getBaseUrl();
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/auth/register'),
+        headers: {
+          'X-API-KEY': 'QOOizWQhXaQpEAk2Vu0C6N2MC4LObntMtU8NGNYwVkubR0UA80ZmndwL3BECYl4q',
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'name': name,
+          'email': email,
+          'password': password,
+          'password_confirmation': confirmPassword,
+        }),
+      );
+
+      if (mounted) {
+        bool isSuccess = false;
+        String errorMessage = 'Registration failed';
+
+        try {
+          final body = jsonDecode(response.body);
+          
+          if (response.statusCode >= 200 && response.statusCode < 300) {
+            if (body is Map && body['status'] == false) {
+              isSuccess = false;
+              errorMessage = body['message'] ?? 'Registration failed';
+            } else {
+              isSuccess = true;
+            }
+          } else {
+            isSuccess = false;
+            if (body is Map) {
+              errorMessage = body['message'] ?? errorMessage;
+            } else {
+              errorMessage = 'Server error: ${response.statusCode}';
+            }
+          }
+        } catch (_) {
+          if (response.statusCode >= 200 && response.statusCode < 300) {
+            isSuccess = true;
+          } else {
+            errorMessage = 'Server error: ${response.statusCode}';
+          }
+        }
+
+        if (isSuccess) {
+          Navigator.pushReplacementNamed(context, '/clinicos-overview');
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(errorMessage)),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Network error: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -123,8 +248,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         // Full Name
                         Text('FULL NAME', style: textTheme.labelLarge),
                         const SizedBox(height: 8),
-                        const TextField(
-                          decoration: InputDecoration(
+                        TextField(
+                          controller: _nameController,
+                          decoration: const InputDecoration(
                             prefixIcon: Icon(Icons.person_outline),
                             hintText: 'John Doe',
                           ),
@@ -133,8 +259,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         // Email
                         Text('EMAIL ADDRESS', style: textTheme.labelLarge),
                         const SizedBox(height: 8),
-                        const TextField(
-                          decoration: InputDecoration(
+                        TextField(
+                          controller: _emailController,
+                          decoration: const InputDecoration(
                             prefixIcon: Icon(Icons.mail_outline),
                             hintText: 'practitioner@clinic.com',
                           ),
@@ -144,9 +271,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         // Password Grid (using Column for mobile)
                         Text('PASSWORD', style: textTheme.labelLarge),
                         const SizedBox(height: 8),
-                        const TextField(
+                        TextField(
+                          controller: _passwordController,
                           obscureText: true,
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             prefixIcon: Icon(Icons.lock_outline),
                             hintText: '••••••••',
                           ),
@@ -154,9 +282,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         const SizedBox(height: 24),
                         Text('CONFIRM PASSWORD', style: textTheme.labelLarge),
                         const SizedBox(height: 8),
-                        const TextField(
+                        TextField(
+                          controller: _confirmPasswordController,
                           obscureText: true,
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             prefixIcon: Icon(Icons.shield_outlined),
                             hintText: '••••••••',
                           ),
@@ -187,16 +316,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: () {
-                              // Perform registration logic here
-                              Navigator.pushReplacementNamed(context, '/clinicos-overview');
-                            },
-                            child: const Row(
+                            onPressed: _isLoading ? null : _register,
+                            child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text('CREATE ACCOUNT'),
-                                SizedBox(width: 8),
-                                Icon(Icons.arrow_forward, size: 20),
+                                if (_isLoading) ...[
+                                  const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                  ),
+                                  const SizedBox(width: 8),
+                                ],
+                                const Text('CREATE ACCOUNT'),
+                                const SizedBox(width: 8),
+                                const Icon(Icons.arrow_forward, size: 20),
                               ],
                             ),
                           ),
