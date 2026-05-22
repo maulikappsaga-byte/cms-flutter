@@ -11,6 +11,7 @@ import 'screens/book_appointment_screen.dart';
 import 'screens/clinicos_overview_screen.dart';
 import 'screens/clinic_details_screen.dart';
 import 'screens/doctor_details_screen.dart';
+import 'screens/doctors_list_screen.dart';
 import 'services/user_session.dart';
 import 'services/pusher_service.dart';
 
@@ -44,6 +45,7 @@ class MainApp extends StatelessWidget {
         '/clinicos-overview': (context) => const ClinicosOverviewScreen(),
         '/clinic-details': (context) => const ClinicDetailsScreen(),
         '/doctor-details': (context) => const DoctorDetailsScreen(),
+        '/doctors-list': (context) => const DoctorsListScreen(),
       },
     );
   }

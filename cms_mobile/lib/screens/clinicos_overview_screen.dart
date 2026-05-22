@@ -472,7 +472,7 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
           textColor: AppColors.onSurface,
           hasBgIcon: false,
           onTap: () {
-            Navigator.pushNamed(context, '/doctor-details');
+            Navigator.pushNamed(context, '/doctors-list');
           },
         ),
         _buildActionCard(
