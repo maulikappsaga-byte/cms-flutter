@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import '../theme.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -10,6 +13,106 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool _keepLoggedIn = false;
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _login() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter email and password')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      String getBaseUrl() {
+        if (kIsWeb) return 'http://127.0.0.1:8000';
+        if (defaultTargetPlatform == TargetPlatform.android) return 'http://10.0.2.2:8000';
+        return 'http://127.0.0.1:8000';
+      }
+
+      final baseUrl = getBaseUrl();
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/auth/login'),
+        headers: {
+          'X-API-KEY': 'QOOizWQhXaQpEAk2Vu0C6N2MC4LObntMtU8NGNYwVkubR0UA80ZmndwL3BECYl4q',
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'email': email,
+          'password': password,
+        }),
+      );
+
+      if (mounted) {
+        bool isSuccess = false;
+        String errorMessage = 'Login failed';
+
+        try {
+          final body = jsonDecode(response.body);
+          
+          if (response.statusCode >= 200 && response.statusCode < 300) {
+            if (body is Map && body['status'] == false) {
+              isSuccess = false;
+              errorMessage = body['message'] ?? 'Invalid credentials';
+            } else {
+              isSuccess = true;
+            }
+          } else {
+            isSuccess = false;
+            if (body is Map) {
+              errorMessage = body['message'] ?? errorMessage;
+            } else {
+              errorMessage = 'Server error: ${response.statusCode}';
+            }
+          }
+        } catch (_) {
+          if (response.statusCode >= 200 && response.statusCode < 300) {
+            isSuccess = true;
+          } else {
+            errorMessage = 'Server error: ${response.statusCode}';
+          }
+        }
+
+        if (isSuccess) {
+          Navigator.pushReplacementNamed(context, '/clinicos-overview');
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(errorMessage)),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Network error: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,9 +192,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 8),
                     TextField(
+                      controller: _emailController,
                       decoration: const InputDecoration(
                         prefixIcon: Icon(Icons.mail_outline),
-                        hintText: 'dr.smith@clinicos.com',
+                        hintText: 'smith@clinicos.com',
                       ),
                       keyboardType: TextInputType.emailAddress,
                     ),
@@ -124,6 +228,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 8),
                     TextField(
+                      controller: _passwordController,
                       obscureText: true,
                       decoration: const InputDecoration(
                         prefixIcon: Icon(Icons.lock_outline),
@@ -157,15 +262,21 @@ class _LoginScreenState extends State<LoginScreen> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.pushReplacementNamed(context, '/clinicos-overview');
-                        },
-                        child: const Row(
+                        onPressed: _isLoading ? null : _login,
+                        child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text('LOGIN TO DASHBOARD'),
-                            SizedBox(width: 8),
-                            Icon(Icons.arrow_forward, size: 20),
+                            if (_isLoading) ...[
+                              const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              ),
+                              const SizedBox(width: 8),
+                            ],
+                            const Text('LOGIN TO DASHBOARD'),
+                            const SizedBox(width: 8),
+                            const Icon(Icons.arrow_forward, size: 20),
                           ],
                         ),
                       ),
