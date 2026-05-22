@@ -263,21 +263,24 @@ class _LoginScreenState extends State<LoginScreen> {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : _login,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            if (_isLoading) ...[
-                              const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2),
-                              ),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              if (_isLoading) ...[
+                                const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                ),
+                                const SizedBox(width: 8),
+                              ],
+                              const Text('LOGIN TO DASHBOARD'),
                               const SizedBox(width: 8),
+                              const Icon(Icons.arrow_forward, size: 20),
                             ],
-                            const Text('LOGIN TO DASHBOARD'),
-                            const SizedBox(width: 8),
-                            const Icon(Icons.arrow_forward, size: 20),
-                          ],
+                          ),
                         ),
                       ),
                     ),
