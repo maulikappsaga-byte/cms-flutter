@@ -163,6 +163,10 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen>
                     children: [
                       _buildStatsRow(data),
                       const SizedBox(height: 32),
+                      _buildAboutSection(data),
+                      const SizedBox(height: 32),
+                      _buildContactSection(data),
+                      const SizedBox(height: 32),
                       _buildScheduleSection(data['working_hours']),
                       const SizedBox(height: 120),
                     ],
@@ -545,6 +549,137 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen>
                   ],
                 )
               : const SizedBox.shrink(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAboutSection(dynamic data) {
+    final about = data['about_me'] ?? data['bio'] ?? data['description'];
+    if (about == null || about.toString().isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'About Me',
+          style: GoogleFonts.manrope(
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+            color: const Color(0xFF1E293B),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFF1F5F9)),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFF0F9FF),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.person_outline_rounded,
+                  color: Color(0xFF005EB8),
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      about.toString(),
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        height: 1.6,
+                        color: const Color(0xFF1E293B),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildContactSection(dynamic data) {
+    final phone = data['phone_number'] ?? data['phone'] ?? data['contact_number'];
+    if (phone == null || phone.toString().isEmpty) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Contact',
+          style: GoogleFonts.manrope(
+            fontSize: 18,
+            fontWeight: FontWeight.w800,
+            color: const Color(0xFF1E293B),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFF1F5F9)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: const BoxDecoration(
+                  color: Color(0xFFF0F9FF),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.phone_rounded,
+                  color: Color(0xFF005EB8),
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Phone Number',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF94A3B8),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      phone.toString(),
+                      style: GoogleFonts.manrope(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF1E293B),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
