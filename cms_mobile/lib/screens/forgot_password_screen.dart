@@ -1,8 +1,128 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import '../theme.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-class ForgotPasswordScreen extends StatelessWidget {
+class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
+
+  @override
+  State<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
+}
+
+class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
+  final TextEditingController _emailController = TextEditingController();
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _sendRecoveryLink() async {
+    final email = _emailController.text.trim();
+
+    if (email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter an email address')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      String getBaseUrl() {
+        if (kIsWeb) return 'http://127.0.0.1:8000';
+        if (defaultTargetPlatform == TargetPlatform.android) return 'http://10.0.2.2:8000';
+        return 'http://127.0.0.1:8000';
+      }
+
+      final baseUrl = getBaseUrl();
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/auth/forgot-password'),
+        headers: {
+          'X-API-KEY': 'QOOizWQhXaQpEAk2Vu0C6N2MC4LObntMtU8NGNYwVkubR0UA80ZmndwL3BECYl4q',
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'email': email,
+        }),
+      );
+
+      if (mounted) {
+        bool isSuccess = false;
+        String errorMessage = 'Failed to send recovery link';
+        String successMessage = 'Recovery link sent to your email!';
+
+        try {
+          final body = jsonDecode(response.body);
+          
+          if (response.statusCode >= 200 && response.statusCode < 300) {
+            if (body is Map && body['status'] == false) {
+              isSuccess = false;
+              errorMessage = body['message'] ?? 'Failed to send recovery link';
+            } else {
+              isSuccess = true;
+              if (body is Map && body['message'] != null) {
+                successMessage = body['message'];
+              }
+            }
+          } else {
+            isSuccess = false;
+            if (body is Map) {
+              errorMessage = body['message'] ?? errorMessage;
+            } else {
+              errorMessage = 'Server error: ${response.statusCode}';
+            }
+          }
+        } catch (_) {
+          if (response.statusCode >= 200 && response.statusCode < 300) {
+            isSuccess = true;
+          } else {
+            errorMessage = 'Server error: ${response.statusCode}';
+          }
+        }
+
+        if (isSuccess) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(successMessage),
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: AppColors.primary,
+            ),
+          );
+          Future.delayed(const Duration(seconds: 2), () {
+            if (mounted) {
+              Navigator.pushNamed(context, '/reset-password');
+            }
+          });
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(errorMessage)),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Network error: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,10 +220,11 @@ class ForgotPasswordScreen extends StatelessWidget {
                         child: Text('EMAIL ADDRESS', style: textTheme.labelLarge),
                       ),
                       const SizedBox(height: 8),
-                      const TextField(
-                        decoration: InputDecoration(
+                      TextField(
+                        controller: _emailController,
+                        decoration: const InputDecoration(
                           prefixIcon: Icon(Icons.mail_outline),
-                          hintText: 'practitioner@clinic.os',
+                          hintText: 'pritesh@gmail.com',
                         ),
                         keyboardType: TextInputType.emailAddress,
                       ),
@@ -112,21 +233,21 @@ class ForgotPasswordScreen extends StatelessWidget {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Recovery link sent to your email!'),
-                                behavior: SnackBarBehavior.floating,
-                                backgroundColor: AppColors.primary,
-                              ),
-                            );
-                            Future.delayed(const Duration(seconds: 2), () {
-                              if (context.mounted) {
-                                Navigator.pushNamed(context, '/reset-password');
-                              }
-                            });
-                          },
-                          child: const Text('SEND RECOVERY LINK'),
+                          onPressed: _isLoading ? null : _sendRecoveryLink,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              if (_isLoading) ...[
+                                const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                ),
+                                const SizedBox(width: 8),
+                              ],
+                              const Text('SEND RECOVERY LINK'),
+                            ],
+                          ),
                         ),
                       ),
                       const SizedBox(height: 32),
