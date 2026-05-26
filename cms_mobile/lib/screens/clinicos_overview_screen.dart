@@ -48,8 +48,14 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
     super.initState();
 
     // Load saved session values
-    _yourToken = UserSession.lastToken ?? '--';
-    _patientNameDisplay = UserSession.lastBookedName ?? 'Guest';
+    final today = DateTime.now().toString().split(' ')[0];
+    if (UserSession.lastBookingDate == today) {
+      _yourToken = UserSession.lastToken ?? '--';
+      _patientNameDisplay = UserSession.lastBookedName ?? 'Guest';
+    } else {
+      _yourToken = '--';
+      _patientNameDisplay = 'Guest';
+    }
 
     _pulseController = AnimationController(
       vsync: this,
@@ -166,8 +172,14 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
     // Reload session in case token was updated elsewhere
     await UserSession.init();
     setState(() {
-      _yourToken = UserSession.lastToken ?? '--';
-      _patientNameDisplay = UserSession.lastBookedName ?? 'Guest';
+      final today = DateTime.now().toString().split(' ')[0];
+      if (UserSession.lastBookingDate == today) {
+        _yourToken = UserSession.lastToken ?? '--';
+        _patientNameDisplay = UserSession.lastBookedName ?? 'Guest';
+      } else {
+        _yourToken = '--';
+        _patientNameDisplay = 'Guest';
+      }
     });
 
     await _fetchOverviewData();
