@@ -21,6 +21,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   final _appointmentApi = AppointmentApi();
   final _doctorApi = DoctorDetailApi();
   int? _doctorId;
+  List<dynamic> _doctors = [];
 
   @override
   void initState() {
@@ -35,13 +36,14 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
         final doctors = response['data']?['doctors'];
         if (doctors is List && doctors.isNotEmpty) {
           setState(() {
-            _doctorId = int.tryParse(doctors.first['id'].toString());
+            _doctors = doctors;
+            _doctorId = null; // Require explicit selection
           });
-          log("Dynamically loaded doctor ID: $_doctorId");
+          log("Dynamically loaded ${_doctors.length} doctors");
         }
       }
     } catch (e) {
-      log("Error fetching doctor ID from API: $e");
+      log("Error fetching doctors from API: $e");
     }
   }
 
@@ -133,6 +135,15 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   }
 
   Future<void> _bookAppointment() async {
+    if (_doctorId == null) {
+      CustomSnackBar.show(
+        context: context,
+        message: 'Please select a doctor before booking',
+        type: SnackBarType.warning,
+      );
+      return;
+    }
+
     if (_nameController.text.isEmpty || _phoneController.text.isEmpty) {
       CustomSnackBar.show(
         context: context,
@@ -172,7 +183,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
       }
 
       final response = await _appointmentApi.bookAppointment(
-        doctorId: _doctorId ?? 1, // Dynamic doctor ID from API, fallback to 1
+        doctorId: _doctorId!, 
         name: _nameController.text,
         phone: _phoneController.text,
         date: today, // Current date YYYY-MM-DD
@@ -342,6 +353,27 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                             ),
                           ),
                           const SizedBox(height: 24),
+                          Text('SELECT DOCTOR', style: textTheme.labelLarge),
+                          const SizedBox(height: 8),
+                          DropdownButtonFormField<int>(
+                            value: _doctorId,
+                            decoration: const InputDecoration(
+                              prefixIcon: Icon(Icons.medical_services_outlined),
+                              hintText: 'Choose a Doctor',
+                            ),
+                            items: _doctors.map((doctor) {
+                              return DropdownMenuItem<int>(
+                                value: int.tryParse(doctor['id'].toString()),
+                                child: Text(doctor['name'] ?? 'Unknown Doctor'),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                _doctorId = value;
+                              });
+                            },
+                          ),
+                          const SizedBox(height: 20),
                           Text('FULL NAME', style: textTheme.labelLarge),
                           const SizedBox(height: 8),
                           TextField(
