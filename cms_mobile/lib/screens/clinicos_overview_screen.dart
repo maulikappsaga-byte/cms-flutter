@@ -136,7 +136,17 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
 
       final docId =
           _doctorId ?? 1; // Fallback to 1 if we couldn't load it from API
-      final response = await _queueApi.getQueueDetails(doctorId: docId);
+
+      String? appointmentId;
+      final today = DateTime.now().toString().split(' ')[0];
+      if (UserSession.lastBookingDate == today && UserSession.lastAppointmentId != null) {
+        appointmentId = UserSession.lastAppointmentId;
+      }
+
+      final response = await _queueApi.getQueueDetails(
+        doctorId: appointmentId == null ? docId : null,
+        appointmentId: appointmentId,
+      );
       log("ClinicosOverview: /queue/live response: $response");
 
       if (response != null && response['data'] != null) {
