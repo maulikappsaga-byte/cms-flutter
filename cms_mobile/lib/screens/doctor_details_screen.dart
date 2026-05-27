@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/doctor_detail_api.dart';
+import 'book_appointment_screen.dart';
 
 class DoctorDetailsScreen extends StatefulWidget {
   final int? doctorId;
@@ -707,8 +708,15 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen>
         child: SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: () =>
-                Navigator.pushNamed(context, '/book-appointment-app'),
+            onPressed: () {
+              final docId = _resolvedDoctorId ?? 1;
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => BookAppointmentScreen(doctorId: docId),
+                ),
+              );
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF005EB8),
               foregroundColor: Colors.white,

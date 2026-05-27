@@ -8,7 +8,9 @@ import '../services/user_session.dart';
 import '../widgets/custom_snackbar.dart';
 
 class BookAppointmentScreen extends StatefulWidget {
-  const BookAppointmentScreen({super.key});
+  final int? doctorId;
+
+  const BookAppointmentScreen({super.key, this.doctorId});
 
   @override
   State<BookAppointmentScreen> createState() => _BookAppointmentScreenState();
@@ -37,7 +39,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
         if (doctors is List && doctors.isNotEmpty) {
           setState(() {
             _doctors = doctors;
-            _doctorId = null; // Require explicit selection
+            _doctorId ??= widget.doctorId; // Use passed doctorId if available
           });
           log("Dynamically loaded ${_doctors.length} doctors");
         }
