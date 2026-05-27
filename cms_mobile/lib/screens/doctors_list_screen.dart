@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/doctor_detail_api.dart';
-import '../theme.dart';
 import 'doctor_details_screen.dart';
 
 class DoctorsListScreen extends StatefulWidget {

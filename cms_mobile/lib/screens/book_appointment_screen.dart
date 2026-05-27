@@ -356,7 +356,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                           Text('SELECT DOCTOR', style: textTheme.labelLarge),
                           const SizedBox(height: 8),
                           DropdownButtonFormField<int>(
-                            value: _doctorId,
+                            initialValue: _doctorId,
                             decoration: const InputDecoration(
                               prefixIcon: Icon(Icons.medical_services_outlined),
                               hintText: 'Choose a Doctor',
