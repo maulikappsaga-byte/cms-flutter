@@ -444,45 +444,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                   ],
                 ),
               ),
-              // Contextual Footer
-              Container(
-                padding: const EdgeInsets.all(24),
-                color: AppColors.inputBackground.withValues(alpha: 0.5),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            blurRadius: 4,
-                          ),
-                        ],
-                      ),
-                      child: const Icon(
-                        Icons.calendar_today,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('NEXT AVAILABLE', style: textTheme.labelLarge),
-                        Text(
-                          'Today, 2:30 PM',
-                          style: textTheme.bodyLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+
             ],
           ),
         ),
