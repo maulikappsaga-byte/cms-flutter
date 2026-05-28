@@ -17,6 +17,19 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   final TextEditingController _confirmPasswordController = TextEditingController();
   final List<TextEditingController> _otpControllers = List.generate(4, (_) => TextEditingController());
   bool _isLoading = false;
+  bool _emailInitialized = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_emailInitialized) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      if (args is String) {
+        _emailController.text = args;
+      }
+      _emailInitialized = true;
+    }
+  }
 
   @override
   void dispose() {

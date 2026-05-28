@@ -61,7 +61,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           );
           Future.delayed(const Duration(seconds: 2), () {
             if (mounted) {
-              Navigator.pushNamed(context, '/reset-password');
+              Navigator.pushNamed(
+                context,
+                '/reset-password',
+                arguments: email,
+              );
             }
           });
         }
