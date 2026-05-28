@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import '../theme.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../services/auth_api.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -36,61 +36,22 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     });
 
     try {
-      String getBaseUrl() {
-        if (kIsWeb) return 'http://127.0.0.1:8000';
-        if (defaultTargetPlatform == TargetPlatform.android) return 'http://10.0.2.2:8000';
-        return 'http://127.0.0.1:8000';
-      }
-
-      final baseUrl = getBaseUrl();
-
-      final response = await http.post(
-        Uri.parse('$baseUrl/api/auth/forgot-password'),
-        headers: {
-          'X-API-KEY': 'QOOizWQhXaQpEAk2Vu0C6N2MC4LObntMtU8NGNYwVkubR0UA80ZmndwL3BECYl4q',
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          'email': email,
-        }),
-      );
+      final response = await AuthApi.forgotPassword(email);
 
       if (mounted) {
-        bool isSuccess = false;
-        String errorMessage = 'Failed to send recovery link';
-        String successMessage = 'Recovery link sent to your email!';
-
-        try {
-          final body = jsonDecode(response.body);
-          
-          if (response.statusCode >= 200 && response.statusCode < 300) {
-            if (body is Map && body['status'] == false) {
-              isSuccess = false;
-              errorMessage = body['message'] ?? 'Failed to send recovery link';
-            } else {
-              isSuccess = true;
-              if (body is Map && body['message'] != null) {
-                successMessage = body['message'];
-              }
-            }
-          } else {
-            isSuccess = false;
-            if (body is Map) {
-              errorMessage = body['message'] ?? errorMessage;
-            } else {
-              errorMessage = 'Server error: ${response.statusCode}';
-            }
+        if (response is Map && response['status'] == false) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(response['message'] ?? 'Failed to send recovery link'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        } else {
+          String successMessage = 'Recovery link sent to your email!';
+          if (response is Map && response['message'] != null) {
+            successMessage = response['message'];
           }
-        } catch (_) {
-          if (response.statusCode >= 200 && response.statusCode < 300) {
-            isSuccess = true;
-          } else {
-            errorMessage = 'Server error: ${response.statusCode}';
-          }
-        }
 
-        if (isSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(successMessage),
@@ -103,16 +64,32 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               Navigator.pushNamed(context, '/reset-password');
             }
           });
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(errorMessage)),
-          );
         }
       }
     } catch (e) {
       if (mounted) {
+        String errorMessage = 'Failed to send recovery link';
+        final errorString = e.toString();
+        if (errorString.contains('{')) {
+          try {
+            final jsonStr = errorString.substring(errorString.indexOf('{'));
+            final body = jsonDecode(jsonStr);
+            if (body is Map) {
+              if (body['errors'] != null && body['errors'] is Map) {
+                final errors = body['errors'] as Map;
+                if (errors.isNotEmpty) {
+                  final firstError = errors.values.first;
+                  errorMessage = firstError is List ? firstError[0].toString() : firstError.toString();
+                }
+              } else if (body['message'] != null) {
+                errorMessage = body['message'];
+              }
+            }
+          } catch (_) {}
+        }
+        
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Network error: $e')),
+          SnackBar(content: Text(errorMessage)),
         );
       }
     } finally {

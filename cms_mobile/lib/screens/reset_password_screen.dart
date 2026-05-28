@@ -1,8 +1,128 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import '../theme.dart';
+import 'dart:convert';
+import '../services/auth_api.dart';
 
-class ResetPasswordScreen extends StatelessWidget {
+class ResetPasswordScreen extends StatefulWidget {
   const ResetPasswordScreen({super.key});
+
+  @override
+  State<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
+}
+
+class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+  final List<TextEditingController> _otpControllers = List.generate(4, (_) => TextEditingController());
+  bool _isLoading = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    for (var controller in _otpControllers) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  Future<void> _resetPassword() async {
+    final email = _emailController.text.trim();
+    final otp = _otpControllers.map((c) => c.text).join();
+    final password = _passwordController.text;
+    final passwordConfirmation = _confirmPasswordController.text;
+
+    if (email.isEmpty || otp.length < 4 || password.isEmpty || passwordConfirmation.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill all fields')),
+      );
+      return;
+    }
+
+    if (password != passwordConfirmation) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Passwords do not match')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final response = await AuthApi.resetPassword(
+        email,
+        otp,
+        password,
+        passwordConfirmation,
+      );
+
+      if (mounted) {
+        if (response is Map && response['status'] == false) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(response['message'] ?? 'Failed to reset password'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        } else {
+          String successMessage = 'Password updated successfully!';
+          if (response is Map && response['message'] != null) {
+            successMessage = response['message'];
+          }
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(successMessage),
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: Colors.green,
+            ),
+          );
+          Future.delayed(const Duration(seconds: 2), () {
+            if (mounted) {
+              Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+            }
+          });
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        String errorMessage = 'Failed to reset password';
+        final errorString = e.toString();
+        if (errorString.contains('{')) {
+          try {
+            final jsonStr = errorString.substring(errorString.indexOf('{'));
+            final body = jsonDecode(jsonStr);
+            if (body is Map) {
+              if (body['errors'] != null && body['errors'] is Map) {
+                final errors = body['errors'] as Map;
+                if (errors.isNotEmpty) {
+                  final firstError = errors.values.first;
+                  errorMessage = firstError is List ? firstError[0].toString() : firstError.toString();
+                }
+              } else if (body['message'] != null) {
+                errorMessage = body['message'];
+              }
+            }
+          } catch (_) {}
+        }
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage)),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,19 +206,53 @@ class ResetPasswordScreen extends StatelessWidget {
                       children: [
                         Text('EMAIL ADDRESS', style: textTheme.labelLarge),
                         const SizedBox(height: 8),
-                        const TextField(
-                          decoration: InputDecoration(
+                        TextField(
+                          controller: _emailController,
+                          decoration: const InputDecoration(
                             prefixIcon: Icon(Icons.mail_outline),
                             hintText: 'practitioner@clinicos.com',
                           ),
                           keyboardType: TextInputType.emailAddress,
                         ),
                         const SizedBox(height: 24),
+                        Text('VERIFICATION CODE (4-DIGIT)', style: textTheme.labelLarge),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: List.generate(
+                            4,
+                            (index) => SizedBox(
+                              width: 64,
+                              child: TextField(
+                                controller: _otpControllers[index],
+                                textAlign: TextAlign.center,
+                                keyboardType: TextInputType.number,
+                                maxLength: 1,
+                                style: textTheme.headlineMedium?.copyWith(
+                                  color: AppColors.primary,
+                                ),
+                                decoration: const InputDecoration(
+                                  counterText: '',
+                                  contentPadding: EdgeInsets.symmetric(vertical: 16),
+                                ),
+                                onChanged: (value) {
+                                  if (value.isNotEmpty && index < 3) {
+                                    FocusScope.of(context).nextFocus();
+                                  } else if (value.isEmpty && index > 0) {
+                                    FocusScope.of(context).previousFocus();
+                                  }
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
                         Text('NEW PASSWORD', style: textTheme.labelLarge),
                         const SizedBox(height: 8),
-                        const TextField(
+                        TextField(
+                          controller: _passwordController,
                           obscureText: true,
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             prefixIcon: Icon(Icons.lock_outline),
                             hintText: '••••••••••••',
                           ),
@@ -106,9 +260,10 @@ class ResetPasswordScreen extends StatelessWidget {
                         const SizedBox(height: 24),
                         Text('CONFIRM NEW PASSWORD', style: textTheme.labelLarge),
                         const SizedBox(height: 8),
-                        const TextField(
+                        TextField(
+                          controller: _confirmPasswordController,
                           obscureText: true,
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             prefixIcon: Icon(Icons.verified_user_outlined),
                             hintText: '••••••••••••',
                           ),
@@ -120,21 +275,24 @@ class ResetPasswordScreen extends StatelessWidget {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Password updated successfully!'),
-                              backgroundColor: Colors.green,
-                              behavior: SnackBarBehavior.floating,
-                            ),
-                          );
-                          Future.delayed(const Duration(seconds: 2), () {
-                            if (context.mounted) {
-                              Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
-                            }
-                          });
-                        },
-                        child: const Text('UPDATE ACCESS'),
+                        onPressed: _isLoading ? null : _resetPassword,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              if (_isLoading) ...[
+                                const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                ),
+                                const SizedBox(width: 8),
+                              ],
+                              const Text('UPDATE ACCESS'),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 32),
