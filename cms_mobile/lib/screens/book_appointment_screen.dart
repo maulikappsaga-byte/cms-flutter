@@ -450,7 +450,7 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 2,
+        currentIndex: 1,
         type: BottomNavigationBarType.fixed,
         selectedItemColor: AppColors.primary,
         unselectedItemColor: AppColors.outline,
@@ -460,18 +460,12 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
         unselectedLabelStyle: textTheme.labelLarge?.copyWith(fontSize: 10),
         onTap: (index) {
           if (index == 0) {
-            Navigator.pushReplacementNamed(context, '/clinicos-overview');
-          } else if (index == 1) {
             Navigator.pushReplacementNamed(context, '/appointments');
-          } else if (index == 2) {
+          } else if (index == 1) {
             Navigator.pushReplacementNamed(context, '/book-appointment');
           }
         },
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard_rounded),
-            label: 'OVERVIEW',
-          ),
           BottomNavigationBarItem(
             icon: Icon(Icons.calendar_month),
             label: 'APPOINTMENTS',

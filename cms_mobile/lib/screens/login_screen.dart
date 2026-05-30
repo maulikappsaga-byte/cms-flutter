@@ -92,7 +92,16 @@ class _LoginScreenState extends State<LoginScreen> {
         }
 
         if (isSuccess) {
-          Navigator.pushReplacementNamed(context, '/clinicos-overview');
+          String targetRoute = '/clinicos-overview';
+          
+          try {
+            String rawResponse = response.body.toLowerCase();
+            if (rawResponse.contains('receptionist')) {
+              targetRoute = '/dashboard';
+            }
+          } catch (_) {}
+
+          Navigator.pushReplacementNamed(context, targetRoute);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(errorMessage)),
