@@ -23,4 +23,15 @@ class AppointmentApi {
       rethrow;
     }
   }
+
+  Future<dynamic> getTodayAppointments() async {
+    try {
+      final response = await ApiService.get('/today-appointments');
+      log(response.toString());
+      return response;
+    } catch (e) {
+      log(e.toString());
+      rethrow;
+    }
+  }
 }

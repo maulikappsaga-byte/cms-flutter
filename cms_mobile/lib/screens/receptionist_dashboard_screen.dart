@@ -6,6 +6,7 @@ import '../services/pusher_service.dart';
 import '../services/queue_detail_api.dart';
 import '../widgets/custom_snackbar.dart';
 import '../services/doctor_detail_api.dart';
+import '../services/appointment_api.dart';
 import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
 
 class ReceptionistDashboardScreen extends StatefulWidget {
@@ -19,6 +20,7 @@ class ReceptionistDashboardScreen extends StatefulWidget {
 class _ReceptionistDashboardScreenState
     extends State<ReceptionistDashboardScreen> {
   final QueueApi _queueApi = QueueApi();
+  final AppointmentApi _appointmentApi = AppointmentApi();
   bool _isLoading = true;
   bool _isActionLoading = false;
   
@@ -27,6 +29,7 @@ class _ReceptionistDashboardScreenState
   int _completedCount = 0;
   int _pendingCount = 0;
   int _totalAppointments = 0;
+  List<dynamic> _todayAppointments = [];
   
   final DoctorDetailApi _doctorApi = DoctorDetailApi();
   int? _doctorId;
@@ -91,12 +94,16 @@ class _ReceptionistDashboardScreenState
 
       final docId = _doctorId ?? 1;
       final response = await _queueApi.getQueueDetails(doctorId: docId);
+      final appointmentsResponse = await _appointmentApi.getTodayAppointments();
       
       if (response != null && response['data'] != null) {
         final queueData = response['data']['queue'];
         final currentPatient = queueData['current_patient'];
         
         setState(() {
+          if (appointmentsResponse != null && appointmentsResponse['status'] == true) {
+            _todayAppointments = appointmentsResponse['data']?['todays appointments'] ?? [];
+          }
           if (currentPatient != null) {
             final name = currentPatient['patient_name'] ?? 'Unknown';
             final token = currentPatient['token_number'] ?? currentPatient['token'] ?? '--';
@@ -438,7 +445,7 @@ class _ReceptionistDashboardScreenState
                 'Book New Appointment',
                 textTheme,
                 onTap: () {
-                  Navigator.pushNamed(context, '/book-appointment');
+                  Navigator.pushNamed(context, '/receptionist-book-appointment');
                 },
               ),
 
@@ -465,23 +472,24 @@ class _ReceptionistDashboardScreenState
                   ),
                 ],
               ),
-              _buildAppointmentItem(
-                context,
-                '09:00 AM',
-                'Eleanor Penhaligon',
-                'Check-up',
-                'Token #104',
-                textTheme,
-              ),
-              const SizedBox(height: 12),
-              _buildAppointmentItem(
-                context,
-                '10:30 AM',
-                'Arthur Sterling',
-                'Follow-up',
-                'Token #102',
-                textTheme,
-              ),
+              ..._todayAppointments.map((appointment) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12.0),
+                  child: _buildAppointmentItem(
+                    context,
+                    appointment['appointment_time'] ?? 'N/A', 
+                    appointment['patient_name'] ?? 'Unknown',
+                    appointment['doctor_name'] ?? 'Check-up',
+                    'Token #${appointment['token_no'] ?? '--'}',
+                    textTheme,
+                  ),
+                );
+              }),
+              if (_todayAppointments.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 24),
+                  child: Center(child: Text('No appointments today')),
+                ),
               const SizedBox(height: 24),
             ],
           ),
