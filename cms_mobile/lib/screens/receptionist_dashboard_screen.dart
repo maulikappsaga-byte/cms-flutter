@@ -482,6 +482,8 @@ class _ReceptionistDashboardScreenState
                     appointment['doctor_name'] ?? 'Check-up',
                     'Token #${appointment['token_no'] ?? '--'}',
                     textTheme,
+                    phone: appointment['phone']?.toString(),
+                    status: appointment['status']?.toString(),
                   ),
                 );
               }),
@@ -601,8 +603,10 @@ class _ReceptionistDashboardScreenState
     String name,
     String service,
     String token,
-    TextTheme textTheme,
-  ) {
+    TextTheme textTheme, {
+    String? phone,
+    String? status,
+  }) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -644,6 +648,26 @@ class _ReceptionistDashboardScreenState
                   ),
                 ),
                 Text(service, style: textTheme.labelLarge),
+                if (phone != null) ...[
+                  const SizedBox(height: 2),
+                  Row(
+                    children: [
+                      const Icon(Icons.phone, size: 12, color: AppColors.outline),
+                      const SizedBox(width: 4),
+                      Text(phone, style: textTheme.labelMedium?.copyWith(color: AppColors.outline)),
+                    ],
+                  ),
+                ],
+                if (status != null) ...[
+                  const SizedBox(height: 2),
+                  Row(
+                    children: [
+                      const Icon(Icons.info_outline, size: 12, color: AppColors.primary),
+                      const SizedBox(width: 4),
+                      Text(status.toUpperCase(), style: textTheme.labelMedium?.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),
