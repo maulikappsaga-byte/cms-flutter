@@ -103,6 +103,13 @@ class _ReceptionistDashboardScreenState
         setState(() {
           if (appointmentsResponse != null && appointmentsResponse['status'] == true) {
             _todayAppointments = appointmentsResponse['data']?['todays appointments'] ?? [];
+            _totalAppointments = _todayAppointments.length;
+            _completedCount = _todayAppointments.where((app) => app['status']?.toString().toLowerCase() == 'completed').length;
+            _pendingCount = _totalAppointments - _completedCount;
+          } else {
+            _totalAppointments = queueData['total_tokens'] ?? 0;
+            _completedCount = queueData['completed_tokens'] ?? 0;
+            _pendingCount = _totalAppointments - _completedCount;
           }
           if (currentPatient != null) {
             final name = currentPatient['patient_name'] ?? 'Unknown';
@@ -111,12 +118,6 @@ class _ReceptionistDashboardScreenState
           } else {
             _currentNextPatient = 'No Patient';
           }
-          
-          // These might need different endpoints, but we'll use placeholder logic for now
-          // or extract from queueData if available.
-          _totalAppointments = queueData['total_tokens'] ?? 0;
-          _completedCount = queueData['completed_tokens'] ?? 0;
-          _pendingCount = _totalAppointments - _completedCount;
           
           _isLoading = false;
         });
@@ -419,11 +420,11 @@ class _ReceptionistDashboardScreenState
                         ),
                       ],
                     ),
-                    const SizedBox(
+                    SizedBox(
                       width: 48,
                       height: 48,
                       child: CircularProgressIndicator(
-                        value: 0.75,
+                        value: _totalAppointments > 0 ? _completedCount / _totalAppointments : 0.0,
                         strokeWidth: 4,
                         backgroundColor: AppColors.background,
                         color: AppColors.primaryContainer,
