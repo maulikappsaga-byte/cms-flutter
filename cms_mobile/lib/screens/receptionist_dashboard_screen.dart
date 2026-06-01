@@ -7,6 +7,7 @@ import '../services/queue_detail_api.dart';
 import '../widgets/custom_snackbar.dart';
 import '../services/doctor_detail_api.dart';
 import '../services/appointment_api.dart';
+import '../services/user_session.dart';
 import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
 
 class ReceptionistDashboardScreen extends StatefulWidget {
@@ -214,6 +215,30 @@ class _ReceptionistDashboardScreenState
                     ),
                   )
                 : const Icon(Icons.refresh, color: AppColors.primary),
+          ),
+          PopupMenuButton<String>(
+            onSelected: (value) async {
+              if (value == 'logout') {
+                await UserSession.clear();
+                if (mounted) {
+                  Navigator.pushReplacementNamed(context, '/clinicos-overview');
+                }
+              }
+            },
+            icon: const Icon(Icons.more_vert, color: AppColors.primary),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            itemBuilder: (BuildContext context) => [
+              const PopupMenuItem<String>(
+                value: 'logout',
+                child: Row(
+                  children: [
+                    Icon(Icons.logout, color: Colors.red, size: 20),
+                    SizedBox(width: 12),
+                    Text('Logout', style: TextStyle(color: Colors.red, fontWeight: FontWeight.w500)),
+                  ],
+                ),
+              ),
+            ],
           ),
           const SizedBox(width: 8),
         ],
