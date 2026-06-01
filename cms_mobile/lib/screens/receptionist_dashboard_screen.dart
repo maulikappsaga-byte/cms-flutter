@@ -111,14 +111,16 @@ class _ReceptionistDashboardScreenState
         if (queueResponse != null && queueResponse['data'] != null) {
           final queueData = queueResponse['data']['queue'];
           final currentPatient = queueData['current_patient'];
+          final waitingList = queueData['waiting_list'];
 
           if (currentPatient != null) {
-            currentName = currentPatient['patient_name'] ?? 'Unknown';
-            currentToken = currentPatient['token_number']?.toString() ?? currentPatient['token']?.toString() ?? '--';
+            currentName = currentPatient['appointment']?['patient_name'] ?? currentPatient['patient_name'] ?? 'Unknown';
+            currentToken = currentPatient['token_number']?.toString() ?? '--';
           }
 
-          if (queueData['next_patients'] != null && queueData['next_patients'] is List && queueData['next_patients'].isNotEmpty) {
-             nextToken = queueData['next_patients'][0]['token_number']?.toString() ?? queueData['next_patients'][0]['token']?.toString() ?? 'None';
+          if (waitingList != null && waitingList is List && waitingList.isNotEmpty) {
+            final nextPatient = waitingList[0];
+            nextToken = nextPatient['token_number']?.toString() ?? 'None';
           }
         }
 

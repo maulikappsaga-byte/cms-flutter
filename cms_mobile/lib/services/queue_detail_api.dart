@@ -11,10 +11,20 @@ class QueueApi {
         queryParams['doctor_id'] = doctorId;
       }
 
-      return await ApiService.get(
-        '/queue/live',
-        queryParams: queryParams,
-      );
+      final liveResponse = await ApiService.get('/queue/live', queryParams: queryParams);
+      final waitingResponse = await ApiService.get('/queue/waiting-list', queryParams: queryParams);
+
+      return {
+        'status': true,
+        'data': {
+          'queue': {
+            'current_patient': liveResponse['data']?['queue']?['current_patient'],
+            'waiting_list': waitingResponse['data']?['queue']?['waiting_list'] ?? [],
+            'total_tokens': liveResponse['data']?['queue']?['total_tokens'],
+            'completed_tokens': liveResponse['data']?['queue']?['completed_tokens'],
+          }
+        }
+      };
     } catch (e) {
       throw Exception('Error fetching queue details: $e');
     }
