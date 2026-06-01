@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/doctor_detail_api.dart';
 import 'doctor_details_screen.dart';
+import '../constants/api_constants.dart';
 
 class DoctorsListScreen extends StatefulWidget {
   const DoctorsListScreen({super.key});
@@ -198,7 +199,7 @@ class _DoctorsListScreenState extends State<DoctorsListScreen> {
     final String experience = doctor['experience_years'] != null
         ? '${doctor['experience_years']} Yrs Exp.'
         : '';
-    final String? profilePhoto = doctor['profile_photo'];
+    final String? profilePhoto = ApiConstants.resolveImageUrl(doctor['profile_photo']);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),

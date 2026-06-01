@@ -5,6 +5,7 @@ import '../theme.dart';
 import '../services/clinic_detail_api.dart';
 import '../services/user_session.dart';
 import '../widgets/hidden_staff_login_trigger.dart';
+import '../constants/api_constants.dart';
 
 class ClinicDetailsScreen extends StatefulWidget {
   final int doctorId;
@@ -128,11 +129,7 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
     final long = clinic['longitude'] ?? "0.0";
 
     // Handle relative logo path
-    String? imageUrl = clinic['logo'];
-    if (imageUrl != null && !imageUrl.startsWith('http')) {
-      // imageUrl = 'http://13.126.47.19:8000/storage/$imageUrl';
-      imageUrl = 'http://localhost:8000/storage/$imageUrl';
-    }
+    String? imageUrl = ApiConstants.resolveImageUrl(clinic['logo']);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),

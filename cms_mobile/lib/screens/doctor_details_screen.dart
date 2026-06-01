@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/doctor_detail_api.dart';
 import 'book_appointment_screen.dart';
+import '../constants/api_constants.dart';
 
 class DoctorDetailsScreen extends StatefulWidget {
   final int? doctorId;
@@ -273,14 +274,14 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen>
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(color: const Color(0xFFF1F5F9), width: 4),
-                  image: data['profile_photo'] != null
+                  image: ApiConstants.resolveImageUrl(data['profile_photo']) != null
                       ? DecorationImage(
-                          image: NetworkImage(data['profile_photo']),
+                          image: NetworkImage(ApiConstants.resolveImageUrl(data['profile_photo'])!),
                           fit: BoxFit.cover,
                         )
                       : null,
                 ),
-                child: data['profile_photo'] == null
+                child: ApiConstants.resolveImageUrl(data['profile_photo']) == null
                     ? const Icon(
                         Icons.person,
                         size: 60,

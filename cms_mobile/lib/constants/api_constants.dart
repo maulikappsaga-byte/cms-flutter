@@ -13,4 +13,23 @@ class ApiConstants {
   // Pusher Configuration
   static const String pusherAppKey = 'bacd6dd427751c42eecc';
   static const String pusherCluster = 'ap2';
+
+  static String? resolveImageUrl(String? url) {
+    if (url == null || url.isEmpty) return null;
+    
+    // For absolute URLs returned from localhost APIs
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      if (url.contains('127.0.0.1') || url.contains('localhost')) {
+        return url.replaceAll('127.0.0.1', '10.0.2.2').replaceAll('localhost', '10.0.2.2');
+      }
+    }
+
+    // For relative URLs
+    if (!url.startsWith('http')) {
+      final baseDomain = baseUrl.replaceAll('/api', '');
+      return '$baseDomain/storage/$url';
+    }
+
+    return url;
+  }
 }
