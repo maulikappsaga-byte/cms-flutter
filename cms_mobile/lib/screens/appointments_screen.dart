@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme.dart';
+import 'package:intl/intl.dart';
+import '../services/appointment_api.dart';
 
 class AppointmentsScreen extends StatefulWidget {
   const AppointmentsScreen({super.key});
@@ -13,46 +15,80 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
 
-  final List<Map<String, dynamic>> _allAppointments = [
-    {
-      'token': 'TOKEN #104',
-      'name': 'Eleanor Penhaligon',
-      'status': 'Upcoming',
-      'date': 'Oct 24, 2023',
-      'time': '10:30 AM',
-      'color': AppColors.primaryContainer,
-      'showCheckIn': true,
-    },
-    {
-      'token': 'TOKEN #102',
-      'name': 'Arthur Sterling',
-      'status': 'Completed',
-      'date': 'Oct 24, 2023',
-      'time': '09:15 AM',
-      'color': const Color(0xFFE2E8F0),
-      'statusColor': Colors.green,
-    },
-    {
-      'token': 'TOKEN #105',
-      'name': 'Clara Abernathy',
-      'status': 'Waitlist',
-      'date': 'Oct 24, 2023',
-      'time': '11:00 AM',
-      'color': Colors.amber,
-      'statusColor': Colors.orange[700],
-      'footer': 'Patient has arrived',
-    },
-    {
-      'token': 'TOKEN #101',
-      'name': 'Julian Vance',
-      'status': 'No Show',
-      'date': 'Oct 24, 2023',
-      'time': '08:45 AM',
-      'color': AppColors.error,
-      'statusColor': AppColors.error,
-      'opacity': 0.6,
-    },
-  ];
+  List<Map<String, dynamic>> _allAppointments = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchAppointments();
+  }
+
+  Future<void> _fetchAppointments() async {
+    setState(() => _isLoading = true);
+    try {
+      final response = await AppointmentApi().getAppointmentHistory();
+      if (response != null && response['status'] == true) {
+        final List<dynamic> list = response['data']?['appointments']?['list'] ?? [];
+        
+        setState(() {
+          _allAppointments = list.map((item) {
+            final patientName = item['patient']?['name'] ?? 'Unknown';
+            final statusStr = item['status']?.toString().toLowerCase() ?? 'unknown';
+            final dateStr = item['appointment_date'] ?? '';
+            
+            // Map status to color
+            Color bgColor = AppColors.primaryContainer.withValues(alpha: 0.1);
+            Color statusColor = AppColors.primary;
+            String displayStatus = 'Upcoming';
+            
+            if (statusStr == 'completed') {
+               bgColor = const Color(0xFFE2E8F0);
+               statusColor = Colors.green;
+               displayStatus = 'Completed';
+            } else if (statusStr == 'waitlist') {
+               bgColor = Colors.amber.withValues(alpha: 0.2);
+               statusColor = Colors.orange[700]!;
+               displayStatus = 'Waitlist';
+            } else if (statusStr == 'cancelled' || statusStr == 'no show') {
+               bgColor = AppColors.error.withValues(alpha: 0.1);
+               statusColor = AppColors.error;
+               displayStatus = 'No Show';
+            } else {
+               displayStatus = statusStr.isNotEmpty ? statusStr[0].toUpperCase() + statusStr.substring(1) : 'Pending';
+               bgColor = AppColors.primaryContainer.withValues(alpha: 0.2);
+               statusColor = AppColors.primary;
+            }
+
+            // Format date safely
+            String formattedDate = dateStr;
+            try {
+              if (dateStr.isNotEmpty) {
+                final dt = DateTime.parse(dateStr);
+                formattedDate = DateFormat('MMM dd, yyyy').format(dt);
+              }
+            } catch (_) {}
+            
+            return {
+              'token': 'TOKEN #${item['token']}',
+              'name': patientName,
+              'status': displayStatus,
+              'date': formattedDate,
+              'time': '--:--', // API doesn't provide time yet
+              'color': bgColor,
+              'statusColor': statusColor,
+            };
+          }).toList();
+          _isLoading = false;
+        });
+      } else {
+        setState(() => _isLoading = false);
+      }
+    } catch (e) {
+      debugPrint('Error fetching appointments: $e');
+      setState(() => _isLoading = false);
+    }
+  }
 
   List<Map<String, dynamic>> get _filteredAppointments {
     return _allAppointments.where((appointment) {
@@ -150,14 +186,16 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          await Future.delayed(const Duration(seconds: 1));
+          await _fetchAppointments();
           setState(() {
             _searchQuery = '';
             _selectedFilter = 'Today';
             _searchController.clear();
           });
         },
-        child: Column(
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : Column(
           children: [
             // Search and Filters
             Container(
