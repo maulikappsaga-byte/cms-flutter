@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../theme.dart';
 import '../services/clinic_detail_api.dart';
 import '../services/user_session.dart';
+import '../widgets/hidden_staff_login_trigger.dart';
 
 class ClinicDetailsScreen extends StatefulWidget {
   final int doctorId;
@@ -202,34 +203,36 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Clinic Logo
-              Container(
-                height: 88,
-                width: 88,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: const Color(0xFFE8EDF2), width: 1),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF000000).withValues(alpha: 0.06),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                  image: imageUrl != null && imageUrl.isNotEmpty
-                      ? DecorationImage(
-                          image: NetworkImage(imageUrl),
-                          fit: BoxFit.cover,
+              HiddenStaffLoginTrigger(
+                child: Container(
+                  height: 88,
+                  width: 88,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: const Color(0xFFE8EDF2), width: 1),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF000000).withValues(alpha: 0.06),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                    image: imageUrl != null && imageUrl.isNotEmpty
+                        ? DecorationImage(
+                            image: NetworkImage(imageUrl),
+                            fit: BoxFit.cover,
+                          )
+                        : null,
+                  ),
+                  child: (imageUrl == null || imageUrl.isEmpty)
+                      ? const Icon(
+                          Icons.business_rounded,
+                          size: 44,
+                          color: AppColors.primary,
                         )
                       : null,
                 ),
-                child: (imageUrl == null || imageUrl.isEmpty)
-                    ? const Icon(
-                        Icons.business_rounded,
-                        size: 44,
-                        color: AppColors.primary,
-                      )
-                    : null,
               ),
               const SizedBox(width: 16),
 

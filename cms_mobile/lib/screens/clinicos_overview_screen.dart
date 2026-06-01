@@ -508,17 +508,6 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
             Navigator.pushNamed(context, '/clinic-details');
           },
         ),
-        _buildActionCard(
-          icon: Icons.login,
-          label: 'Staff\nLogin',
-          color: Colors.white,
-          iconColor: AppColors.primary,
-          textColor: AppColors.onSurface,
-          hasBgIcon: false,
-          onTap: () {
-            Navigator.pushNamed(context, '/login');
-          },
-        ),
       ],
     );
   }
