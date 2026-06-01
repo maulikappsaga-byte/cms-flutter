@@ -25,15 +25,8 @@ class _ReceptionistDashboardScreenState
   final AppointmentApi _appointmentApi = AppointmentApi();
   bool _isLoading = true;
   
-<<<<<<< HEAD
-  String _doctorName = 'Dr. Demo Doctor';
-  String _currentNextPatientToken = '--';
-  String _currentNextPatientName = 'No Patient';
-  String _nextPatientToken = 'None';
-=======
   List<Map<String, dynamic>> _doctorQueues = [];
   int? _actionLoadingDoctorId;
->>>>>>> 82fa501527ccf9d03bd71ea5cc98ec2e9ddd95b9
   int _completedCount = 0;
   int _pendingCount = 0;
   int _totalAppointments = 0;
