@@ -35,9 +35,9 @@ class AppointmentApi {
     }
   }
 
-  Future<dynamic> getAppointmentHistory() async {
+  Future<dynamic> getAppointmentHistory({int page = 1}) async {
     try {
-      final response = await ApiService.get('/appointment-history');
+      final response = await ApiService.get('/appointment-history', queryParams: {'page': page});
       log(response.toString());
       return response;
     } catch (e) {

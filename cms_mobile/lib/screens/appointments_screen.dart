@@ -17,6 +17,8 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
 
   List<Map<String, dynamic>> _allAppointments = [];
   bool _isLoading = true;
+  int _currentPage = 1;
+  int _lastPage = 1;
 
   @override
   void initState() {
@@ -24,14 +26,22 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
     _fetchAppointments();
   }
 
-  Future<void> _fetchAppointments() async {
-    setState(() => _isLoading = true);
+  Future<void> _fetchAppointments({int page = 1}) async {
+    setState(() {
+      _isLoading = true;
+      _currentPage = page;
+    });
     try {
-      final response = await AppointmentApi().getAppointmentHistory();
+      final response = await AppointmentApi().getAppointmentHistory(page: page);
       if (response != null && response['status'] == true) {
         final List<dynamic> list = response['data']?['appointments']?['list'] ?? [];
+        final pagination = response['data']?['appointments']?['pagination'];
         
         setState(() {
+          if (pagination != null) {
+            _lastPage = pagination['last_page'] ?? 1;
+            _currentPage = pagination['current_page'] ?? 1;
+          }
           _allAppointments = list.map((item) {
             final patientName = item['patient']?['name'] ?? 'Unknown';
             final statusStr = item['status']?.toString().toLowerCase() ?? 'unknown';
@@ -186,7 +196,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          await _fetchAppointments();
+          await _fetchAppointments(page: 1);
           setState(() {
             _searchQuery = '';
             _selectedFilter = 'Today';
@@ -289,6 +299,40 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
               ],
             ),
           ),
+          if (_lastPage > 1)
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    offset: const Offset(0, -4),
+                    blurRadius: 10,
+                  ),
+                ],
+              ),
+              child: SafeArea(
+                top: false,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton.icon(
+                      onPressed: _currentPage > 1 ? () => _fetchAppointments(page: _currentPage - 1) : null,
+                      icon: const Icon(Icons.chevron_left),
+                      label: const Text('Prev'),
+                    ),
+                    Text('Page $_currentPage of $_lastPage', style: textTheme.labelLarge),
+                    TextButton.icon(
+                      onPressed: _currentPage < _lastPage ? () => _fetchAppointments(page: _currentPage + 1) : null,
+                      icon: const Icon(Icons.chevron_right),
+                      label: const Text('Next'),
+                      iconAlignment: IconAlignment.end,
+                    ),
+                  ],
+                ),
+              ),
+            ),
         ],
       ),
     ),
