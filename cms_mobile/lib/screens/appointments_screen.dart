@@ -44,6 +44,8 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
           }
           _allAppointments = list.map((item) {
             final patientName = item['patient']?['name'] ?? 'Unknown';
+            final patientPhone = item['patient']?['phone'] ?? 'N/A';
+            final doctorName = item['doctor']?['name'] ?? 'Not Assigned';
             final statusStr = item['status']?.toString().toLowerCase() ?? 'unknown';
             final dateStr = item['appointment_date'] ?? '';
             
@@ -82,6 +84,8 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
             return {
               'token': 'TOKEN #${item['token']}',
               'name': patientName,
+              'phone': patientPhone,
+              'doctor': doctorName,
               'status': displayStatus,
               'date': formattedDate,
               'time': '--:--', // API doesn't provide time yet
@@ -276,6 +280,8 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                     appt['time'],
                     appt['color'],
                     textTheme,
+                    phone: appt['phone'],
+                    doctor: appt['doctor'],
                     showCheckIn: appt['showCheckIn'] ?? false,
                     statusColor: appt['statusColor'],
                     footer: appt['footer'],
@@ -395,6 +401,8 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
     String time,
     Color accentColor,
     TextTheme textTheme, {
+    String? phone,
+    String? doctor,
     bool showCheckIn = false,
     Color? statusColor,
     String? footer,
@@ -456,6 +464,26 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(name, style: textTheme.headlineMedium?.copyWith(fontSize: 18)),
+                      if (phone != null && phone != 'N/A') ...[
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            const Icon(Icons.phone, size: 14, color: AppColors.outline),
+                            const SizedBox(width: 6),
+                            Text(phone, style: textTheme.bodyMedium?.copyWith(color: AppColors.outline)),
+                          ],
+                        ),
+                      ],
+                      if (doctor != null && doctor != 'Not Assigned') ...[
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            const Icon(Icons.medical_services_outlined, size: 14, color: AppColors.outline),
+                            const SizedBox(width: 6),
+                            Text(doctor, style: textTheme.bodyMedium?.copyWith(color: AppColors.outline)),
+                          ],
+                        ),
+                      ],
                       const SizedBox(height: 16),
                       Row(
                         children: [
