@@ -403,6 +403,29 @@ class _ReceptionistBookAppointmentScreenState extends State<ReceptionistBookAppo
           ),
         ),
       ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: 2,
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: AppColors.primary,
+        unselectedItemColor: AppColors.outline,
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
+        selectedLabelStyle: textTheme.labelLarge?.copyWith(fontSize: 10),
+        unselectedLabelStyle: textTheme.labelLarge?.copyWith(fontSize: 10),
+        onTap: (index) {
+          if (index == 2) return;
+          if (index == 0) {
+            Navigator.pushReplacementNamed(context, '/dashboard');
+          } else if (index == 1) {
+            Navigator.pushReplacementNamed(context, '/appointments');
+          }
+        },
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.dashboard_outlined), activeIcon: Icon(Icons.dashboard), label: 'DASHBOARD'),
+          BottomNavigationBarItem(icon: Icon(Icons.calendar_month_outlined), activeIcon: Icon(Icons.calendar_month), label: 'APPOINTMENTS'),
+          BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline), activeIcon: Icon(Icons.add_circle), label: 'BOOK APPOINTMENT'),
+        ],
+      ),
     );
   }
 }

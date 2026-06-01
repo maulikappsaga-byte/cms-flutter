@@ -255,7 +255,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
       ),
     ),
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0,
+        currentIndex: 1,
         type: BottomNavigationBarType.fixed,
         selectedItemColor: AppColors.primary,
         unselectedItemColor: AppColors.outline,
@@ -264,15 +264,17 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
         selectedLabelStyle: textTheme.labelLarge?.copyWith(fontSize: 10),
         unselectedLabelStyle: textTheme.labelLarge?.copyWith(fontSize: 10),
         onTap: (index) {
+          if (index == 1) return;
           if (index == 0) {
-            Navigator.pushReplacementNamed(context, '/appointments');
-          } else if (index == 1) {
-            Navigator.pushNamed(context, '/book-appointment');
+            Navigator.pushReplacementNamed(context, '/dashboard');
+          } else if (index == 2) {
+            Navigator.pushReplacementNamed(context, '/receptionist-book-appointment');
           }
         },
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.calendar_month), label: 'APPOINTMENTS'),
-          BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline), label: 'BOOK APPOINTMENT'),
+          BottomNavigationBarItem(icon: Icon(Icons.dashboard_outlined), activeIcon: Icon(Icons.dashboard), label: 'DASHBOARD'),
+          BottomNavigationBarItem(icon: Icon(Icons.calendar_month_outlined), activeIcon: Icon(Icons.calendar_month), label: 'APPOINTMENTS'),
+          BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline), activeIcon: Icon(Icons.add_circle), label: 'BOOK APPOINTMENT'),
         ],
       ),
     );

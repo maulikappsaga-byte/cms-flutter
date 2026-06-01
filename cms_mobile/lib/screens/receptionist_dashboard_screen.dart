@@ -523,6 +523,29 @@ class _ReceptionistDashboardScreenState
           ),
         ),
       ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: 0,
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: AppColors.primary,
+        unselectedItemColor: AppColors.outline,
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
+        selectedLabelStyle: textTheme.labelLarge?.copyWith(fontSize: 10),
+        unselectedLabelStyle: textTheme.labelLarge?.copyWith(fontSize: 10),
+        onTap: (index) {
+          if (index == 0) return;
+          if (index == 1) {
+            Navigator.pushReplacementNamed(context, '/appointments');
+          } else if (index == 2) {
+            Navigator.pushReplacementNamed(context, '/receptionist-book-appointment');
+          }
+        },
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.dashboard_outlined), activeIcon: Icon(Icons.dashboard), label: 'DASHBOARD'),
+          BottomNavigationBarItem(icon: Icon(Icons.calendar_month_outlined), activeIcon: Icon(Icons.calendar_month), label: 'APPOINTMENTS'),
+          BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline), activeIcon: Icon(Icons.add_circle), label: 'BOOK APPOINTMENT'),
+        ],
+      ),
     );
   }
 
