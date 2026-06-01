@@ -221,7 +221,7 @@ class _ReceptionistDashboardScreenState
               if (value == 'logout') {
                 await UserSession.clear();
                 if (mounted) {
-                  Navigator.pushReplacementNamed(context, '/clinicos-overview');
+                  Navigator.pushNamedAndRemoveUntil(context, '/clinicos-overview', (route) => false);
                 }
               }
             },

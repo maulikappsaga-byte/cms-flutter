@@ -101,7 +101,7 @@ class _LoginScreenState extends State<LoginScreen> {
             }
           } catch (_) {}
 
-          Navigator.pushReplacementNamed(context, targetRoute);
+          Navigator.pushNamedAndRemoveUntil(context, targetRoute, (route) => false);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(errorMessage)),
