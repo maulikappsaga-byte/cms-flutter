@@ -8,6 +8,7 @@ import '../widgets/custom_snackbar.dart';
 import '../services/doctor_detail_api.dart';
 import '../services/appointment_api.dart';
 import '../services/user_session.dart';
+import '../services/auth_api.dart';
 import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
 
 class ReceptionistDashboardScreen extends StatefulWidget {
@@ -219,10 +220,14 @@ class _ReceptionistDashboardScreenState
           PopupMenuButton<String>(
             onSelected: (value) async {
               if (value == 'logout') {
-                await UserSession.clear();
-                if (mounted) {
-                  Navigator.pushNamedAndRemoveUntil(context, '/clinicos-overview', (route) => false);
+                try {
+                  await AuthApi.logout();
+                } catch (e) {
+                  debugPrint('Logout API failed: $e');
                 }
+                await UserSession.clear();
+                if (!context.mounted) return;
+                Navigator.pushNamedAndRemoveUntil(context, '/clinicos-overview', (route) => false);
               }
             },
             icon: const Icon(Icons.more_vert, color: AppColors.primary),

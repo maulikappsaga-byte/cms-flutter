@@ -15,4 +15,8 @@ class AuthApi {
       'password_confirmation': passwordConfirmation,
     });
   }
+
+  static Future<dynamic> logout() async {
+    return await ApiService.post('/auth/logout', {});
+  }
 }
