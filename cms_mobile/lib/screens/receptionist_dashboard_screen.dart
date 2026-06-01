@@ -26,7 +26,10 @@ class _ReceptionistDashboardScreenState
   bool _isLoading = true;
   bool _isActionLoading = false;
   
-  String _currentNextPatient = '--';
+  String _doctorName = 'Dr. Demo Doctor';
+  String _currentNextPatientToken = '--';
+  String _currentNextPatientName = 'No Patient';
+  String _nextPatientToken = 'None';
   final String _waitTime = '00:00';
   int _completedCount = 0;
   int _pendingCount = 0;
@@ -89,6 +92,7 @@ class _ReceptionistDashboardScreenState
           final doctors = doctorResponse['data']?['doctors'];
           if (doctors is List && doctors.isNotEmpty) {
             _doctorId = int.tryParse(doctors.first['id'].toString());
+            _doctorName = doctors.first['name'] != null ? 'Dr. ${doctors.first['name']}' : 'Dr. Demo Doctor';
             debugPrint("ReceptionistDashboard: Dynamically loaded doctor ID: $_doctorId");
           }
         }
@@ -113,12 +117,19 @@ class _ReceptionistDashboardScreenState
             _completedCount = queueData['completed_tokens'] ?? 0;
             _pendingCount = _totalAppointments - _completedCount;
           }
+          
           if (currentPatient != null) {
-            final name = currentPatient['patient_name'] ?? 'Unknown';
-            final token = currentPatient['token_number'] ?? currentPatient['token'] ?? '--';
-            _currentNextPatient = '$token $name';
+            _currentNextPatientName = currentPatient['patient_name'] ?? 'Unknown';
+            _currentNextPatientToken = currentPatient['token_number']?.toString() ?? currentPatient['token']?.toString() ?? '--';
           } else {
-            _currentNextPatient = 'No Patient';
+            _currentNextPatientName = 'No Patient';
+            _currentNextPatientToken = '--';
+          }
+          
+          if (queueData['next_patients'] != null && queueData['next_patients'] is List && queueData['next_patients'].isNotEmpty) {
+             _nextPatientToken = queueData['next_patients'][0]['token_number']?.toString() ?? queueData['next_patients'][0]['token']?.toString() ?? 'None';
+          } else {
+             _nextPatientToken = 'None';
           }
           
           _isLoading = false;
@@ -270,125 +281,163 @@ class _ReceptionistDashboardScreenState
               Container(
                 decoration: BoxDecoration(
                   color: AppColors.surfaceContainerLowest,
-                  borderRadius: BorderRadius.circular(12),
-                  border: const Border(
-                    left: BorderSide(color: AppColors.primary, width: 4),
-                  ),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: const Color(0xFFD1E4FA), width: 1.5),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.05),
-                      blurRadius: 20,
+                      color: Colors.black.withValues(alpha: 0.02),
+                      blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
                   ],
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFF5F8FC), // Light blue top header
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                      ),
+                      child: Row(
                         children: [
-                          Text(
-                            'Live Queue Manager',
-                            style: textTheme.headlineMedium?.copyWith(
-                              fontSize: 20,
+                          Container(
+                            width: 8,
+                            height: 8,
+                            decoration: const BoxDecoration(
+                              color: Color(0xFFFF6B6B), // Red dot
+                              shape: BoxShape.circle,
                             ),
                           ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 4,
-                              horizontal: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withValues(alpha: 0.05),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 8,
-                                  height: 8,
-                                  decoration: const BoxDecoration(
-                                    color: AppColors.primary,
-                                    shape: BoxShape.circle,
-                                  ),
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  'LIVE',
-                                  style: textTheme.labelLarge?.copyWith(
-                                    color: AppColors.primary,
-                                  ),
-                                ),
-                              ],
+                          const SizedBox(width: 12),
+                          Text(
+                            _doctorName,
+                            style: textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: const Color(0xFF192A3E),
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: AppColors.inputBackground,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'NOW SERVING',
-                                  style: textTheme.labelLarge,
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  _currentNextPatient,
-                                  style: textTheme.headlineMedium?.copyWith(
-                                    fontSize: 18,
-                                    color: AppColors.primary,
-                                  ),
-                                ),
-                              ],
+                    ),
+                    const Divider(height: 1, thickness: 1, color: Color(0xFFEEEEEE)),
+                    Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Column(
+                        children: [
+                          Text(
+                            'NOW SERVING',
+                            style: textTheme.labelSmall?.copyWith(
+                              color: const Color(0xFF9EA6B5),
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: 1.2,
                             ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text('WAIT TIME', style: textTheme.labelLarge),
-                                const SizedBox(height: 4),
-                                Text(
-                                  _waitTime,
-                                  style: textTheme.bodyLarge?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            _currentNextPatientToken,
+                            style: textTheme.headlineSmall?.copyWith(
+                              color: const Color(0xFF00788A),
+                              fontWeight: FontWeight.bold,
                             ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: _isActionLoading ? null : _callNextPatient,
-                          child: _isActionLoading 
-                              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                              : const Row(
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            _currentNextPatientName,
+                            style: textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: const Color(0xFF192A3E),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text('CALL NEXT PATIENT'),
-                              SizedBox(width: 8),
-                              Icon(Icons.arrow_forward, size: 20),
+                              Text(
+                                'NEXT:',
+                                style: textTheme.labelSmall?.copyWith(
+                                  color: const Color(0xFF9EA6B5),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFF0F5FA),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  _nextPatientToken,
+                                  style: textTheme.labelMedium?.copyWith(
+                                    color: const Color(0xFF00478D),
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
-                        ),
+                          const SizedBox(height: 32),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: _isActionLoading ? null : _callNextPatient,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF00788A),
+                                    foregroundColor: Colors.white,
+                                    elevation: 0,
+                                    padding: const EdgeInsets.symmetric(vertical: 16),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  child: _isActionLoading 
+                                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                                      : const Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.campaign_outlined, size: 20),
+                                      SizedBox(width: 8),
+                                      Text('Call Next'),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: OutlinedButton(
+                                  onPressed: () {}, // Transfer action not defined yet
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: const Color(0xFFF4A261),
+                                    side: const BorderSide(color: Color(0xFFFBE0C8), width: 1.5),
+                                    padding: const EdgeInsets.symmetric(vertical: 16),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  child: const Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(Icons.change_circle_outlined, size: 22),
+                                          Text('+6', style: TextStyle(fontSize: 10, height: 1.2)),
+                                        ],
+                                      ),
+                                      SizedBox(width: 8),
+                                      Text('Transfer', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: 32),
