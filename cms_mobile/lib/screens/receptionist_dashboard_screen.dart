@@ -30,7 +30,6 @@ class _ReceptionistDashboardScreenState
   String _currentNextPatientToken = '--';
   String _currentNextPatientName = 'No Patient';
   String _nextPatientToken = 'None';
-  final String _waitTime = '00:00';
   int _completedCount = 0;
   int _pendingCount = 0;
   int _totalAppointments = 0;
