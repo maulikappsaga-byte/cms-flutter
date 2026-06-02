@@ -27,6 +27,7 @@ class _ReceptionistDashboardScreenState
   
   List<Map<String, dynamic>> _doctorQueues = [];
   int? _actionLoadingDoctorId;
+  int? _actionTransferLoadingDoctorId;
   int _completedCount = 0;
   int _pendingCount = 0;
   int _totalAppointments = 0;
@@ -182,6 +183,35 @@ class _ReceptionistDashboardScreenState
     }
   }
 
+  Future<void> _transferPatient(int doctorId) async {
+    setState(() => _actionTransferLoadingDoctorId = doctorId);
+    
+    try {
+      final response = await _queueApi.transferPatient(doctorId: doctorId);
+      
+      if (response != null && response['message'] != null) {
+        if (!mounted) return;
+        CustomSnackBar.show(
+          context: context,
+          message: response['message'],
+          type: SnackBarType.success,
+        );
+      }
+      
+      // Refresh data
+      await _fetchDashboardData(silent: true);
+    } catch (e) {
+      if (!mounted) return;
+      CustomSnackBar.show(
+        context: context,
+        message: "Failed to transfer patient.",
+        type: SnackBarType.error,
+      );
+    } finally {
+      setState(() => _actionTransferLoadingDoctorId = null);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
@@ -297,6 +327,7 @@ class _ReceptionistDashboardScreenState
                   itemBuilder: (context, index) {
                     final queue = _doctorQueues[index];
                     final bool isActionLoading = _actionLoadingDoctorId == queue['doctor_id'];
+                    final bool isTransferLoading = _actionTransferLoadingDoctorId == queue['doctor_id'];
                     return Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
@@ -447,7 +478,7 @@ class _ReceptionistDashboardScreenState
                                       const SizedBox(width: 8),
                                       Expanded(
                                         child: OutlinedButton(
-                                          onPressed: () {}, // Transfer action not defined yet
+                                          onPressed: isTransferLoading ? null : () => _transferPatient(queue['doctor_id']),
                                           style: OutlinedButton.styleFrom(
                                             foregroundColor: const Color(0xFFF4A261),
                                             side: const BorderSide(color: Color(0xFFFBE0C8), width: 1.5),
@@ -456,7 +487,9 @@ class _ReceptionistDashboardScreenState
                                               borderRadius: BorderRadius.circular(12),
                                             ),
                                           ),
-                                          child: const Row(
+                                          child: isTransferLoading
+                                              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFFF4A261)))
+                                              : const Row(
                                             mainAxisAlignment: MainAxisAlignment.center,
                                             children: [
                                               Column(

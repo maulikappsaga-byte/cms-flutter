@@ -40,4 +40,15 @@ class QueueApi {
       throw Exception('Error calling next patient: $e');
     }
   }
+
+  Future<dynamic> transferPatient({required int doctorId}) async {
+    try {
+      return await ApiService.post(
+        '/queue/transfer',
+        {"doctor_id": doctorId},
+      );
+    } catch (e) {
+      throw Exception('Error transferring patient: $e');
+    }
+  }
 }
