@@ -155,22 +155,24 @@ class _ReceptionistDashboardScreenState
         });
       }
 
-      setState(() {
-        _doctorQueues = fetchedQueues;
-        _todaySchedules = fetchedSchedules;
+      if (mounted) {
+        setState(() {
+          _doctorQueues = fetchedQueues;
+          _todaySchedules = fetchedSchedules;
 
-        if (appointmentsResponse != null && appointmentsResponse['status'] == true) {
-          _todayAppointments = appointmentsResponse['data']?['todays appointments'] ?? [];
-          _totalAppointments = _todayAppointments.length;
-          _completedCount = _todayAppointments.where((app) => app['status']?.toString().toLowerCase() == 'completed').length;
-          _pendingCount = _totalAppointments - _completedCount;
-        }
+          if (appointmentsResponse != null && appointmentsResponse['status'] == true) {
+            _todayAppointments = appointmentsResponse['data']?['todays appointments'] ?? [];
+            _totalAppointments = _todayAppointments.length;
+            _completedCount = _todayAppointments.where((app) => app['status']?.toString().toLowerCase() == 'completed').length;
+            _pendingCount = _totalAppointments - _completedCount;
+          }
 
-        _isLoading = false;
-      });
+          _isLoading = false;
+        });
+      }
     } catch (e) {
       debugPrint('Error fetching dashboard data: $e');
-      if (!silent) {
+      if (!silent && mounted) {
         setState(() => _isLoading = false);
       }
     }
@@ -205,7 +207,9 @@ class _ReceptionistDashboardScreenState
         type: SnackBarType.error,
       );
     } finally {
-      setState(() => _actionLoadingDoctorId = null);
+      if (mounted) {
+        setState(() => _actionLoadingDoctorId = null);
+      }
     }
   }
 
@@ -234,7 +238,9 @@ class _ReceptionistDashboardScreenState
         type: SnackBarType.error,
       );
     } finally {
-      setState(() => _actionTransferLoadingDoctorId = null);
+      if (mounted) {
+        setState(() => _actionTransferLoadingDoctorId = null);
+      }
     }
   }
 
