@@ -56,9 +56,7 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen>
       }
 
       final docId = _resolvedDoctorId ?? 1; // Fallback to 1
-      final data = await _apiService.getDoctorDetails(
-        doctorId: docId,
-      );
+      final data = await _apiService.getDoctorDetails(doctorId: docId);
       if (mounted) {
         setState(() {
           _doctorData = data;
@@ -274,14 +272,21 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen>
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(color: const Color(0xFFF1F5F9), width: 4),
-                  image: ApiConstants.resolveImageUrl(data['profile_photo']) != null
+                  image:
+                      ApiConstants.resolveImageUrl(data['profile_photo']) !=
+                          null
                       ? DecorationImage(
-                          image: NetworkImage(ApiConstants.resolveImageUrl(data['profile_photo'])!),
-                          fit: BoxFit.cover,
+                          image: NetworkImage(
+                            ApiConstants.resolveImageUrl(
+                              data['profile_photo'],
+                            )!,
+                          ),
+                          fit: BoxFit.contain,
                         )
                       : null,
                 ),
-                child: ApiConstants.resolveImageUrl(data['profile_photo']) == null
+                child:
+                    ApiConstants.resolveImageUrl(data['profile_photo']) == null
                     ? const Icon(
                         Icons.person,
                         size: 60,
@@ -558,7 +563,8 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen>
 
   Widget _buildAboutSection(dynamic data) {
     final about = data['about_me'] ?? data['bio'] ?? data['description'];
-    if (about == null || about.toString().isEmpty) return const SizedBox.shrink();
+    if (about == null || about.toString().isEmpty)
+      return const SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -619,8 +625,10 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen>
   }
 
   Widget _buildContactSection(dynamic data) {
-    final phone = data['phone_number'] ?? data['phone'] ?? data['contact_number'];
-    if (phone == null || phone.toString().isEmpty) return const SizedBox.shrink();
+    final phone =
+        data['phone_number'] ?? data['phone'] ?? data['contact_number'];
+    if (phone == null || phone.toString().isEmpty)
+      return const SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

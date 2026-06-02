@@ -243,7 +243,7 @@ class _DoctorsListScreenState extends State<DoctorsListScreen> {
                     image: profilePhoto != null
                         ? DecorationImage(
                             image: NetworkImage(profilePhoto),
-                            fit: BoxFit.cover,
+                            fit: BoxFit.contain,
                           )
                         : null,
                   ),
