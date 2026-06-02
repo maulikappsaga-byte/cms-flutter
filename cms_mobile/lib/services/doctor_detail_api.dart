@@ -51,4 +51,12 @@ class DoctorDetailApi {
       throw Exception('Error fetching doctor details: $e');
     }
   }
+
+  Future<dynamic> getTodaySchedule({required int doctorId}) async {
+    try {
+      return await ApiService.get('/today-schedule', queryParams: {"doctor_id": doctorId});
+    } catch (e) {
+      throw Exception('Error fetching today schedule: $e');
+    }
+  }
 }

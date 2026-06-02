@@ -26,6 +26,7 @@ class _ReceptionistDashboardScreenState
   bool _isLoading = true;
   
   List<Map<String, dynamic>> _doctorQueues = [];
+  List<Map<String, dynamic>> _todaySchedules = [];
   int? _actionLoadingDoctorId;
   int? _actionTransferLoadingDoctorId;
   int _completedCount = 0;
@@ -90,18 +91,42 @@ class _ReceptionistDashboardScreenState
 
       final appointmentsResponse = await _appointmentApi.getTodayAppointments();
       List<Map<String, dynamic>> fetchedQueues = [];
+      List<Map<String, dynamic>> fetchedSchedules = [];
 
       for (var doc in doctors) {
         final docId = int.tryParse(doc['id'].toString());
         if (docId == null) continue;
 
-        final docName = doc['name'] != null ? 'Dr. ${doc['name']}' : 'Dr. Demo Doctor';
-        final queueResponse = await _queueApi.getQueueDetails(doctorId: docId);
+        String docNameStr = doc['name']?.toString() ?? 'Demo Doctor';
+        if (!docNameStr.toLowerCase().startsWith('dr')) {
+          docNameStr = 'Dr. $docNameStr';
+        }
+        final docName = docNameStr;
 
+        final queueResponse = await _queueApi.getQueueDetails(doctorId: docId);
+        
         String currentToken = '--';
         String currentName = 'No Patient';
         String nextToken = 'None';
         String nextName = '';
+
+        try {
+          final scheduleResponse = await _doctorApi.getTodaySchedule(doctorId: docId);
+          if (scheduleResponse != null && scheduleResponse['data'] != null && scheduleResponse['data']['schedules'] != null) {
+            final schedules = scheduleResponse['data']['schedules'] as List;
+            for (var schedule in schedules) {
+               final start = schedule['start_time'] ?? '';
+               final end = schedule['end_time'] ?? '';
+               fetchedSchedules.add({
+                 'doctor_name': schedule['doctor_name'] ?? docName,
+                 'schedule_time': start.isNotEmpty && end.isNotEmpty ? '$start - $end' : 'N/A',
+                 'schedule_status': schedule['status']?.toString().toUpperCase() ?? 'ACTIVE',
+               });
+            }
+          }
+        } catch (e) {
+          debugPrint('Dashboard: Error fetching schedule for doctor $docId: $e');
+        }
 
         if (queueResponse != null && queueResponse['data'] != null) {
           final queueData = queueResponse['data']['queue'];
@@ -132,6 +157,7 @@ class _ReceptionistDashboardScreenState
 
       setState(() {
         _doctorQueues = fetchedQueues;
+        _todaySchedules = fetchedSchedules;
 
         if (appointmentsResponse != null && appointmentsResponse['status'] == true) {
           _todayAppointments = appointmentsResponse['data']?['todays appointments'] ?? [];
@@ -862,7 +888,7 @@ class _ReceptionistDashboardScreenState
   }
 
   Widget _buildTodayScheduleCard(BuildContext context, TextTheme textTheme) {
-    if (_doctorQueues.isEmpty) return const SizedBox();
+    if (_todaySchedules.isEmpty) return const SizedBox();
 
     return Container(
       width: double.infinity,
@@ -905,7 +931,7 @@ class _ReceptionistDashboardScreenState
             ],
           ),
           const SizedBox(height: 24),
-          ..._doctorQueues.map((queue) {
+          ..._todaySchedules.map((schedule) {
             return Padding(
               padding: const EdgeInsets.only(bottom: 16),
               child: Column(
@@ -923,7 +949,7 @@ class _ReceptionistDashboardScreenState
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        queue['doctor_name'] ?? 'Doctor',
+                        schedule['doctor_name'] ?? 'Doctor',
                         style: textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w600,
                           color: const Color(0xFF64748B),
@@ -947,7 +973,7 @@ class _ReceptionistDashboardScreenState
                         const Icon(Icons.access_time, color: Color(0xFF64748B), size: 20),
                         const SizedBox(width: 8),
                         Text(
-                          '09:00 AM - 05:00 PM',
+                          schedule['schedule_time'] ?? '09:00 AM - 05:00 PM',
                           style: textTheme.titleMedium?.copyWith(
                             color: const Color(0xFF64748B),
                             fontWeight: FontWeight.w600,
@@ -957,16 +983,16 @@ class _ReceptionistDashboardScreenState
                         Container(
                           width: 6,
                           height: 6,
-                          decoration: const BoxDecoration(
-                            color: Color(0xFF10B981),
+                          decoration: BoxDecoration(
+                            color: (schedule['schedule_status'] ?? 'ACTIVE') == 'ACTIVE' ? const Color(0xFF10B981) : const Color(0xFF94A3B8),
                             shape: BoxShape.circle,
                           ),
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          'ACTIVE',
+                          schedule['schedule_status'] ?? 'ACTIVE',
                           style: textTheme.labelSmall?.copyWith(
-                            color: const Color(0xFF10B981),
+                            color: (schedule['schedule_status'] ?? 'ACTIVE') == 'ACTIVE' ? const Color(0xFF10B981) : const Color(0xFF94A3B8),
                             fontWeight: FontWeight.bold,
                             letterSpacing: 0.5,
                           ),
