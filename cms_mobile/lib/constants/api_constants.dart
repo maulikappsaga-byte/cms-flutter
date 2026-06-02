@@ -2,9 +2,9 @@ import 'package:flutter/foundation.dart';
 
 class ApiConstants {
   static String get baseUrl {
-    if (kIsWeb) return 'http://127.0.0.1:8001/api';
-    if (defaultTargetPlatform == TargetPlatform.android) return 'http://10.0.2.2:8001/api';
-    return 'http://127.0.0.1:8001/api';
+    if (kIsWeb) return 'http://127.0.0.1:8000/api';
+    if (defaultTargetPlatform == TargetPlatform.android) return 'http://10.0.2.2:8000/api';
+    return 'http://127.0.0.1:8000/api';
   }
   
   static String apiKey =
