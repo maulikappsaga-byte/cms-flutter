@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../theme.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../services/user_session.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -93,14 +94,24 @@ class _LoginScreenState extends State<LoginScreen> {
 
         if (isSuccess) {
           String targetRoute = '/clinicos-overview';
+          String role = 'patient';
+          String token = 'default_token';
           
           try {
             String rawResponse = response.body.toLowerCase();
             if (rawResponse.contains('receptionist')) {
               targetRoute = '/dashboard';
+              role = 'receptionist';
+            }
+            final decodedBody = jsonDecode(response.body);
+            if (decodedBody is Map && decodedBody['token'] != null) {
+              token = decodedBody['token'].toString();
             }
           } catch (_) {}
 
+          await UserSession.saveLoginSession(token, role);
+
+          if (!mounted) return;
           Navigator.pushNamedAndRemoveUntil(context, targetRoute, (route) => false);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(

@@ -20,11 +20,19 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await UserSession.init();
   await PusherService().init();
-  runApp(const MainApp());
+  
+  String initialRoute = '/clinicos-overview';
+  if (UserSession.isLoggedIn && UserSession.userRole == 'receptionist') {
+    initialRoute = '/dashboard';
+  }
+  
+  runApp(MainApp(initialRoute: initialRoute));
 }
 
 class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+  final String initialRoute;
+  
+  const MainApp({super.key, required this.initialRoute});
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +40,7 @@ class MainApp extends StatelessWidget {
       title: 'ClinicOS',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      initialRoute: '/clinicos-overview',
+      initialRoute: initialRoute,
       routes: {
         '/': (context) => const LoginScreen(),
         '/login': (context) => const LoginScreen(),
