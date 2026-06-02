@@ -516,6 +516,9 @@ class _ReceptionistDashboardScreenState
                     },
                   ),
               const SizedBox(height: 32),
+              // Today's Schedule
+              _buildTodayScheduleCard(context, textTheme),
+              const SizedBox(height: 32),
               // Today's Performance
               Text(
                 'TODAY\'S PERFORMANCE',
@@ -857,4 +860,127 @@ class _ReceptionistDashboardScreenState
       ),
     );
   }
+
+  Widget _buildTodayScheduleCard(BuildContext context, TextTheme textTheme) {
+    if (_doctorQueues.isEmpty) return const SizedBox();
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: AppColors.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFD1E4FA), width: 1.5),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  'Today\'s Schedule',
+                  style: textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF0F172A),
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFD1E4FA),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  'AVAILABILITY',
+                  style: textTheme.labelSmall?.copyWith(
+                    color: const Color(0xFF00478D),
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          ..._doctorQueues.map((queue) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF00478D),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        queue['doctor_name'] ?? 'Doctor',
+                        style: textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF64748B),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEEF2F6),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: const Color(0xFF00478D).withValues(alpha: 0.3),
+                        width: 1,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.access_time, color: Color(0xFF64748B), size: 20),
+                        const SizedBox(width: 8),
+                        Text(
+                          '09:00 AM - 05:00 PM',
+                          style: textTheme.titleMedium?.copyWith(
+                            color: const Color(0xFF64748B),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const Spacer(),
+                        Container(
+                          width: 6,
+                          height: 6,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF10B981),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'ACTIVE',
+                          style: textTheme.labelSmall?.copyWith(
+                            color: const Color(0xFF10B981),
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
 }
+
