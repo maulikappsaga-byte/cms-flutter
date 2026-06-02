@@ -563,8 +563,9 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen>
 
   Widget _buildAboutSection(dynamic data) {
     final about = data['about_me'] ?? data['bio'] ?? data['description'];
-    if (about == null || about.toString().isEmpty)
+    if (about == null || about.toString().isEmpty) {
       return const SizedBox.shrink();
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -627,8 +628,9 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen>
   Widget _buildContactSection(dynamic data) {
     final phone =
         data['phone_number'] ?? data['phone'] ?? data['contact_number'];
-    if (phone == null || phone.toString().isEmpty)
+    if (phone == null || phone.toString().isEmpty) {
       return const SizedBox.shrink();
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
