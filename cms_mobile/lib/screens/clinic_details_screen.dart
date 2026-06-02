@@ -218,7 +218,7 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
                     image: imageUrl != null && imageUrl.isNotEmpty
                         ? DecorationImage(
                             image: NetworkImage(imageUrl),
-                            fit: BoxFit.cover,
+                            fit: BoxFit.contain,
                           )
                         : null,
                   ),
