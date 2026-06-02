@@ -100,6 +100,7 @@ class _ReceptionistDashboardScreenState
         String currentToken = '--';
         String currentName = 'No Patient';
         String nextToken = 'None';
+        String nextName = '';
 
         if (queueResponse != null && queueResponse['data'] != null) {
           final queueData = queueResponse['data']['queue'];
@@ -114,6 +115,7 @@ class _ReceptionistDashboardScreenState
           if (waitingList != null && waitingList is List && waitingList.isNotEmpty) {
             final nextPatient = waitingList[0];
             nextToken = nextPatient['token_number']?.toString() ?? 'None';
+            nextName = nextPatient['appointment']?['patient_name'] ?? nextPatient['patient_name'] ?? '';
           }
         }
 
@@ -123,6 +125,7 @@ class _ReceptionistDashboardScreenState
           'current_token': currentToken,
           'current_name': currentName,
           'next_token': nextToken,
+          'next_name': nextName,
         });
       }
 
@@ -389,12 +392,27 @@ class _ReceptionistDashboardScreenState
                                           color: const Color(0xFFF0F5FA),
                                           borderRadius: BorderRadius.circular(20),
                                         ),
-                                        child: Text(
-                                          queue['next_token'],
-                                          style: textTheme.labelMedium?.copyWith(
-                                            color: const Color(0xFF00478D),
-                                            fontWeight: FontWeight.w600,
-                                          ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text(
+                                              queue['next_token'].toString(),
+                                              style: textTheme.labelMedium?.copyWith(
+                                                color: const Color(0xFF00478D),
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                            if (queue['next_name'] != null && queue['next_name'].toString().isNotEmpty) ...[
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                '- ${queue['next_name']}',
+                                                style: textTheme.labelMedium?.copyWith(
+                                                  color: const Color(0xFF00478D),
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ],
+                                          ],
                                         ),
                                       ),
                                     ],
