@@ -313,7 +313,7 @@ class _ReceptionistDashboardScreenState
                 } catch (e) {
                   debugPrint('Logout API failed: $e');
                 }
-                await UserSession.clear();
+                await UserSession.clearLoginSession();
                 if (!context.mounted) return;
                 Navigator.pushNamedAndRemoveUntil(context, '/clinicos-overview', (route) => false);
               }

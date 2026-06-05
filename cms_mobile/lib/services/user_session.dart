@@ -93,6 +93,17 @@ class UserSession {
     }
   }
 
+  static Future<void> clearLoginSession() async {
+    isLoggedIn = false;
+    userRole = null;
+    authToken = null;
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_keyIsLoggedIn);
+    await prefs.remove(_keyUserRole);
+    await prefs.remove(_keyAuthToken);
+  }
+
   static Future<void> clear() async {
     lastBookedName = null;
     lastBookedPhone = null;
