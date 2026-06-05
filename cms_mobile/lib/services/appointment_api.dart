@@ -35,9 +35,24 @@ class AppointmentApi {
     }
   }
 
-  Future<dynamic> getAppointmentHistory({int page = 1}) async {
+  Future<dynamic> getAppointmentHistory({
+    int page = 1,
+    String? dateRange,
+    String? status,
+    String? search,
+  }) async {
     try {
-      final response = await ApiService.get('/appointment-history', queryParams: {'page': page});
+      final Map<String, dynamic> queryParams = {'page': page};
+      if (dateRange != null && dateRange.isNotEmpty) {
+        queryParams['date_range'] = dateRange;
+      }
+      if (status != null && status.isNotEmpty) {
+        queryParams['status'] = status;
+      }
+      if (search != null && search.isNotEmpty) {
+        queryParams['search'] = search;
+      }
+      final response = await ApiService.get('/appointment-history', queryParams: queryParams);
       log(response.toString());
       return response;
     } catch (e) {

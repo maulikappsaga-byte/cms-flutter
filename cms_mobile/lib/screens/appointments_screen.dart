@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme.dart';
 import 'package:intl/intl.dart';
 import '../services/appointment_api.dart';
+import 'dart:async';
 
 class AppointmentsScreen extends StatefulWidget {
   const AppointmentsScreen({super.key});
@@ -14,6 +15,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
   String _selectedFilter = 'Today';
   String _searchQuery = '';
   final TextEditingController _searchController = TextEditingController();
+  Timer? _debounce;
 
   List<Map<String, dynamic>> _allAppointments = [];
   bool _isLoading = true;
@@ -26,13 +28,49 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
     _fetchAppointments();
   }
 
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged(String query) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      setState(() {
+        _searchQuery = query;
+      });
+      _fetchAppointments(page: 1);
+    });
+  }
+
   Future<void> _fetchAppointments({int page = 1}) async {
     setState(() {
       _isLoading = true;
       _currentPage = page;
     });
     try {
-      final response = await AppointmentApi().getAppointmentHistory(page: page);
+      String? dateRange;
+      String? status;
+      
+      if (_selectedFilter == 'All') {
+        dateRange = 'all';
+      } else if (_selectedFilter == 'Today') {
+        dateRange = 'today';
+      } else if (_selectedFilter == 'This Week') {
+        dateRange = 'week';
+      } else if (_selectedFilter == 'Completed') {
+        dateRange = 'all';
+        status = 'completed';
+      }
+
+      final response = await AppointmentApi().getAppointmentHistory(
+        page: page,
+        dateRange: dateRange,
+        status: status,
+        search: _searchQuery,
+      );
       if (response != null && response['status'] == true) {
         final List<dynamic> list = response['data']?['appointments']?['list'] ?? [];
         final pagination = response['data']?['appointments']?['pagination'];
@@ -105,16 +143,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
   }
 
   List<Map<String, dynamic>> get _filteredAppointments {
-    return _allAppointments.where((appointment) {
-      final matchesSearch = appointment['name'].toLowerCase().contains(_searchQuery.toLowerCase()) ||
-          appointment['token'].toLowerCase().contains(_searchQuery.toLowerCase());
-      
-      if (_selectedFilter == 'All') return matchesSearch;
-      if (_selectedFilter == 'Today') return matchesSearch; // For demo, all are today
-      if (_selectedFilter == 'Completed') return matchesSearch && appointment['status'] == 'Completed';
-      
-      return matchesSearch;
-    }).toList();
+    return _allAppointments;
   }
 
   @override
@@ -148,6 +177,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                 _selectedFilter = 'Today';
                 _searchController.clear();
               });
+              _fetchAppointments(page: 1);
               
               showDialog(
                 context: context,
@@ -200,12 +230,12 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          await _fetchAppointments(page: 1);
           setState(() {
             _searchQuery = '';
             _selectedFilter = 'Today';
             _searchController.clear();
           });
+          await _fetchAppointments(page: 1);
         },
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
@@ -219,23 +249,17 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                 children: [
                 TextField(
                   controller: _searchController,
-                  onChanged: (value) {
-                    setState(() {
-                      _searchQuery = value;
-                    });
-                  },
+                  onChanged: _onSearchChanged,
                   decoration: InputDecoration(
                     hintText: 'Search patient or token...',
                     prefixIcon: const Icon(Icons.search, size: 20),
                     fillColor: AppColors.inputBackground,
-                    suffixIcon: _searchQuery.isNotEmpty 
+                    suffixIcon: _searchController.text.isNotEmpty 
                       ? IconButton(
                           icon: const Icon(Icons.clear, size: 18),
                           onPressed: () {
                             _searchController.clear();
-                            setState(() {
-                              _searchQuery = '';
-                            });
+                            _onSearchChanged('');
                           },
                         )
                       : null,
@@ -371,9 +395,12 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
   Widget _buildFilterChip(String label, bool isSelected, BuildContext context) {
     return GestureDetector(
       onTap: () {
-        setState(() {
-          _selectedFilter = label;
-        });
+        if (_selectedFilter != label) {
+          setState(() {
+            _selectedFilter = label;
+          });
+          _fetchAppointments(page: 1);
+        }
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
