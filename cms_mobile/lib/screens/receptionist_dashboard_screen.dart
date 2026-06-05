@@ -109,6 +109,7 @@ class _ReceptionistDashboardScreenState
         String currentName = 'No Patient';
         String nextToken = 'None';
         String nextName = '';
+        List<Map<String, String>> nextPatients = [];
 
         try {
           final scheduleResponse = await _doctorApi.getTodaySchedule(doctorId: docId);
@@ -142,6 +143,14 @@ class _ReceptionistDashboardScreenState
             final nextPatient = waitingList[0];
             nextToken = nextPatient['token_number']?.toString() ?? 'None';
             nextName = nextPatient['appointment']?['patient_name'] ?? nextPatient['patient_name'] ?? '';
+
+            for (var i = 0; i < waitingList.length && i < 3; i++) {
+              final patient = waitingList[i];
+              nextPatients.add({
+                'token': patient['token_number']?.toString() ?? 'None',
+                'name': patient['appointment']?['patient_name'] ?? patient['patient_name'] ?? '',
+              });
+            }
           }
         }
 
@@ -152,6 +161,7 @@ class _ReceptionistDashboardScreenState
           'current_name': currentName,
           'next_token': nextToken,
           'next_name': nextName,
+          'next_patients': nextPatients,
         });
       }
 
@@ -439,8 +449,11 @@ class _ReceptionistDashboardScreenState
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                   const SizedBox(height: 24),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
+                                  Wrap(
+                                    alignment: WrapAlignment.center,
+                                    crossAxisAlignment: WrapCrossAlignment.center,
+                                    spacing: 8,
+                                    runSpacing: 8,
                                     children: [
                                       Text(
                                         'NEXT:',
@@ -448,36 +461,55 @@ class _ReceptionistDashboardScreenState
                                           color: const Color(0xFF9EA6B5),
                                         ),
                                       ),
-                                      const SizedBox(width: 8),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                                        decoration: BoxDecoration(
-                                          color: const Color(0xFFF0F5FA),
-                                          borderRadius: BorderRadius.circular(20),
-                                        ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Text(
-                                              queue['next_token'].toString(),
-                                              style: textTheme.labelMedium?.copyWith(
-                                                color: const Color(0xFF00478D),
-                                                fontWeight: FontWeight.w600,
-                                              ),
+                                      if (queue['next_patients'] == null || (queue['next_patients'] as List).isEmpty)
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFF0F5FA),
+                                            borderRadius: BorderRadius.circular(20),
+                                          ),
+                                          child: Text(
+                                            'None',
+                                            style: textTheme.labelMedium?.copyWith(
+                                              color: const Color(0xFF00478D),
+                                              fontWeight: FontWeight.w600,
                                             ),
-                                            if (queue['next_name'] != null && queue['next_name'].toString().isNotEmpty) ...[
-                                              const SizedBox(width: 4),
-                                              Text(
-                                                '- ${queue['next_name']}',
-                                                style: textTheme.labelMedium?.copyWith(
-                                                  color: const Color(0xFF00478D),
-                                                  fontWeight: FontWeight.w600,
+                                          ),
+                                        )
+                                      else
+                                        ...((queue['next_patients'] as List).map<Widget>((patient) {
+                                          final token = patient['token'] ?? 'None';
+                                          final name = patient['name'] ?? '';
+                                          return Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFFF0F5FA),
+                                              borderRadius: BorderRadius.circular(20),
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Text(
+                                                  token,
+                                                  style: textTheme.labelMedium?.copyWith(
+                                                    color: const Color(0xFF00478D),
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
                                                 ),
-                                              ),
-                                            ],
-                                          ],
-                                        ),
-                                      ),
+                                                if (name.isNotEmpty) ...[
+                                                  const SizedBox(width: 4),
+                                                  Text(
+                                                    '- $name',
+                                                    style: textTheme.labelMedium?.copyWith(
+                                                      color: const Color(0xFF00478D),
+                                                      fontWeight: FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ],
+                                            ),
+                                          );
+                                        })),
                                     ],
                                   ),
                                   const SizedBox(height: 32),
