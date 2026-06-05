@@ -5,6 +5,7 @@ import '../theme.dart';
 import '../services/appointment_api.dart';
 import '../services/doctor_detail_api.dart';
 import '../widgets/custom_snackbar.dart';
+import '../services/user_session.dart';
 
 class ReceptionistBookAppointmentScreen extends StatefulWidget {
   final int? doctorId;
@@ -27,6 +28,17 @@ class _ReceptionistBookAppointmentScreenState extends State<ReceptionistBookAppo
   @override
   void initState() {
     super.initState();
+    if (!UserSession.isLoggedIn || UserSession.userRole != 'receptionist') {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        CustomSnackBar.show(
+          context: context,
+          message: 'Access denied. Receptionist login required.',
+          type: SnackBarType.error,
+        );
+        Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+      });
+      return;
+    }
     _fetchDoctorId();
   }
 

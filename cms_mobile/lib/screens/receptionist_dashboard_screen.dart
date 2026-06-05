@@ -41,6 +41,17 @@ class _ReceptionistDashboardScreenState
   @override
   void initState() {
     super.initState();
+    if (!UserSession.isLoggedIn || UserSession.userRole != 'receptionist') {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        CustomSnackBar.show(
+          context: context,
+          message: 'Access denied. Receptionist login required.',
+          type: SnackBarType.error,
+        );
+        Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+      });
+      return;
+    }
     _fetchDashboardData();
     _setupPusher();
   }

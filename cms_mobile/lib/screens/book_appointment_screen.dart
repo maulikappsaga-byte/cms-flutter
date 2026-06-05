@@ -460,18 +460,20 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
         unselectedLabelStyle: textTheme.labelLarge?.copyWith(fontSize: 10),
         onTap: (index) {
           if (index == 0) {
-            Navigator.pushReplacementNamed(context, '/appointments');
+            Navigator.pushReplacementNamed(context, '/clinicos-overview');
           } else if (index == 1) {
             Navigator.pushReplacementNamed(context, '/book-appointment');
           }
         },
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_month),
-            label: 'APPOINTMENTS',
+            icon: Icon(Icons.home_outlined),
+            activeIcon: Icon(Icons.home),
+            label: 'HOME',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.add_circle_outline),
+            activeIcon: Icon(Icons.add_circle),
             label: 'BOOK APPOINTMENT',
           ),
         ],

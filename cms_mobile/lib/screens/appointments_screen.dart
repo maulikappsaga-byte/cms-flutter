@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme.dart';
 import 'package:intl/intl.dart';
 import '../services/appointment_api.dart';
+import '../services/user_session.dart';
 import 'dart:async';
 
 class AppointmentsScreen extends StatefulWidget {
@@ -25,6 +26,19 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
   @override
   void initState() {
     super.initState();
+    if (!UserSession.isLoggedIn || UserSession.userRole != 'receptionist') {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Access denied. Receptionist login required.'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+      });
+      return;
+    }
     _fetchAppointments();
   }
 
