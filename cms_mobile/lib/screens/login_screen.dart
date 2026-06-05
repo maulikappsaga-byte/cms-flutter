@@ -4,6 +4,7 @@ import '../theme.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../services/user_session.dart';
+import '../constants/api_constants.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -41,18 +42,18 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      String getBaseUrl() {
-        if (kIsWeb) return 'http://127.0.0.1:8000';
-        if (defaultTargetPlatform == TargetPlatform.android) return 'http://10.0.2.2:8000';
-        return 'http://127.0.0.1:8000';
-      }
+      //       String getBaseUrl() {
+      //   if (kIsWeb) return 'http://127.0.0.1:8000';
+      //   if (defaultTargetPlatform == TargetPlatform.android) return 'http://10.0.2.2:8000';
+      //   return 'http://127.0.0.1:8000';
+      // }
 
-      final baseUrl = getBaseUrl();
-
+      // final baseUrl = getBaseUrl();
       final response = await http.post(
-        Uri.parse('$baseUrl/api/auth/login'),
+          //  Uri.parse('$baseUrl/api/auth/login'),
+        Uri.parse('${ApiConstants.baseUrl}/auth/login'),
         headers: {
-          'X-API-KEY': 'QOOizWQhXaQpEAk2Vu0C6N2MC4LObntMtU8NGNYwVkubR0UA80ZmndwL3BECYl4q',
+          'X-API-KEY': 'a467c9ae749554658c974ac9bdcdef787b9cc9ece425d33e2784e36c1aa37fc1',
           'Accept': 'application/json',
           'Content-Type': 'application/json',
         },

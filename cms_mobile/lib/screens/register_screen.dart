@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../theme.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../constants/api_constants.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -16,7 +17,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   bool _isLoading = false;
 
   @override
@@ -34,23 +36,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final password = _passwordController.text;
     final confirmPassword = _confirmPasswordController.text;
 
-    if (name.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all fields')),
-      );
+    if (name.isEmpty ||
+        email.isEmpty ||
+        password.isEmpty ||
+        confirmPassword.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please fill all fields')));
       return;
     }
 
     if (password != confirmPassword) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Passwords do not match')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Passwords do not match')));
       return;
     }
 
     if (!_agreeToTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please agree to the Terms and Privacy Policy')),
+        const SnackBar(
+          content: Text('Please agree to the Terms and Privacy Policy'),
+        ),
       );
       return;
     }
@@ -60,18 +67,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
     });
 
     try {
-      String getBaseUrl() {
-        if (kIsWeb) return 'http://127.0.0.1:8000';
-        if (defaultTargetPlatform == TargetPlatform.android) return 'http://10.0.2.2:8000';
-        return 'http://127.0.0.1:8000';
-      }
+      //   String getBaseUrl() {
+      //   if (kIsWeb) return 'http://127.0.0.1:8000';
+      //   if (defaultTargetPlatform == TargetPlatform.android) return 'http://10.0.2.2:8000';
+      //   return 'http://127.0.0.1:8000';
+      // }
 
-      final baseUrl = getBaseUrl();
-
+      // final baseUrl = getBaseUrl();
       final response = await http.post(
-        Uri.parse('$baseUrl/api/auth/register'),
+        //  Uri.parse('$baseUrl/api/auth/register'),
+        Uri.parse('${ApiConstants.baseUrl}/auth/register'),
         headers: {
-          'X-API-KEY': 'QOOizWQhXaQpEAk2Vu0C6N2MC4LObntMtU8NGNYwVkubR0UA80ZmndwL3BECYl4q',
+          'X-API-KEY':
+              'a467c9ae749554658c974ac9bdcdef787b9cc9ece425d33e2784e36c1aa37fc1',
           'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
@@ -89,7 +97,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
         try {
           final body = jsonDecode(response.body);
-          
+
           if (response.statusCode >= 200 && response.statusCode < 300) {
             if (body is Map && body['status'] == false) {
               isSuccess = false;
@@ -116,16 +124,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
         if (isSuccess) {
           Navigator.pushReplacementNamed(context, '/clinicos-overview');
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(errorMessage)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(errorMessage)));
         }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Network error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Network error: $e')));
       }
     } finally {
       if (mounted) {
@@ -235,10 +243,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Create Account',
-                          style: textTheme.headlineMedium,
-                        ),
+                        Text('Create Account', style: textTheme.headlineMedium),
                         const SizedBox(height: 4),
                         Text(
                           'Join the professional medical network.',
@@ -326,7 +331,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     const SizedBox(
                                       width: 20,
                                       height: 20,
-                                      child: CircularProgressIndicator(strokeWidth: 2),
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
                                     ),
                                     const SizedBox(width: 8),
                                   ],
@@ -367,7 +374,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   const SizedBox(height: 32),
                   // Security Assurance
                   Container(
-                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 16,
+                      horizontal: 24,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.outline.withValues(alpha: 0.05),
                       borderRadius: BorderRadius.circular(12),
@@ -375,15 +385,33 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.verified_user, size: 14, color: AppColors.outline),
+                        const Icon(
+                          Icons.verified_user,
+                          size: 14,
+                          color: AppColors.outline,
+                        ),
                         const SizedBox(width: 4),
-                        Text('HIPAA COMPLIANT', style: textTheme.labelLarge?.copyWith(fontSize: 10)),
+                        Text(
+                          'HIPAA COMPLIANT',
+                          style: textTheme.labelLarge?.copyWith(fontSize: 10),
+                        ),
                         const SizedBox(width: 12),
-                        Container(width: 1, height: 16, color: AppColors.outline.withValues(alpha: 0.2)),
+                        Container(
+                          width: 1,
+                          height: 16,
+                          color: AppColors.outline.withValues(alpha: 0.2),
+                        ),
                         const SizedBox(width: 12),
-                        const Icon(Icons.lock, size: 14, color: AppColors.outline),
+                        const Icon(
+                          Icons.lock,
+                          size: 14,
+                          color: AppColors.outline,
+                        ),
                         const SizedBox(width: 4),
-                        Text('END-TO-END ENCRYPTED', style: textTheme.labelLarge?.copyWith(fontSize: 10)),
+                        Text(
+                          'END-TO-END ENCRYPTED',
+                          style: textTheme.labelLarge?.copyWith(fontSize: 10),
+                        ),
                       ],
                     ),
                   ),
