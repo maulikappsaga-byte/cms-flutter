@@ -3,6 +3,7 @@ import '../theme.dart';
 import 'package:intl/intl.dart';
 import '../services/appointment_api.dart';
 import 'dart:async';
+import '../services/user_session.dart';
 
 class AppointmentsScreen extends StatefulWidget {
   const AppointmentsScreen({super.key});
@@ -25,6 +26,12 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
   @override
   void initState() {
     super.initState();
+    if (!UserSession.isLoggedIn || UserSession.userRole != 'receptionist') {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushReplacementNamed(context, '/clinicos-overview');
+      });
+      return;
+    }
     _fetchAppointments();
   }
 
@@ -148,6 +155,11 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (!UserSession.isLoggedIn || UserSession.userRole != 'receptionist') {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
