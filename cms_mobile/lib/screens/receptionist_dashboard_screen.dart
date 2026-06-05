@@ -41,12 +41,6 @@ class _ReceptionistDashboardScreenState
   @override
   void initState() {
     super.initState();
-    if (!UserSession.isLoggedIn || UserSession.userRole != 'receptionist') {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.pushReplacementNamed(context, '/clinicos-overview');
-      });
-      return;
-    }
     _fetchDashboardData();
     _setupPusher();
   }
@@ -262,11 +256,6 @@ class _ReceptionistDashboardScreenState
 
   @override
   Widget build(BuildContext context) {
-    if (!UserSession.isLoggedIn || UserSession.userRole != 'receptionist') {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(

@@ -449,7 +449,33 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
           ),
         ),
       ),
-      
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: 1,
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: AppColors.primary,
+        unselectedItemColor: AppColors.outline,
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
+        selectedLabelStyle: textTheme.labelLarge?.copyWith(fontSize: 10),
+        unselectedLabelStyle: textTheme.labelLarge?.copyWith(fontSize: 10),
+        onTap: (index) {
+          if (index == 0) {
+            Navigator.pushReplacementNamed(context, '/appointments');
+          } else if (index == 1) {
+            Navigator.pushReplacementNamed(context, '/book-appointment');
+          }
+        },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.calendar_month),
+            label: 'APPOINTMENTS',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.add_circle_outline),
+            label: 'BOOK APPOINTMENT',
+          ),
+        ],
+      ),
     );
   }
 }

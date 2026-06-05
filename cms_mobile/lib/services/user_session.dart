@@ -94,11 +94,21 @@ class UserSession {
   }
 
   static Future<void> clear() async {
+    lastBookedName = null;
+    lastBookedPhone = null;
+    lastToken = null;
+    lastAppointmentId = null;
+    lastBookingDate = null;
     isLoggedIn = false;
     userRole = null;
     authToken = null;
 
     final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_keyName);
+    await prefs.remove(_keyPhone);
+    await prefs.remove(_keyToken);
+    await prefs.remove(_keyAppointmentId);
+    await prefs.remove(_keyBookingDate);
     await prefs.remove(_keyIsLoggedIn);
     await prefs.remove(_keyUserRole);
     await prefs.remove(_keyAuthToken);
