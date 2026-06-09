@@ -186,16 +186,16 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen>
       if (_doctorData is Map) {
         final apiData = _doctorData['data'];
         if (apiData is Map && apiData.containsKey('doctors')) {
-          final list = apiData['doctors'] as List;
+          final list = List<dynamic>.from(apiData['doctors'] as List);
           final docId = _resolvedDoctorId ?? 1;
           return list.firstWhere(
-            (d) => d['id'] == docId,
+            (d) => d['id'].toString() == docId.toString(),
             orElse: () => list.first,
           );
         }
       }
     } catch (e) {
-      debugPrint('Error: $e');
+      debugPrint('Error in _extractDoctorData: $e');
     }
     return null;
   }
