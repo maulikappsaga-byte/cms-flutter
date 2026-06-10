@@ -20,7 +20,8 @@ class ReceptionistDashboardScreen extends StatefulWidget {
 }
 
 class _ReceptionistDashboardScreenState
-    extends State<ReceptionistDashboardScreen> {
+    extends State<ReceptionistDashboardScreen>
+    with WidgetsBindingObserver {
   final QueueApi _queueApi = QueueApi();
   final AppointmentApi _appointmentApi = AppointmentApi();
   bool _isLoading = true;
@@ -41,6 +42,7 @@ class _ReceptionistDashboardScreenState
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     if (!UserSession.isLoggedIn || UserSession.userRole != 'receptionist') {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         CustomSnackBar.show(
@@ -58,38 +60,56 @@ class _ReceptionistDashboardScreenState
 
   void _setupPusher() {
     PusherService().addListener(_onPusherEvent);
-    PusherService().subscribe("clinic-updates");
+    _subscribeToPusher();
+  }
+
+  void _subscribeToPusher() {
+    final clinicId = PusherService().clinicId;
+    if (clinicId != null) {
+      PusherService().subscribe("public-clinic.$clinicId.queue-updates");
+    }
+  }
+
+  void _unsubscribeFromPusher() {
+    final clinicId = PusherService().clinicId;
+    if (clinicId != null) {
+      PusherService().unsubscribe("public-clinic.$clinicId.queue-updates");
+    }
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     PusherService().removeListener(_onPusherEvent);
-    PusherService().unsubscribe("clinic-updates");
+    _unsubscribeFromPusher();
     super.dispose();
   }
 
-  void _onPusherEvent(PusherEvent event) {
-    if (event.eventName == 'token-called' ||
-        event.eventName == 'queue-updated' ||
-        event.eventName == 'App\\Events\\QueueUpdated') {
-      try {
-        final data = jsonDecode(event.data ?? '{}');
-        if (data['type'] == 'booked') {
-          debugPrint('Dashboard: Booking event detected, triggering refresh indicator...');
-          _refreshIndicatorKey.currentState?.show();
-          return;
-        }
-      } catch (e) {
-        debugPrint('Dashboard: Pusher data parse error: $e');
-      }
-
-      debugPrint('Dashboard: Triggering refresh indicator due to Pusher event: ${event.eventName}');
-      _refreshIndicatorKey.currentState?.show();
+  /// Re-connect Pusher and refresh data when the app returns to foreground.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      debugPrint('Dashboard: App resumed — reconnecting Pusher and refreshing data.');
+      PusherService().reconnect().then((_) {
+        _subscribeToPusher();
+      });
+      _fetchDashboardData(silent: true);
     }
   }
 
+  void _onPusherEvent(PusherEvent event) {
+    if (event.eventName.startsWith('pusher:')) return;
+    debugPrint('Dashboard: Pusher event received: ${event.eventName} — refreshing data.');
+    // Always call _fetchDashboardData() directly.
+    // Previously this only called _refreshIndicatorKey.currentState?.show(),
+    // but RefreshIndicator is conditionally rendered behind the _isLoading
+    // guard, so its state is null whenever _isLoading == true, silently
+    // swallowing every Pusher event that arrives during a load cycle.
+    _fetchDashboardData(silent: true);
+  }
+
   Future<void> _fetchDashboardData({bool silent = false}) async {
-    if (mounted) {
+    if (mounted && !silent) {
       setState(() => _isLoading = true);
     }
     

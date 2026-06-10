@@ -2,14 +2,15 @@ import 'package:flutter/foundation.dart';
 
 class ApiConstants {
   static String get baseUrl {
-    //   if (kIsWeb) return 'http://127.0.0.1:8000/api';
-    // if (defaultTargetPlatform == TargetPlatform.android) return 'http://10.0.2.2:8000/api';
-    // return 'http://127.0.0.1:8000/api';
-    return 'https://healthcare.appsaga.io/api';
+    if (kIsWeb) return 'http://127.0.0.1:8000/api';
+    if (defaultTargetPlatform == TargetPlatform.android) return 'http://10.0.2.2:8000/api';
+    return 'http://127.0.0.1:8000/api';
   }
   
+  // static String apiKey =
+  //     'a467c9ae749554658c974ac9bdcdef787b9cc9ece425d33e2784e36c1aa37fc1';
   static String apiKey =
-      'a467c9ae749554658c974ac9bdcdef787b9cc9ece425d33e2784e36c1aa37fc1';
+      'QOOizWQhXaQpEAk2Vu0C6N2MC4LObntMtU8NGNYwVkubR0UA80ZmndwL3BECYl4q';
 
   // Pusher Configuration
   static const String pusherAppKey = 'bacd6dd427751c42eecc';

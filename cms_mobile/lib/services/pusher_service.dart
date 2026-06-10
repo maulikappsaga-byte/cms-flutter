@@ -1,6 +1,9 @@
 import 'dart:developer';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
 import '../constants/api_constants.dart';
+import 'clinic_detail_api.dart';
 
 class PusherService {
   static final PusherService _instance = PusherService._internal();
@@ -9,9 +12,25 @@ class PusherService {
 
   final PusherChannelsFlutter _pusher = PusherChannelsFlutter.getInstance();
   final List<void Function(PusherEvent)> _listeners = [];
+  String _connectionState = 'DISCONNECTED';
+  int? _clinicId;
+
+  String get connectionState => _connectionState;
+  int? get clinicId => _clinicId;
 
   Future<void> init() async {
     try {
+      if (_clinicId == null) {
+        log("Pusher: Fetching clinic details to get clinic ID...");
+        try {
+          final details = await ClinicDetailApi().getClinicDetails();
+          _clinicId = details['data']?['clinic']?['id'];
+          log("Pusher: Fetched clinic ID $_clinicId");
+        } catch (e) {
+          log("Pusher: Error fetching clinic ID: $e");
+        }
+      }
+
       log("Pusher: Initializing...");
       await _pusher.init(
         apiKey: ApiConstants.pusherAppKey,
@@ -24,12 +43,50 @@ class PusherService {
         onDecryptionFailure: onDecryptionFailure,
         onMemberAdded: onMemberAdded,
         onMemberRemoved: onMemberRemoved,
+        onAuthorizer: onAuthorizer,
       );
       log("Pusher: Connecting...");
       await _pusher.connect();
     } catch (e) {
       log("Pusher initialization error: $e");
     }
+  }
+
+  dynamic onAuthorizer(String channelName, String socketId, dynamic options) async {
+    try {
+      final authUrl = '${ApiConstants.baseUrl}/broadcasting/auth';
+      log("Pusher: Authorizing channel $channelName with socketId $socketId");
+      final response = await http.post(
+        Uri.parse(authUrl),
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-KEY': ApiConstants.apiKey,
+        },
+        body: jsonEncode({
+          'socket_id': socketId,
+          'channel_name': channelName,
+        }),
+      );
+      
+      if (response.statusCode == 200) {
+        log("Pusher: Authorized successfully.");
+        return jsonDecode(response.body);
+      } else {
+        log("Pusher: Auth failed with status ${response.statusCode}: ${response.body}");
+        throw Exception('Failed to authorize Pusher channel');
+      }
+    } catch (e) {
+      log("Pusher: Authorizer error: $e");
+      rethrow;
+    }
+  }
+
+  /// Disconnect, reinitialize, and reconnect. Safe to call from lifecycle hooks.
+  Future<void> reconnect() async {
+    try {
+      await _pusher.disconnect();
+    } catch (_) {}
+    await init();
   }
 
   void addListener(void Function(PusherEvent) listener) {
@@ -55,6 +112,7 @@ class PusherService {
   }
 
   void onConnectionStateChange(dynamic currentState, dynamic previousState) {
+    _connectionState = currentState?.toString() ?? 'UNKNOWN';
     log("Pusher Connection State Change: $previousState -> $currentState");
   }
 
@@ -68,7 +126,9 @@ class PusherService {
 
   void onEvent(PusherEvent event) {
     log("Pusher Event Received: ${event.eventName} on ${event.channelName} with data: ${event.data}");
-    for (var listener in _listeners) {
+    // Iterate over a snapshot copy so that adding/removing listeners
+    // during dispatch cannot cause a ConcurrentModificationError.
+    for (var listener in List.of(_listeners)) {
       listener(event);
     }
   }

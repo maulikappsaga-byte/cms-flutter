@@ -26,7 +26,7 @@ class ClinicosOverviewScreen extends StatefulWidget {
 }
 
 class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
-    with SingleTickerProviderStateMixin {
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
   bool _isLoading = false;
@@ -46,6 +46,9 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
   @override
   void initState() {
     super.initState();
+
+    // Register for app lifecycle events (foreground/background transitions).
+    WidgetsBinding.instance.addObserver(this);
 
     // Load saved session values
     final today = DateTime.now().toString().split(' ')[0];
@@ -69,54 +72,68 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
     // subscribes to the doctor-specific queue channel dynamically.
     _fetchOverviewData();
 
-    // Subscribe to the receptionist channel so we receive call-next events.
-    PusherService().subscribe("clinic-updates");
+    // Subscribe to the correct private channel using the clinic ID.
+    _subscribeToPusher();
     PusherService().addListener(_onPusherEvent);
+  }
+
+  void _subscribeToPusher() {
+    final clinicId = PusherService().clinicId;
+    if (clinicId != null) {
+      PusherService().subscribe("public-clinic.$clinicId.queue-updates");
+    }
+  }
+
+  void _unsubscribeFromPusher() {
+    final clinicId = PusherService().clinicId;
+    if (clinicId != null) {
+      PusherService().unsubscribe("public-clinic.$clinicId.queue-updates");
+    }
+  }
+
+  /// Re-connect Pusher and refresh data when the app returns to foreground.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      log("ClinicosOverview: App resumed — reconnecting Pusher and refreshing data.");
+      // Reconnect the Pusher socket in case it was dropped in the background.
+      PusherService().reconnect().then((_) {
+        _subscribeToPusher();
+      });
+      _fetchOverviewData();
+    }
   }
 
   /// Handles incoming Pusher events and updates _nowServing in real time.
   void _onPusherEvent(PusherEvent event) {
     log("ClinicosOverview: Pusher Event -> ${event.eventName} : ${event.data}");
 
-    if (event.eventName == 'queue-updated' ||
-        event.eventName == 'token-called' ||
-        event.eventName == 'App\\Events\\QueueUpdated') {
-      try {
-        final data = jsonDecode(event.data ?? '{}');
+    if (event.eventName.startsWith('pusher:')) return;
 
-        // Check for specific "booked" type to refresh all data
-        if (data['type'] == 'booked' ||
-            data['type'] == 'next' ||
-            data['type'] == 'completed') {
-          log("ClinicosOverview: Booking event detected, refreshing data...");
-          _refreshIndicatorKey.currentState?.show();
-          _fetchOverviewData();
-          return;
-        }
+    try {
+      final data = jsonDecode(event.data ?? '{}');
 
-        final token =
-            data['token_number']?.toString() ??
-            data['now_serving']?.toString() ??
-            data['token']?.toString();
-        if (token != null && mounted) {
-          setState(() => _nowServing = token);
-          log("ClinicosOverview: Real-time token update -> $_nowServing");
-        } else {
-          // Fallback: trigger visual refresh
-          _refreshIndicatorKey.currentState?.show();
-        }
-      } catch (e) {
-        log("ClinicosOverview: Error parsing Pusher data: $e");
-        _fetchOverviewData();
+      final token =
+          data['token_number']?.toString() ??
+          data['now_serving']?.toString() ??
+          data['token']?.toString();
+      if (token != null && mounted) {
+        setState(() => _nowServing = token);
+        log("ClinicosOverview: Real-time token update -> $_nowServing");
       }
+    } catch (e) {
+      log("ClinicosOverview: Error parsing Pusher data: $e");
+    } finally {
+      log("ClinicosOverview: Refreshing data on Pusher event...");
+      _fetchOverviewData(silent: true);
     }
   }
 
   /// Fetches the current serving token from /queue/live.
   /// This is the single source of truth for "Now Serving".
-  Future<void> _fetchOverviewData() async {
+  Future<void> _fetchOverviewData({bool silent = false}) async {
     log("ClinicosOverview: Fetching live queue data...");
-    if (mounted) setState(() => _isLoading = true);
+    if (mounted && !silent) setState(() => _isLoading = true);
 
     try {
       if (_doctorId == null) {
@@ -126,10 +143,8 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
           if (doctors is List && doctors.isNotEmpty) {
             _doctorId = int.tryParse(doctors.first['id'].toString());
             log("ClinicosOverview: Dynamically loaded doctor ID: $_doctorId");
-            // Subscribe to the doctor-specific live-queue channel.
-            if (_doctorId != null) {
-              PusherService().subscribe("queue-updates.${ApiConstants.apiKey}");
-            }
+            // Also ensure we are subscribed once we know the clinic ID is loaded.
+            _subscribeToPusher();
           }
         }
       }
@@ -171,7 +186,7 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
     } catch (e) {
       log("ClinicosOverview: Error fetching queue: $e");
     } finally {
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted && !silent) setState(() => _isLoading = false);
     }
   }
 
@@ -206,11 +221,9 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     PusherService().removeListener(_onPusherEvent);
-    PusherService().unsubscribe("clinic-updates");
-    if (_doctorId != null) {
-      PusherService().unsubscribe("queue-updates.$_doctorId");
-    }
+    _unsubscribeFromPusher();
     _pulseController.dispose();
     super.dispose();
   }
