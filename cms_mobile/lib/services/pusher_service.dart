@@ -21,17 +21,20 @@ class PusherService {
   Future<void> init() async {
     try {
       if (_clinicId == null) {
-        log("Pusher: Fetching clinic details to get clinic ID...");
+        print("Pusher: Fetching clinic details to get clinic ID...");
         try {
           final details = await ClinicDetailApi().getClinicDetails();
-          _clinicId = details['data']?['clinic']?['id'];
-          log("Pusher: Fetched clinic ID $_clinicId");
+          final dynamic fetchedId = details['data']?['clinic']?['id'];
+          if (fetchedId != null) {
+            _clinicId = int.tryParse(fetchedId.toString());
+          }
+          print("Pusher: Fetched clinic ID $_clinicId");
         } catch (e) {
-          log("Pusher: Error fetching clinic ID: $e");
+          print("Pusher: Error fetching clinic ID: $e");
         }
       }
 
-      log("Pusher: Initializing...");
+      print("Pusher: Initializing...");
       await _pusher.init(
         apiKey: ApiConstants.pusherAppKey,
         cluster: ApiConstants.pusherCluster,
@@ -45,17 +48,17 @@ class PusherService {
         onMemberRemoved: onMemberRemoved,
         onAuthorizer: onAuthorizer,
       );
-      log("Pusher: Connecting...");
+      print("Pusher: Connecting...");
       await _pusher.connect();
     } catch (e) {
-      log("Pusher initialization error: $e");
+      print("Pusher initialization error: $e");
     }
   }
 
   dynamic onAuthorizer(String channelName, String socketId, dynamic options) async {
     try {
       final authUrl = '${ApiConstants.baseUrl}/broadcasting/auth';
-      log("Pusher: Authorizing channel $channelName with socketId $socketId");
+      print("Pusher: Authorizing channel $channelName with socketId $socketId");
       final response = await http.post(
         Uri.parse(authUrl),
         headers: {
@@ -69,14 +72,14 @@ class PusherService {
       );
       
       if (response.statusCode == 200) {
-        log("Pusher: Authorized successfully.");
+        print("Pusher: Authorized successfully.");
         return jsonDecode(response.body);
       } else {
-        log("Pusher: Auth failed with status ${response.statusCode}: ${response.body}");
+        print("Pusher: Auth failed with status ${response.statusCode}: ${response.body}");
         throw Exception('Failed to authorize Pusher channel');
       }
     } catch (e) {
-      log("Pusher: Authorizer error: $e");
+      print("Pusher: Authorizer error: $e");
       rethrow;
     }
   }
@@ -98,22 +101,22 @@ class PusherService {
   }
 
   Future<void> subscribe(String channelName) async {
-    log("Pusher: Subscribing to $channelName");
+    print("Pusher: Subscribing to $channelName");
     try {
       await _pusher.subscribe(channelName: channelName);
     } catch (e) {
-      log("Pusher: Already subscribed or error: $e");
+      print("Pusher: Already subscribed or error: $e");
     }
   }
 
   Future<void> unsubscribe(String channelName) async {
-    log("Pusher: Unsubscribing from $channelName");
+    print("Pusher: Unsubscribing from $channelName");
     await _pusher.unsubscribe(channelName: channelName);
   }
 
   void onConnectionStateChange(dynamic currentState, dynamic previousState) {
     _connectionState = currentState?.toString() ?? 'UNKNOWN';
-    log("Pusher Connection State Change: $previousState -> $currentState");
+    print("Pusher Connection State Change: $previousState -> $currentState");
   }
 
   void onError(String message, int? code, dynamic e) {
@@ -125,7 +128,7 @@ class PusherService {
   }
 
   void onEvent(PusherEvent event) {
-    log("Pusher Event Received: ${event.eventName} on ${event.channelName} with data: ${event.data}");
+    print("Pusher Event Received: ${event.eventName} on ${event.channelName} with data: ${event.data}");
     // Iterate over a snapshot copy so that adding/removing listeners
     // during dispatch cannot cause a ConcurrentModificationError.
     for (var listener in List.of(_listeners)) {

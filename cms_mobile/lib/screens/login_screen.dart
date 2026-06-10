@@ -49,18 +49,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
       // final baseUrl = getBaseUrl();
       final response = await http.post(
-          //  Uri.parse('$baseUrl/api/auth/login'),
+        //  Uri.parse('$baseUrl/api/auth/login'),
         Uri.parse('${ApiConstants.baseUrl}/auth/login'),
         headers: {
-          // 'X-API-KEY': 'a467c9ae749554658c974ac9bdcdef787b9cc9ece425d33e2784e36c1aa37fc1',
+          'X-API-KEY':
+              'a467c9ae749554658c974ac9bdcdef787b9cc9ece425d33e2784e36c1aa37fc1',
           'X-API-KEY': ApiConstants.apiKey,
           'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
-        body: jsonEncode({
-          'email': email,
-          'password': password,
-        }),
+        body: jsonEncode({'email': email, 'password': password}),
       );
 
       if (mounted) {
@@ -69,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
         try {
           final body = jsonDecode(response.body);
-          
+
           if (response.statusCode >= 200 && response.statusCode < 300) {
             if (body is Map && body['status'] == false) {
               isSuccess = false;
@@ -97,7 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
           String targetRoute = '/clinicos-overview';
           String role = 'patient';
           String token = 'default_token';
-          
+
           try {
             String rawResponse = response.body.toLowerCase();
             if (rawResponse.contains('receptionist')) {
@@ -113,18 +111,22 @@ class _LoginScreenState extends State<LoginScreen> {
           await UserSession.saveLoginSession(token, role);
 
           if (!mounted) return;
-          Navigator.pushNamedAndRemoveUntil(context, targetRoute, (route) => false);
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(errorMessage)),
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            targetRoute,
+            (route) => false,
           );
+        } else {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(errorMessage)));
         }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Network error: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Network error: $e')));
       }
     } finally {
       if (mounted) {
@@ -201,16 +203,15 @@ class _LoginScreenState extends State<LoginScreen> {
                     Center(
                       child: Text(
                         'Please enter your clinical credentials to continue.',
-                        style: textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
+                        style: textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                     ),
                     const SizedBox(height: 24),
                     // Email Field
-                    Text(
-                      'EMAIL ADDRESS',
-                      style: textTheme.labelLarge,
-                    ),
+                    Text('EMAIL ADDRESS', style: textTheme.labelLarge),
                     const SizedBox(height: 8),
                     TextField(
                       controller: _emailController,
@@ -225,10 +226,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          'PASSWORD',
-                          style: textTheme.labelLarge,
-                        ),
+                        Text('PASSWORD', style: textTheme.labelLarge),
                         TextButton(
                           onPressed: () {
                             Navigator.pushNamed(context, '/forgot-password');
@@ -272,10 +270,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
-                        Text(
-                          'Keep me logged in',
-                          style: textTheme.bodyMedium,
-                        ),
+                        Text('Keep me logged in', style: textTheme.bodyMedium),
                       ],
                     ),
                     const SizedBox(height: 24),
@@ -293,7 +288,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 const SizedBox(
                                   width: 20,
                                   height: 20,
-                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
                                 ),
                                 const SizedBox(width: 8),
                               ],
@@ -315,15 +312,26 @@ class _LoginScreenState extends State<LoginScreen> {
               Wrap(
                 spacing: 24,
                 children: [
-                  Text('Privacy Policy', style: textTheme.labelLarge?.copyWith(color: Colors.grey)),
-                  Text('Terms of Service', style: textTheme.labelLarge?.copyWith(color: Colors.grey)),
-                  Text('Help Center', style: textTheme.labelLarge?.copyWith(color: Colors.grey)),
+                  Text(
+                    'Privacy Policy',
+                    style: textTheme.labelLarge?.copyWith(color: Colors.grey),
+                  ),
+                  Text(
+                    'Terms of Service',
+                    style: textTheme.labelLarge?.copyWith(color: Colors.grey),
+                  ),
+                  Text(
+                    'Help Center',
+                    style: textTheme.labelLarge?.copyWith(color: Colors.grey),
+                  ),
                 ],
               ),
               const SizedBox(height: 24),
               Text(
                 '© 2024 HEALTHCARE SYSTEMS. SECURE CLINICAL PORTAL.',
-                style: textTheme.labelLarge?.copyWith(color: Colors.grey.withValues(alpha: 0.6)),
+                style: textTheme.labelLarge?.copyWith(
+                  color: Colors.grey.withValues(alpha: 0.6),
+                ),
               ),
               const SizedBox(height: 24),
             ],

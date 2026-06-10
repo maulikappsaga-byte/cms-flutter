@@ -106,7 +106,7 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
 
   /// Handles incoming Pusher events and updates _nowServing in real time.
   void _onPusherEvent(PusherEvent event) {
-    log("ClinicosOverview: Pusher Event -> ${event.eventName} : ${event.data}");
+    print("ClinicosOverview: Pusher Event -> ${event.eventName} : ${event.data}");
 
     if (event.eventName.startsWith('pusher:')) return;
 
@@ -119,12 +119,12 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
           data['token']?.toString();
       if (token != null && mounted) {
         setState(() => _nowServing = token);
-        log("ClinicosOverview: Real-time token update -> $_nowServing");
+        print("ClinicosOverview: Real-time token update -> $_nowServing");
       }
     } catch (e) {
-      log("ClinicosOverview: Error parsing Pusher data: $e");
+      print("ClinicosOverview: Error parsing Pusher data: $e");
     } finally {
-      log("ClinicosOverview: Refreshing data on Pusher event...");
+      print("ClinicosOverview: Refreshing data on Pusher event...");
       _fetchOverviewData(silent: true);
     }
   }
@@ -143,8 +143,6 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
           if (doctors is List && doctors.isNotEmpty) {
             _doctorId = int.tryParse(doctors.first['id'].toString());
             log("ClinicosOverview: Dynamically loaded doctor ID: $_doctorId");
-            // Also ensure we are subscribed once we know the clinic ID is loaded.
-            _subscribeToPusher();
           }
         }
       }
