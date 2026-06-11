@@ -63,13 +63,14 @@ class PusherService {
       final response = await http.post(
         Uri.parse(authUrl),
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Accept': 'application/json',
           'X-API-KEY': ApiConstants.apiKey,
         },
-        body: jsonEncode({
+        body: {
           'socket_id': socketId,
           'channel_name': channelName,
-        }),
+        },
       );
       
       if (response.statusCode == 200) {
