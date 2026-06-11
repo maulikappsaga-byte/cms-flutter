@@ -47,7 +47,6 @@ class PusherService {
         onDecryptionFailure: onDecryptionFailure,
         onMemberAdded: onMemberAdded,
         onMemberRemoved: onMemberRemoved,
-        onAuthorizer: onAuthorizer,
       );
       log("Pusher: Connecting...");
       await _pusher.connect();
@@ -56,35 +55,6 @@ class PusherService {
     }
   }
 
-  dynamic onAuthorizer(String channelName, String socketId, dynamic options) async {
-    try {
-      final authUrl = '${ApiConstants.baseUrl}/broadcasting/auth';
-      log("Pusher: Authorizing channel $channelName with socketId $socketId");
-      final response = await http.post(
-        Uri.parse(authUrl),
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'Accept': 'application/json',
-          'X-API-KEY': ApiConstants.apiKey,
-        },
-        body: {
-          'socket_id': socketId,
-          'channel_name': channelName,
-        },
-      );
-      
-      if (response.statusCode == 200) {
-        log("Pusher: Authorized successfully.");
-        return jsonDecode(response.body);
-      } else {
-        log("Pusher: Auth failed with status ${response.statusCode}: ${response.body}");
-        throw Exception('Failed to authorize Pusher channel');
-      }
-    } catch (e) {
-      log("Pusher: Authorizer error: $e");
-      rethrow;
-    }
-  }
 
   /// Disconnect, reinitialize, and reconnect. Safe to call from lifecycle hooks.
   Future<void> reconnect() async {
