@@ -52,8 +52,6 @@ class _LoginScreenState extends State<LoginScreen> {
         //  Uri.parse('$baseUrl/api/auth/login'),
         Uri.parse('${ApiConstants.baseUrl}/auth/login'),
         headers: {
-          'X-API-KEY':
-              'a467c9ae749554658c974ac9bdcdef787b9cc9ece425d33e2784e36c1aa37fc1',
           'X-API-KEY': ApiConstants.apiKey,
           'Accept': 'application/json',
           'Content-Type': 'application/json',

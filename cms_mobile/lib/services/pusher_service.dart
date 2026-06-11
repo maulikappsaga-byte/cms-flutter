@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
 import '../constants/api_constants.dart';
@@ -21,20 +22,20 @@ class PusherService {
   Future<void> init() async {
     try {
       if (_clinicId == null) {
-        print("Pusher: Fetching clinic details to get clinic ID...");
+        log("Pusher: Fetching clinic details to get clinic ID...");
         try {
           final details = await ClinicDetailApi().getClinicDetails();
           final dynamic fetchedId = details['data']?['clinic']?['id'];
           if (fetchedId != null) {
             _clinicId = int.tryParse(fetchedId.toString());
           }
-          print("Pusher: Fetched clinic ID $_clinicId");
+          log("Pusher: Fetched clinic ID $_clinicId");
         } catch (e) {
-          print("Pusher: Error fetching clinic ID: $e");
+          log("Pusher: Error fetching clinic ID: $e");
         }
       }
 
-      print("Pusher: Initializing...");
+      log("Pusher: Initializing...");
       await _pusher.init(
         apiKey: ApiConstants.pusherAppKey,
         cluster: ApiConstants.pusherCluster,
@@ -48,17 +49,17 @@ class PusherService {
         onMemberRemoved: onMemberRemoved,
         onAuthorizer: onAuthorizer,
       );
-      print("Pusher: Connecting...");
+      log("Pusher: Connecting...");
       await _pusher.connect();
     } catch (e) {
-      print("Pusher initialization error: $e");
+      log("Pusher initialization error: $e");
     }
   }
 
   dynamic onAuthorizer(String channelName, String socketId, dynamic options) async {
     try {
       final authUrl = '${ApiConstants.baseUrl}/broadcasting/auth';
-      print("Pusher: Authorizing channel $channelName with socketId $socketId");
+      log("Pusher: Authorizing channel $channelName with socketId $socketId");
       final response = await http.post(
         Uri.parse(authUrl),
         headers: {
@@ -72,14 +73,14 @@ class PusherService {
       );
       
       if (response.statusCode == 200) {
-        print("Pusher: Authorized successfully.");
+        log("Pusher: Authorized successfully.");
         return jsonDecode(response.body);
       } else {
-        print("Pusher: Auth failed with status ${response.statusCode}: ${response.body}");
+        log("Pusher: Auth failed with status ${response.statusCode}: ${response.body}");
         throw Exception('Failed to authorize Pusher channel');
       }
     } catch (e) {
-      print("Pusher: Authorizer error: $e");
+      log("Pusher: Authorizer error: $e");
       rethrow;
     }
   }
@@ -101,22 +102,22 @@ class PusherService {
   }
 
   Future<void> subscribe(String channelName) async {
-    print("Pusher: Subscribing to $channelName");
+    log("Pusher: Subscribing to $channelName");
     try {
       await _pusher.subscribe(channelName: channelName);
     } catch (e) {
-      print("Pusher: Already subscribed or error: $e");
+      log("Pusher: Already subscribed or error: $e");
     }
   }
 
   Future<void> unsubscribe(String channelName) async {
-    print("Pusher: Unsubscribing from $channelName");
+    log("Pusher: Unsubscribing from $channelName");
     await _pusher.unsubscribe(channelName: channelName);
   }
 
   void onConnectionStateChange(dynamic currentState, dynamic previousState) {
     _connectionState = currentState?.toString() ?? 'UNKNOWN';
-    print("Pusher Connection State Change: $previousState -> $currentState");
+    log("Pusher Connection State Change: $previousState -> $currentState");
   }
 
   void onError(String message, int? code, dynamic e) {
@@ -128,7 +129,7 @@ class PusherService {
   }
 
   void onEvent(PusherEvent event) {
-    print("Pusher Event Received: ${event.eventName} on ${event.channelName} with data: ${event.data}");
+    log("Pusher Event Received: ${event.eventName} on ${event.channelName} with data: ${event.data}");
     // Iterate over a snapshot copy so that adding/removing listeners
     // during dispatch cannot cause a ConcurrentModificationError.
     for (var listener in List.of(_listeners)) {
