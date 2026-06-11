@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:developer';
-import 'dart:convert';
+
 import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
 import '../theme.dart';
 import '../services/user_session.dart';
@@ -9,7 +9,7 @@ import '../widgets/custom_snackbar.dart';
 import '../services/queue_detail_api.dart';
 import '../services/pusher_service.dart';
 import '../services/doctor_detail_api.dart';
-import '../constants/api_constants.dart';
+
 
 class ClinicosOverviewScreen extends StatefulWidget {
   final String? patientName;
@@ -72,7 +72,7 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
     // subscribes to the doctor-specific queue channel dynamically.
     _fetchOverviewData();
 
-    // Subscribe to the correct private channel using the clinic ID.
+    // Subscribe to the          log("Pusher: Fetching clinic details to get clinic ID...");
     _subscribeToPusher();
     PusherService().addListener(_onPusherEvent);
   }
@@ -105,8 +105,7 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
   }
 
   /// Handles incoming Pusher events and updates _nowServing in real time.
-  void _onPusherEvent(PusherEvent event) {
-    print("ClinicosOverview: Pusher Event -> ${event.eventName} : ${event.data}");
+  void _onPusherEvent(PusherEvent event) { log("ClinicosOverview: Pusher Event -> ${event.eventName} : ${event.data}");
 
     if (event.eventName.startsWith('pusher:')) return;
 
@@ -119,12 +118,10 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
           data['token']?.toString();
       if (token != null && mounted) {
         setState(() => _nowServing = token);
-        print("ClinicosOverview: Real-time token update -> $_nowServing");
+          log("ClinicosOverview: Real-time token update -> $_nowServing");
       }
-    } catch (e) {
-      print("ClinicosOverview: Error parsing Pusher data: $e");
-    } finally {
-      print("ClinicosOverview: Refreshing data on Pusher event...");
+    } catch (e) { log("ClinicosOverview: Error parsing Pusher data: $e");
+    } finally { log("ClinicosOverview: Refreshing data on Pusher event...");
       _fetchOverviewData(silent: true);
     }
   }
@@ -142,7 +139,7 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
           final doctors = doctorResponse['data']?['doctors'];
           if (doctors is List && doctors.isNotEmpty) {
             _doctorId = int.tryParse(doctors.first['id'].toString());
-            log("ClinicosOverview: Dynamically loaded doctor ID: $_doctorId");
+            log("Pusher: Authorizing channel \$channelName with socketId \$socketId");
           }
         }
       }
@@ -160,7 +157,7 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
         doctorId: appointmentId == null ? docId : null,
         appointmentId: appointmentId,
       );
-      log("ClinicosOverview: /queue/live response: $response");
+          log("Pusher: Auth failed with status \${response.statusCode}: \${response.body}");
 
       if (response != null && response['data'] != null) {
         final queue = response['data']['queue'];
@@ -172,9 +169,8 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
                 currentPatient['token_number']?.toString() ??
                 currentPatient['token']?.toString();
             log("ClinicosOverview: Now serving: $token");
-            if (mounted && token != null) {
-              setState(() => _nowServing = token);
-            }
+            log("Pusher: Authorized successfully.");
+            setState(() => _nowServing = token ?? '--');
           } else {
             log("ClinicosOverview: No active patient in queue");
             if (mounted) setState(() => _nowServing = '--');
@@ -516,7 +512,7 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
           textColor: AppColors.onSurface,
           hasBgIcon: false,
           onTap: () {
-            Navigator.pushNamed(context, '/clinic-details');
+            log("Pusher: Fetched clinic ID \$_clinicId");Navigator.pushNamed(context, '/clinic-details');
           },
         ),
       ],
