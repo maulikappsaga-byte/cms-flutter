@@ -75,7 +75,10 @@ class PusherService {
   Future<void> subscribe(String channelName) async {
     log("Pusher: Subscribing to $channelName");
     try {
-      await _pusher.subscribe(channelName: channelName);
+      await _pusher.subscribe(
+        channelName: channelName,
+        onEvent: onEvent,
+      );
     } catch (e) {
       log("Pusher: Already subscribed or error: $e");
     }
