@@ -74,14 +74,23 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
     _fetchOverviewData();
 
     // Subscribe to the          log("Pusher: Fetching clinic details to get clinic ID...");
-    _subscribeToPusher();
     PusherService().addListener(_onPusherEvent);
+    _subscribeToPusher();
   }
 
-  void _subscribeToPusher() {
-    final clinicId = PusherService().clinicId;
+  Future<void> _subscribeToPusher() async {
+    // Wait up to 5 s for clinicId to be populated by PusherService.init().
+    int? clinicId;
+    for (int i = 0; i < 10; i++) {
+      clinicId = PusherService().clinicId;
+      if (clinicId != null) break;
+      await Future.delayed(const Duration(milliseconds: 500));
+    }
     if (clinicId != null) {
+      log("ClinicosOverview: Subscribing to clinic $clinicId");
       PusherService().subscribe("public-clinic.$clinicId.queue-updates");
+    } else {
+      log("ClinicosOverview: WARNING — clinicId still null after 5s, Pusher subscription skipped!");
     }
   }
 
@@ -89,6 +98,8 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
     final clinicId = PusherService().clinicId;
     if (clinicId != null) {
       PusherService().unsubscribe("public-clinic.$clinicId.queue-updates");
+    } else {
+      log("ClinicosOverview: Unsubscribe skipped — clinicId was null");
     }
   }
 
