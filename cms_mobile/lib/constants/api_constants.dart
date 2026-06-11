@@ -1,16 +1,12 @@
 import 'package:flutter/foundation.dart';
 
 class ApiConstants {
-  // static String get baseUrl {
+   // static String get baseUrl {
   //   if (defaultTargetPlatform == TargetPlatform.android) {
   //     return 'http://10.0.2.2:8001/api';
   //   }
   //   return 'http://localhost:8001/api';
-
   static String get baseUrl => 'https://healthcare.appsaga.io/api';
-}
-
-  // static String apiKey = 'c7a6ba883d24c2f63e257245e36fe4bcbfebfe33ab8ca578f9ea8e8361056fee';
   static String apiKey = 'a467c9ae749554658c974ac9bdcdef787b9cc9ece425d33e2784e36c1aa37fc1';
 
   // Pusher Configuration
@@ -19,7 +15,7 @@ class ApiConstants {
 
   static String? resolveImageUrl(String? url) {
     if (url == null || url.isEmpty) return null;
-    
+
     // For absolute URLs returned from localhost APIs
     if (defaultTargetPlatform == TargetPlatform.android) {
       if (url.contains('127.0.0.1') || url.contains('localhost')) {
