@@ -79,28 +79,11 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
   }
 
   Future<void> _subscribeToPusher() async {
-    // Wait up to 5 s for clinicId to be populated by PusherService.init().
-    int? clinicId;
-    for (int i = 0; i < 10; i++) {
-      clinicId = PusherService().clinicId;
-      if (clinicId != null) break;
-      await Future.delayed(const Duration(milliseconds: 500));
-    }
-    if (clinicId != null) {
-      log("ClinicosOverview: Subscribing to clinic $clinicId");
-      PusherService().subscribe("public-clinic.$clinicId.queue-updates");
-    } else {
-      log("ClinicosOverview: WARNING — clinicId still null after 5s, Pusher subscription skipped!");
-    }
+    await PusherService().subscribeToQueue();
   }
 
   void _unsubscribeFromPusher() {
-    final clinicId = PusherService().clinicId;
-    if (clinicId != null) {
-      PusherService().unsubscribe("public-clinic.$clinicId.queue-updates");
-    } else {
-      log("ClinicosOverview: Unsubscribe skipped — clinicId was null");
-    }
+    PusherService().unsubscribeFromQueue();
   }
 
   /// Re-connect Pusher and refresh data when the app returns to foreground.
@@ -117,25 +100,14 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
   }
 
   /// Handles incoming Pusher events and updates _nowServing in real time.
-  void _onPusherEvent(PusherEvent event) { log("ClinicosOverview: Pusher Event -> ${event.eventName} : ${event.data}");
+  void _onPusherEvent(PusherEvent event) { 
+    log("ClinicosOverview: Pusher Event -> ${event.eventName} : ${event.data}");
 
     if (event.eventName.startsWith('pusher:')) return;
 
-    try {
-      final data = jsonDecode(event.data ?? '{}');
-
-      final token =
-          data['token_number']?.toString() ??
-          data['now_serving']?.toString() ??
-          data['token']?.toString();
-      if (token != null && mounted) {
-        setState(() => _nowServing = token);
-          log("ClinicosOverview: Real-time token update -> $_nowServing");
-      }
-    } catch (e) { log("ClinicosOverview: Error parsing Pusher data: $e");
-    } finally { log("ClinicosOverview: Refreshing data on Pusher event...");
-      _fetchOverviewData(silent: true);
-    }
+    // Refresh live queue data on any queue-updates event
+    log("ClinicosOverview: Refreshing data on Pusher event...");
+    _fetchOverviewData(silent: true);
   }
 
   /// Fetches the current serving token from /queue/live.
@@ -169,7 +141,6 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
         doctorId: appointmentId == null ? docId : null,
         appointmentId: appointmentId,
       );
-          log("Pusher: Auth failed with status \${response.statusCode}: \${response.body}");
 
       if (response != null && response['data'] != null) {
         final queue = response['data']['queue'];

@@ -64,17 +64,11 @@ class _ReceptionistDashboardScreenState
   }
 
   void _subscribeToPusher() {
-    final clinicId = PusherService().clinicId;
-    if (clinicId != null) {
-      PusherService().subscribe("public-clinic.$clinicId.queue-updates");
-    }
+    PusherService().subscribeToQueue();
   }
 
   void _unsubscribeFromPusher() {
-    final clinicId = PusherService().clinicId;
-    if (clinicId != null) {
-      PusherService().unsubscribe("public-clinic.$clinicId.queue-updates");
-    }
+    PusherService().unsubscribeFromQueue();
   }
 
   @override

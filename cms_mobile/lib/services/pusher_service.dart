@@ -70,6 +70,33 @@ class PusherService {
     _listeners.remove(listener);
   }
 
+  Future<void> subscribeToQueue() async {
+    if (_clinicId == null) {
+      log("Pusher: clinicId is null during subscribeToQueue. Attempting to fetch...");
+      try {
+        final details = await ClinicDetailApi().getClinicDetails();
+        final dynamic fetchedId = details['data']?['clinic']?['id'];
+        if (fetchedId != null) {
+          _clinicId = int.tryParse(fetchedId.toString());
+        }
+      } catch (e) {
+        log("Pusher: Error fetching clinic ID: $e");
+      }
+    }
+
+    if (_clinicId != null) {
+      await subscribe("public-clinic.$_clinicId.queue-updates");
+    } else {
+      log("Pusher: Failed to fetch clinicId. Cannot subscribe to queue updates.");
+    }
+  }
+
+  Future<void> unsubscribeFromQueue() async {
+    if (_clinicId != null) {
+      await unsubscribe("public-clinic.$_clinicId.queue-updates");
+    }
+  }
+
   Future<void> subscribe(String channelName) async {
     log("Pusher: Subscribing to $channelName");
     try {
@@ -100,12 +127,14 @@ class PusherService {
     log("Pusher Subscription Succeeded: $channelName data: $data");
   }
 
-  void onEvent(PusherEvent event) {
-    log("Pusher Event Received: ${event.eventName} on ${event.channelName} with data: ${event.data}");
-    // Iterate over a snapshot copy so that adding/removing listeners
-    // during dispatch cannot cause a ConcurrentModificationError.
-    for (var listener in List.of(_listeners)) {
-      listener(event);
+  dynamic onEvent(dynamic event) {
+    if (event is PusherEvent) {
+      log("Pusher Event Received: ${event.eventName} on ${event.channelName} with data: ${event.data}");
+      // Iterate over a snapshot copy so that adding/removing listeners
+      // during dispatch cannot cause a ConcurrentModificationError.
+      for (var listener in List.of(_listeners)) {
+        listener(event);
+      }
     }
   }
 
