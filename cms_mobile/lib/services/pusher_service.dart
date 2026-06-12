@@ -1,7 +1,5 @@
 import 'dart:developer';
-import 'dart:convert';
 
-import 'package:http/http.dart' as http;
 import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
 import '../constants/api_constants.dart';
 import 'clinic_detail_api.dart';
