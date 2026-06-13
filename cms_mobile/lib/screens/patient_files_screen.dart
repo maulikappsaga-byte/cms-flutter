@@ -62,13 +62,13 @@ class _PatientFilesScreenState extends State<PatientFilesScreen> {
           onPressed: () {
             Navigator.pop(context);
           },
-          icon: const Icon(Icons.arrow_back, color: AppColors.onSurfaceVariant),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
         title: Text(
           'Patient Files',
           style: textTheme.headlineMedium?.copyWith(
             fontSize: 20,
-            color: AppColors.primaryContainer,
+            color: Theme.of(context).colorScheme.primaryContainer,
             fontWeight: FontWeight.w900,
             letterSpacing: -1,
           ),
@@ -86,7 +86,7 @@ class _PatientFilesScreenState extends State<PatientFilesScreen> {
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: const Column(
+                    child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         CircularProgressIndicator(),
@@ -108,7 +108,7 @@ class _PatientFilesScreenState extends State<PatientFilesScreen> {
                 });
               });
             },
-            icon: const Icon(Icons.refresh, color: AppColors.onSurfaceVariant),
+            icon: Icon(Icons.refresh, color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
         ],
       ),
@@ -126,11 +126,11 @@ class _PatientFilesScreenState extends State<PatientFilesScreen> {
               },
               decoration: InputDecoration(
                 hintText: 'Search patients...',
-                prefixIcon: const Icon(Icons.search),
-                fillColor: AppColors.inputBackground,
+                prefixIcon: Icon(Icons.search),
+                fillColor: Theme.of(context).extension<AppCustomColors>()!.inputBackground,
                 suffixIcon: _searchQuery.isNotEmpty 
                   ? IconButton(
-                      icon: const Icon(Icons.clear, size: 18),
+                      icon: Icon(Icons.clear, size: 18),
                       onPressed: () {
                         _searchController.clear();
                         setState(() {
@@ -162,8 +162,8 @@ class _PatientFilesScreenState extends State<PatientFilesScreen> {
                       padding: const EdgeInsets.only(top: 40),
                       child: Column(
                         children: [
-                          const Icon(Icons.search_off, size: 64, color: AppColors.outline),
-                          const SizedBox(height: 16),
+                          Icon(Icons.search_off, size: 64, color: Theme.of(context).colorScheme.outline),
+                          SizedBox(height: 16),
                           Text('No patients found', style: textTheme.bodyLarge),
                         ],
                       ),
@@ -197,24 +197,24 @@ class _PatientFilesScreenState extends State<PatientFilesScreen> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: AppColors.inputBackground,
+              color: Theme.of(context).extension<AppCustomColors>()!.inputBackground,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(Icons.person, color: AppColors.primary),
+            child: Icon(Icons.person, color: Theme.of(context).colorScheme.primary),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(name, style: textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold)),
                 Text(id, style: textTheme.labelLarge),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Text(lastVisit, style: textTheme.bodyMedium?.copyWith(fontSize: 12)),
               ],
             ),
           ),
-          const Icon(Icons.chevron_right, color: AppColors.outline),
+          Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.outline),
         ],
       ),
     );

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'theme.dart';
 import 'screens/login_screen.dart';
 import 'screens/forgot_password_screen.dart';
 import 'screens/reset_password_screen.dart';
@@ -14,10 +13,13 @@ import 'screens/doctors_list_screen.dart';
 import 'screens/receptionist_book_appointment_screen.dart';
 import 'services/user_session.dart';
 import 'services/pusher_service.dart';
+import 'services/theme_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await UserSession.init();
+  await ThemeService.instance.init();
+  ThemeService.instance.fetchAndApplyTheme();
   await PusherService().init();
   
   String initialRoute = '/clinicos-overview';
@@ -35,12 +37,15 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'ClinicOS',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      initialRoute: initialRoute,
-      routes: {
+    return ValueListenableBuilder<ThemeData>(
+      valueListenable: ThemeService.instance.themeNotifier,
+      builder: (context, theme, child) {
+        return MaterialApp(
+          title: 'ClinicOS',
+          debugShowCheckedModeBanner: false,
+          theme: theme,
+          initialRoute: initialRoute,
+          routes: {
         '/': (context) => const LoginScreen(),
         '/login': (context) => const LoginScreen(),
         '/forgot-password': (context) => const ForgotPasswordScreen(),
@@ -54,6 +59,8 @@ class MainApp extends StatelessWidget {
         '/doctor-details': (context) => const DoctorDetailsScreen(),
         '/doctors-list': (context) => const DoctorsListScreen(),
         '/receptionist-book-appointment': (context) => const ReceptionistBookAppointmentScreen(),
+      },
+    );
       },
     );
   }

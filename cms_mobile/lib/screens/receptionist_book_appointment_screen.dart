@@ -82,18 +82,18 @@ class _ReceptionistBookAppointmentScreenState extends State<ReceptionistBookAppo
                 color: Colors.green,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.check, color: Colors.white, size: 40),
+              child: Icon(Icons.check, color: Colors.white, size: 40),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             Text(
               'Booking Successful!',
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                color: AppColors.primary,
+                color: Theme.of(context).colorScheme.primary,
                 fontWeight: FontWeight.bold,
                 fontSize: 22,
               ),
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             Text(
               'Appointment has been scheduled for',
               style: Theme.of(context).textTheme.bodyMedium,
@@ -105,11 +105,11 @@ class _ReceptionistBookAppointmentScreenState extends State<ReceptionistBookAppo
                 context,
               ).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 24),
+            SizedBox(height: 24),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               decoration: BoxDecoration(
-                color: AppColors.inputBackground,
+                color: Theme.of(context).extension<AppCustomColors>()!.inputBackground,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
@@ -121,14 +121,14 @@ class _ReceptionistBookAppointmentScreenState extends State<ReceptionistBookAppo
                   Text(
                     token,
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.w900,
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 32),
+            SizedBox(height: 32),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -138,7 +138,7 @@ class _ReceptionistBookAppointmentScreenState extends State<ReceptionistBookAppo
                     context,
                   ).pushReplacementNamed('/dashboard');
                 },
-                child: const Text('BACK TO DASHBOARD'),
+                child: Text('BACK TO DASHBOARD'),
               ),
             ),
           ],
@@ -264,13 +264,13 @@ class _ReceptionistBookAppointmentScreenState extends State<ReceptionistBookAppo
           onPressed: () {
             Navigator.pop(context);
           },
-          icon: const Icon(Icons.arrow_back, color: AppColors.onSurfaceVariant),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
         title: Text(
           'ClinicOS',
           style: textTheme.headlineMedium?.copyWith(
             fontSize: 20,
-            color: AppColors.primaryContainer,
+            color: Theme.of(context).colorScheme.primaryContainer,
             fontWeight: FontWeight.w900,
             letterSpacing: -1,
           ),
@@ -282,7 +282,7 @@ class _ReceptionistBookAppointmentScreenState extends State<ReceptionistBookAppo
             height: 40,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: AppColors.inputBackground, width: 2),
+              border: Border.all(color: Theme.of(context).extension<AppCustomColors>()!.inputBackground, width: 2),
               image: const DecorationImage(
                 image: NetworkImage(
                   'https://lh3.googleusercontent.com/aida-public/AB6AXuBj34gfl1ao1p6j0aJinT66BSaqMfy7rFuycWGFzw8bKZ00oApXUIE15XhRpO-pJUPGGw1_xPe9f5bpzOhjE54umLrSOlJ8DKqfgxTiwkYbF8MOMjyGLoR_5yQRBgXb3AZjxOonDW5yDEGKLyWOW2m_ZdTzS-Y2KVgsTsiCSP6xc_qaWwFyusYC8qXfZBA3lgd0a6HzY0YUyDUoc1vPvNI3dVBD3OlEH2pwFwzQ59wX-inhQTtc9JQCwnI6-pfubJ9KGSAWmR66E6E',
@@ -311,15 +311,15 @@ class _ReceptionistBookAppointmentScreenState extends State<ReceptionistBookAppo
                         style: textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.w900,
                           letterSpacing: -0.5,
-                          color: AppColors.primaryContainer,
+                          color: Theme.of(context).colorScheme.primaryContainer,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    SizedBox(height: 24),
                     Container(
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        color: AppColors.surfaceContainerLowest,
+                        color: Theme.of(context).colorScheme.surfaceContainerLowest,
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
@@ -337,9 +337,9 @@ class _ReceptionistBookAppointmentScreenState extends State<ReceptionistBookAppo
                               style: textTheme.labelLarge,
                             ),
                           ),
-                          const SizedBox(height: 24),
+                          SizedBox(height: 24),
                           Text('SELECT DOCTOR', style: textTheme.labelLarge),
-                          const SizedBox(height: 8),
+                          SizedBox(height: 8),
                           DropdownButtonFormField<int>(
                             initialValue: _doctorId,
                             decoration: const InputDecoration(
@@ -358,9 +358,9 @@ class _ReceptionistBookAppointmentScreenState extends State<ReceptionistBookAppo
                               });
                             },
                           ),
-                          const SizedBox(height: 20),
+                          SizedBox(height: 20),
                           Text('FULL NAME', style: textTheme.labelLarge),
-                          const SizedBox(height: 8),
+                          SizedBox(height: 8),
                           TextField(
                             controller: _nameController,
                             decoration: const InputDecoration(
@@ -368,9 +368,9 @@ class _ReceptionistBookAppointmentScreenState extends State<ReceptionistBookAppo
                               hintText: 'John Doe',
                             ),
                           ),
-                          const SizedBox(height: 20),
+                          SizedBox(height: 20),
                           Text('CONTACT NUMBER', style: textTheme.labelLarge),
-                          const SizedBox(height: 8),
+                          SizedBox(height: 8),
                           TextField(
                             controller: _phoneController,
                             decoration: const InputDecoration(
@@ -382,7 +382,7 @@ class _ReceptionistBookAppointmentScreenState extends State<ReceptionistBookAppo
                         ],
                       ),
                     ),
-                    const SizedBox(height: 32),
+                    SizedBox(height: 32),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -390,7 +390,7 @@ class _ReceptionistBookAppointmentScreenState extends State<ReceptionistBookAppo
                             ? null 
                             : _bookAppointment,
                         child: _isLoading
-                            ? const SizedBox(
+                            ? SizedBox(
                                 height: 20,
                                 width: 20,
                                 child: CircularProgressIndicator(
@@ -398,7 +398,7 @@ class _ReceptionistBookAppointmentScreenState extends State<ReceptionistBookAppo
                                   strokeWidth: 2,
                                 ),
                               )
-                            : const Row(
+                            : Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text('Confirm & Book Appointment'),
@@ -418,8 +418,8 @@ class _ReceptionistBookAppointmentScreenState extends State<ReceptionistBookAppo
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: 2,
         type: BottomNavigationBarType.fixed,
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: AppColors.outline,
+        selectedItemColor: Theme.of(context).colorScheme.primary,
+        unselectedItemColor: Theme.of(context).colorScheme.outline,
         showSelectedLabels: true,
         showUnselectedLabels: true,
         selectedLabelStyle: textTheme.labelLarge?.copyWith(fontSize: 10),

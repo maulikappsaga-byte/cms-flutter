@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../theme.dart';
 import 'dart:convert';
 import '../services/auth_api.dart';
 
@@ -55,7 +54,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             SnackBar(
               content: Text(successMessage),
               behavior: SnackBarBehavior.floating,
-              backgroundColor: AppColors.primary,
+              backgroundColor: Theme.of(context).colorScheme.primary,
             ),
           );
           Future.delayed(const Duration(seconds: 2), () {
@@ -114,13 +113,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         elevation: 0,
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back, color: AppColors.onSurfaceVariant),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
         title: Text(
           'ClinicOS',
           style: textTheme.headlineMedium?.copyWith(
             fontSize: 20,
-            color: AppColors.primaryContainer,
+            color: Theme.of(context).colorScheme.primaryContainer,
             fontWeight: FontWeight.w900,
             letterSpacing: -1,
           ),
@@ -139,7 +138,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               width: 400,
               height: 400,
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.03),
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.03),
                 shape: BoxShape.circle,
               ),
             ),
@@ -151,14 +150,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(32),
                   decoration: BoxDecoration(
-                    color: AppColors.surfaceContainerLowest,
+                    color: Theme.of(context).colorScheme.surfaceContainerLowest,
                     borderRadius: BorderRadius.circular(12),
-                    border: const Border(
-                      left: BorderSide(color: AppColors.primary, width: 4),
+                    border: Border(
+                      left: BorderSide(color: Theme.of(context).colorScheme.primary, width: 4),
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.primary.withValues(alpha: 0.05),
+                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
                         blurRadius: 20,
                         offset: const Offset(0, 4),
                       ),
@@ -172,34 +171,34 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         width: 64,
                         height: 64,
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.1),
+                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.lock,
-                          color: AppColors.primary,
+                          color: Theme.of(context).colorScheme.primary,
                           size: 32,
                         ),
                       ),
-                      const SizedBox(height: 32),
+                      SizedBox(height: 32),
                       Text(
                         'Password Recovery',
                         style: textTheme.headlineMedium,
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
                       Text(
                         'Enter your email address and we\'ll send you a secure link',
                         style: textTheme.bodyMedium,
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 40),
+                      SizedBox(height: 40),
                       // Email Field
                       Align(
                         alignment: Alignment.centerLeft,
                         child: Text('EMAIL ADDRESS', style: textTheme.labelLarge),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
                       TextField(
                         controller: _emailController,
                         decoration: const InputDecoration(
@@ -208,7 +207,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         ),
                         keyboardType: TextInputType.emailAddress,
                       ),
-                      const SizedBox(height: 32),
+                      SizedBox(height: 32),
                       // Submit Button
                       SizedBox(
                         width: double.infinity,
@@ -220,20 +219,20 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 if (_isLoading) ...[
-                                  const SizedBox(
+                                  SizedBox(
                                     width: 20,
                                     height: 20,
                                     child: CircularProgressIndicator(strokeWidth: 2),
                                   ),
-                                  const SizedBox(width: 8),
+                                  SizedBox(width: 8),
                                 ],
-                                const Text('SEND RECOVERY LINK'),
+                                Text('SEND RECOVERY LINK'),
                               ],
                             ),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 32),
+                      SizedBox(height: 32),
                       // Back to Login
                       TextButton(
                         onPressed: () {
@@ -242,7 +241,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         child: Text(
                           'BACK TO LOGIN',
                           style: textTheme.labelLarge?.copyWith(
-                            color: AppColors.primary,
+                            color: Theme.of(context).colorScheme.primary,
                             fontWeight: FontWeight.bold,
                           ),
                         ),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../theme.dart';
 import '../services/clinic_detail_api.dart';
 import '../services/user_session.dart';
 import '../widgets/hidden_staff_login_trigger.dart';
@@ -94,13 +93,13 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
 
     if (_errorMessage != null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Error')),
+        appBar: AppBar(title: Text('Error')),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text('Error: $_errorMessage'),
-              const SizedBox(height: 16),
+              SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () {
                   setState(() {
@@ -109,7 +108,7 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
                   });
                   _fetchClinicDetails();
                 },
-                child: const Text('Retry'),
+                child: Text('Retry'),
               ),
             ],
           ),
@@ -138,7 +137,7 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.primary),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.primary),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -146,7 +145,7 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
           style: GoogleFonts.manrope(
             fontSize: 20,
             fontWeight: FontWeight.w900,
-            color: AppColors.primary,
+            color: Theme.of(context).colorScheme.primary,
             letterSpacing: -0.5,
           ),
         ),
@@ -163,13 +162,13 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
           child: Column(
             children: [
               _buildHeaderCard(clinicName, clinicType, imageUrl),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               _buildContactAddressCard(contactNumber, address, "$lat, $long"),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               _buildAboutCard(about),
-              const SizedBox(height: 20),
+              SizedBox(height: 20),
               _buildWorkingHoursCard(clinic['working_hours']),
-              const SizedBox(height: 40),
+              SizedBox(height: 40),
             ],
           ),
         ),
@@ -223,15 +222,15 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
                         : null,
                   ),
                   child: (imageUrl == null || imageUrl.isEmpty)
-                      ? const Icon(
+                      ? Icon(
                           Icons.business_rounded,
                           size: 44,
-                          color: AppColors.primary,
+                          color: Theme.of(context).colorScheme.primary,
                         )
                       : null,
                 ),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: 16),
 
               // Name, Badge & Type
               Expanded(
@@ -254,7 +253,7 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: 8),
                         // Active badge
                         Container(
                           padding: const EdgeInsets.symmetric(
@@ -278,7 +277,7 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     // Clinic type / description
                     Text(
                       type.toUpperCase(),
@@ -295,7 +294,7 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
             ],
           ),
 
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
 
           // Full-width Edit Clinic Profile button
         ],
@@ -322,13 +321,13 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
                   color: const Color(0xFFF0F9FF),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.contact_support_rounded,
                   color: Color(0xFF0EA5E9),
                   size: 20,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Text(
                 'Contact & Address',
                 style: GoogleFonts.manrope(
@@ -340,15 +339,15 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           _buildInfoBox('PHONE NUMBER', phone, Icons.phone_outlined),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           _buildInfoBox(
             'LOCATION ADDRESS',
             address,
             Icons.location_on_outlined,
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(16),
@@ -367,11 +366,11 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
                       style: GoogleFonts.inter(
                         fontSize: 10,
                         fontWeight: FontWeight.w800,
-                        color: const Color(0xFF005EB8),
+                        color: Theme.of(context).colorScheme.primaryContainer,
                         letterSpacing: 0.5,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     Text(
                       coords,
                       style: GoogleFonts.inter(
@@ -381,18 +380,18 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     onPressed: () => _openMap(coords),
-                    icon: const Icon(Icons.map_outlined, size: 18),
-                    label: const Text('Open in Google Maps'),
+                    icon: Icon(Icons.map_outlined, size: 18),
+                    label: Text('Open in Google Maps'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
-                      foregroundColor: const Color(0xFF005EB8),
+                      foregroundColor: Theme.of(context).colorScheme.primaryContainer,
                       elevation: 0,
-                      side: const BorderSide(color: Color(0xFFE2E8F0)),
+                      side: BorderSide(color: Color(0xFFE2E8F0)),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -432,11 +431,11 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
               letterSpacing: 0.5,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Row(
             children: [
-              Icon(icon, color: const Color(0xFF005EB8), size: 20),
-              const SizedBox(width: 8),
+              Icon(icon, color: Theme.of(context).colorScheme.primaryContainer, size: 20),
+              SizedBox(width: 8),
               Expanded(
                 child: Text(
                   value,
@@ -469,12 +468,12 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
         children: [
           Row(
             children: [
-              const Icon(
+              Icon(
                 Icons.info_outline,
-                color: Color(0xFF005EB8),
+                color: Theme.of(context).colorScheme.primaryContainer,
                 size: 20,
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8),
               Text(
                 'About the Clinic',
                 style: GoogleFonts.manrope(
@@ -485,7 +484,7 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Text(
             content,
             style: GoogleFonts.inter(
@@ -552,13 +551,13 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
                   color: const Color(0xFFEFF6FF),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.alarm_on_rounded,
                   color: Color(0xFF2563EB),
                   size: 22,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: 12),
               Text(
                 'Working Hours',
                 style: GoogleFonts.manrope(
@@ -570,7 +569,7 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           ...days.map((day) {
             final bool isClosed = day['isClosed'];
             return Padding(
@@ -615,7 +614,7 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
                         ],
                       ),
                     ),
-                    const SizedBox(width: 6),
+                    SizedBox(width: 6),
                     Expanded(
                       flex: 5, // Balanced flex to allow "Wednesday" to fit
                       child: Text(
@@ -630,7 +629,7 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 4),
+                    SizedBox(width: 4),
                     Flexible(
                       flex: 12, // More room for the timing string
                       child: Container(
@@ -682,24 +681,24 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
               ),
             );
           }),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           // Subtle Divider
           Container(
             height: 1,
             width: double.infinity,
             color: const Color(0xFFF1F5F9),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Center(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(
+                Icon(
                   Icons.history_rounded,
                   size: 14,
                   color: Color(0xFF94A3B8),
                 ),
-                const SizedBox(width: 6),
+                SizedBox(width: 6),
                 Text(
                   'Last Updated: May 07, 2026',
                   style: GoogleFonts.inter(

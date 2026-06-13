@@ -82,7 +82,7 @@ class _DoctorsListScreenState extends State<DoctorsListScreen> {
           child: CircleAvatar(
             backgroundColor: const Color(0xFFF1F5F9),
             child: IconButton(
-              icon: const Icon(
+              icon: Icon(
                 Icons.arrow_back_ios_new_rounded,
                 size: 18,
                 color: Color(0xFF1E293B),
@@ -102,8 +102,8 @@ class _DoctorsListScreenState extends State<DoctorsListScreen> {
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(color: Color(0xFF005EB8)),
+      return Center(
+        child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primaryContainer),
       );
     }
 
@@ -114,8 +114,8 @@ class _DoctorsListScreenState extends State<DoctorsListScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline, size: 64, color: Colors.red),
-              const SizedBox(height: 16),
+              Icon(Icons.error_outline, size: 64, color: Colors.red),
+              SizedBox(height: 16),
               Text(
                 'Oops! Something went wrong.',
                 style: GoogleFonts.manrope(
@@ -124,7 +124,7 @@ class _DoctorsListScreenState extends State<DoctorsListScreen> {
                   color: const Color(0xFF1E293B),
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8),
               Text(
                 _errorMessage!,
                 textAlign: TextAlign.center,
@@ -133,7 +133,7 @@ class _DoctorsListScreenState extends State<DoctorsListScreen> {
                   color: const Color(0xFF64748B),
                 ),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               ElevatedButton(
                 onPressed: () {
                   setState(() {
@@ -143,7 +143,7 @@ class _DoctorsListScreenState extends State<DoctorsListScreen> {
                   _fetchDoctors();
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF005EB8),
+                  backgroundColor: Theme.of(context).colorScheme.primaryContainer,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                   shape: RoundedRectangleBorder(
@@ -170,8 +170,8 @@ class _DoctorsListScreenState extends State<DoctorsListScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.people_outline, size: 64, color: Color(0xFF94A3B8)),
-              const SizedBox(height: 16),
+              Icon(Icons.people_outline, size: 64, color: Color(0xFF94A3B8)),
+              SizedBox(height: 16),
               Text(
                 'No doctors found',
                 style: GoogleFonts.manrope(
@@ -251,14 +251,14 @@ class _DoctorsListScreenState extends State<DoctorsListScreen> {
                         : null,
                   ),
                   child: profilePhoto == null
-                      ? const Icon(
+                      ? Icon(
                           Icons.person,
                           size: 36,
                           color: Color(0xFFCBD5E1),
                         )
                       : null,
                 ),
-                const SizedBox(width: 16),
+                SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -274,7 +274,7 @@ class _DoctorsListScreenState extends State<DoctorsListScreen> {
                           ),
                         ),
                       if (qualification.isNotEmpty) ...[
-                        const SizedBox(height: 4),
+                        SizedBox(height: 4),
                         Text(
                           qualification,
                           maxLines: 2,
@@ -287,7 +287,7 @@ class _DoctorsListScreenState extends State<DoctorsListScreen> {
                         ),
                       ],
                       if (experience.isNotEmpty) ...[
-                        const SizedBox(height: 4),
+                        SizedBox(height: 4),
                         Text(
                           experience,
                           maxLines: 1,
@@ -295,24 +295,24 @@ class _DoctorsListScreenState extends State<DoctorsListScreen> {
                           style: GoogleFonts.inter(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: const Color(0xFF005EB8),
+                            color: Theme.of(context).colorScheme.primaryContainer,
                           ),
                         ),
                       ],
                     ],
                   ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: const BoxDecoration(
                     color: Color(0xFFF0F9FF),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.arrow_forward_ios_rounded,
                     size: 16,
-                    color: Color(0xFF005EB8),
+                    color: Theme.of(context).colorScheme.primaryContainer,
                   ),
                 ),
               ],

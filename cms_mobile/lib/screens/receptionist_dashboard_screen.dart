@@ -295,7 +295,7 @@ class _ReceptionistDashboardScreenState
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 border: Border.all(
-                  color: AppColors.primaryContainer.withValues(alpha: 0.2),
+                  color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.2),
                   width: 2,
                 ),
                 image: const DecorationImage(
@@ -306,7 +306,7 @@ class _ReceptionistDashboardScreenState
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Text(
               'Reception Desk',
               style: textTheme.headlineMedium?.copyWith(
@@ -320,15 +320,15 @@ class _ReceptionistDashboardScreenState
           IconButton(
             onPressed: _isLoading ? null : () => _fetchDashboardData(),
             icon: _isLoading
-                ? const SizedBox(
+                ? SizedBox(
                     width: 20,
                     height: 20,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: AppColors.primary,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   )
-                : const Icon(Icons.refresh, color: AppColors.primary),
+                : Icon(Icons.refresh, color: Theme.of(context).colorScheme.primary),
           ),
           PopupMenuButton<String>(
             onSelected: (value) async {
@@ -343,7 +343,7 @@ class _ReceptionistDashboardScreenState
                 Navigator.pushNamedAndRemoveUntil(context, '/clinicos-overview', (route) => false);
               }
             },
-            icon: const Icon(Icons.more_vert, color: AppColors.primary),
+            icon: Icon(Icons.more_vert, color: Theme.of(context).colorScheme.primary),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             itemBuilder: (BuildContext context) => [
               const PopupMenuItem<String>(
@@ -358,7 +358,7 @@ class _ReceptionistDashboardScreenState
               ),
             ],
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
@@ -369,7 +369,7 @@ class _ReceptionistDashboardScreenState
         ),
       ),
       body: _isLoading 
-          ? const Center(child: CircularProgressIndicator())
+          ? Center(child: CircularProgressIndicator())
           : RefreshIndicator(
         key: _refreshIndicatorKey,
         onRefresh: () => _fetchDashboardData(silent: true),
@@ -381,7 +381,7 @@ class _ReceptionistDashboardScreenState
             children: [
               // Live Queue Manager
               if (_doctorQueues.isEmpty)
-                const Padding(
+                Padding(
                   padding: EdgeInsets.symmetric(vertical: 24),
                   child: Center(child: Text('No active queues')),
                 )
@@ -390,7 +390,7 @@ class _ReceptionistDashboardScreenState
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: _doctorQueues.length,
-                  separatorBuilder: (context, index) => const SizedBox(height: 16),
+                  separatorBuilder: (context, index) => SizedBox(height: 16),
                   itemBuilder: (context, index) {
                     final queue = _doctorQueues[index];
                     final bool isActionLoading = _actionLoadingDoctorId == queue['doctor_id'];
@@ -398,9 +398,9 @@ class _ReceptionistDashboardScreenState
                     return Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
-                          color: AppColors.surfaceContainerLowest,
+                          color: Theme.of(context).colorScheme.surfaceContainerLowest,
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: const Color(0xFFD1E4FA), width: 1.5),
+                          border: Border.all(color: Theme.of(context).extension<AppCustomColors>()!.accentBlue, width: 1.5),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withValues(alpha: 0.02),
@@ -414,27 +414,27 @@ class _ReceptionistDashboardScreenState
                           children: [
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                              decoration: const BoxDecoration(
-                                color: Color(0xFFF5F8FC), // Light blue top header
-                                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).extension<AppCustomColors>()!.inputBackground, // Light blue top header
+                                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
                               ),
                               child: Row(
                                 children: [
                                   Container(
                                     width: 8,
                                     height: 8,
-                                    decoration: const BoxDecoration(
-                                      color: Color(0xFFFF6B6B), // Red dot
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context).colorScheme.error, // Red dot
                                       shape: BoxShape.circle,
                                     ),
                                   ),
-                                  const SizedBox(width: 12),
+                                  SizedBox(width: 12),
                                   Expanded(
                                     child: Text(
                                       queue['doctor_name'],
                                       style: textTheme.titleMedium?.copyWith(
                                         fontWeight: FontWeight.bold,
-                                        color: const Color(0xFF192A3E),
+                                        color: Theme.of(context).colorScheme.onSurface,
                                       ),
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -442,7 +442,7 @@ class _ReceptionistDashboardScreenState
                                 ],
                               ),
                             ),
-                            const Divider(height: 1, thickness: 1, color: Color(0xFFEEEEEE)),
+                            Divider(height: 1, thickness: 1, color: Theme.of(context).colorScheme.outlineVariant),
                             Padding(
                               padding: const EdgeInsets.all(24.0),
                               child: Column(
@@ -450,30 +450,30 @@ class _ReceptionistDashboardScreenState
                                   Text(
                                     'NOW SERVING',
                                     style: textTheme.labelSmall?.copyWith(
-                                      color: const Color(0xFF9EA6B5),
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                                       fontWeight: FontWeight.bold,
                                       letterSpacing: 1.2,
                                     ),
                                   ),
-                                  const SizedBox(height: 12),
+                                  SizedBox(height: 12),
                                   Text(
                                     queue['current_token'],
                                     style: textTheme.headlineSmall?.copyWith(
-                                      color: const Color(0xFF00788A),
+                                      color: Theme.of(context).colorScheme.primary,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                  const SizedBox(height: 8),
+                                  SizedBox(height: 8),
                                   Text(
                                     queue['current_name'],
                                     style: textTheme.titleLarge?.copyWith(
                                       fontWeight: FontWeight.w700,
-                                      color: const Color(0xFF192A3E),
+                                      color: Theme.of(context).colorScheme.onSurface,
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                  const SizedBox(height: 24),
+                                  SizedBox(height: 24),
                                   Wrap(
                                     alignment: WrapAlignment.center,
                                     crossAxisAlignment: WrapCrossAlignment.center,
@@ -483,20 +483,20 @@ class _ReceptionistDashboardScreenState
                                       Text(
                                         'NEXT:',
                                         style: textTheme.labelSmall?.copyWith(
-                                          color: const Color(0xFF9EA6B5),
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                                         ),
                                       ),
                                       if (queue['next_patients'] == null || (queue['next_patients'] as List).isEmpty)
                                         Container(
                                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                                           decoration: BoxDecoration(
-                                            color: const Color(0xFFF0F5FA),
+                                            color: Theme.of(context).colorScheme.surface,
                                             borderRadius: BorderRadius.circular(20),
                                           ),
                                           child: Text(
                                             'None',
                                             style: textTheme.labelMedium?.copyWith(
-                                              color: const Color(0xFF00478D),
+                                              color: Theme.of(context).colorScheme.primary,
                                               fontWeight: FontWeight.w600,
                                             ),
                                           ),
@@ -508,7 +508,7 @@ class _ReceptionistDashboardScreenState
                                           return Container(
                                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                             decoration: BoxDecoration(
-                                              color: const Color(0xFFF0F5FA),
+                                              color: Theme.of(context).colorScheme.surface,
                                               borderRadius: BorderRadius.circular(20),
                                             ),
                                             child: Row(
@@ -517,16 +517,16 @@ class _ReceptionistDashboardScreenState
                                                 Text(
                                                   token,
                                                   style: textTheme.labelMedium?.copyWith(
-                                                    color: const Color(0xFF00478D),
+                                                    color: Theme.of(context).colorScheme.primary,
                                                     fontWeight: FontWeight.w600,
                                                   ),
                                                 ),
                                                 if (name.isNotEmpty) ...[
-                                                  const SizedBox(width: 4),
+                                                  SizedBox(width: 4),
                                                   Text(
                                                     '- $name',
                                                     style: textTheme.labelMedium?.copyWith(
-                                                      color: const Color(0xFF00478D),
+                                                      color: Theme.of(context).colorScheme.primary,
                                                       fontWeight: FontWeight.w600,
                                                     ),
                                                   ),
@@ -537,14 +537,14 @@ class _ReceptionistDashboardScreenState
                                         })),
                                     ],
                                   ),
-                                  const SizedBox(height: 32),
+                                  SizedBox(height: 32),
                                   Row(
                                     children: [
                                       Expanded(
                                         child: ElevatedButton(
                                           onPressed: isActionLoading ? null : () => _callNextPatient(queue['doctor_id']),
                                           style: ElevatedButton.styleFrom(
-                                            backgroundColor: const Color(0xFF00788A),
+                                            backgroundColor: Theme.of(context).colorScheme.secondary,
                                             foregroundColor: Colors.white,
                                             elevation: 0,
                                             padding: const EdgeInsets.symmetric(vertical: 16),
@@ -553,8 +553,8 @@ class _ReceptionistDashboardScreenState
                                             ),
                                           ),
                                           child: isActionLoading 
-                                              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                                              : const Row(
+                                              ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                                              : Row(
                                             mainAxisAlignment: MainAxisAlignment.center,
                                             children: [
                                               Icon(Icons.campaign_outlined, size: 20),
@@ -564,21 +564,21 @@ class _ReceptionistDashboardScreenState
                                           ),
                                         ),
                                       ),
-                                      const SizedBox(width: 8),
+                                      SizedBox(width: 8),
                                       Expanded(
                                         child: OutlinedButton(
                                           onPressed: isTransferLoading ? null : () => _transferPatient(queue['doctor_id']),
                                           style: OutlinedButton.styleFrom(
-                                            foregroundColor: const Color(0xFFF4A261),
-                                            side: const BorderSide(color: Color(0xFFFBE0C8), width: 1.5),
+                                            foregroundColor: Theme.of(context).colorScheme.primary,
+                                            side: BorderSide(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3), width: 1.5),
                                             padding: const EdgeInsets.symmetric(vertical: 16),
                                             shape: RoundedRectangleBorder(
                                               borderRadius: BorderRadius.circular(12),
                                             ),
                                           ),
                                           child: isTransferLoading
-                                              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFFF4A261)))
-                                              : const Row(
+                                              ? SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Theme.of(context).colorScheme.primary))
+                                              : Row(
                                             mainAxisAlignment: MainAxisAlignment.center,
                                             children: [
                                               Column(
@@ -604,16 +604,16 @@ class _ReceptionistDashboardScreenState
                       );
                     },
                   ),
-              const SizedBox(height: 32),
+              SizedBox(height: 32),
               // Today's Schedule
               _buildTodayScheduleCard(context, textTheme),
-              const SizedBox(height: 32),
+              SizedBox(height: 32),
               // Today's Performance
               Text(
                 'TODAY\'S PERFORMANCE',
                 style: textTheme.labelLarge?.copyWith(letterSpacing: 2),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               Row(
                 children: [
                   Expanded(
@@ -625,7 +625,7 @@ class _ReceptionistDashboardScreenState
                       textTheme,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12),
                   Expanded(
                     child: _buildStatCard(
                       context,
@@ -637,11 +637,11 @@ class _ReceptionistDashboardScreenState
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceContainerLowest,
+                  color: Theme.of(context).colorScheme.surfaceContainerLowest,
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
@@ -661,7 +661,7 @@ class _ReceptionistDashboardScreenState
                         Text(
                           _totalAppointments.toString().padLeft(2, '0'),
                           style: textTheme.headlineLarge?.copyWith(
-                            color: AppColors.onSurface,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                       ],
@@ -672,20 +672,20 @@ class _ReceptionistDashboardScreenState
                       child: CircularProgressIndicator(
                         value: _totalAppointments > 0 ? _completedCount / _totalAppointments : 0.0,
                         strokeWidth: 4,
-                        backgroundColor: AppColors.background,
-                        color: AppColors.primaryContainer,
+                        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                        color: Theme.of(context).colorScheme.primaryContainer,
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 32),
+              SizedBox(height: 32),
               // Administrative Tools
               Text(
                 'ADMINISTRATIVE TOOLS',
                 style: textTheme.labelLarge?.copyWith(letterSpacing: 2),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               _buildActionButton(
                 context,
                 Icons.add_box,
@@ -696,7 +696,7 @@ class _ReceptionistDashboardScreenState
                 },
               ),
 
-              const SizedBox(height: 32),
+              SizedBox(height: 32),
               // Today's Appointments
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -712,7 +712,7 @@ class _ReceptionistDashboardScreenState
                     child: Text(
                       'View All History',
                       style: textTheme.labelLarge?.copyWith(
-                        color: AppColors.primary,
+                        color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -735,11 +735,11 @@ class _ReceptionistDashboardScreenState
                 );
               }),
               if (_todayAppointments.isEmpty)
-                const Padding(
+                Padding(
                   padding: EdgeInsets.symmetric(vertical: 24),
                   child: Center(child: Text('No appointments today')),
                 ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
             ],
           ),
         ),
@@ -747,8 +747,8 @@ class _ReceptionistDashboardScreenState
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: 0,
         type: BottomNavigationBarType.fixed,
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: AppColors.outline,
+        selectedItemColor: Theme.of(context).colorScheme.primary,
+        unselectedItemColor: Theme.of(context).colorScheme.outline,
         showSelectedLabels: true,
         showUnselectedLabels: true,
         selectedLabelStyle: textTheme.labelLarge?.copyWith(fontSize: 10),
@@ -780,7 +780,7 @@ class _ReceptionistDashboardScreenState
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
+        color: Theme.of(context).colorScheme.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -794,7 +794,7 @@ class _ReceptionistDashboardScreenState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label, style: textTheme.labelLarge),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -802,15 +802,15 @@ class _ReceptionistDashboardScreenState
               Text(
                 value,
                 style: textTheme.headlineLarge?.copyWith(
-                  color: AppColors.onSurface,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               Text(
                 sub,
                 style: textTheme.labelLarge?.copyWith(
                   color: sub.startsWith('+')
-                      ? AppColors.primary
-                      : AppColors.outline,
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).colorScheme.outline,
                 ),
               ),
             ],
@@ -832,7 +832,7 @@ class _ReceptionistDashboardScreenState
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.inputBackground,
+          color: Theme.of(context).extension<AppCustomColors>()!.inputBackground,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -849,9 +849,9 @@ class _ReceptionistDashboardScreenState
                   ),
                 ],
               ),
-              child: Icon(icon, color: AppColors.primary),
+              child: Icon(icon, color: Theme.of(context).colorScheme.primary),
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: 16),
             Expanded(
               child: Text(
                 label,
@@ -860,7 +860,7 @@ class _ReceptionistDashboardScreenState
                 ),
               ),
             ),
-            const Icon(Icons.chevron_right, color: AppColors.outline),
+            Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.outline),
           ],
         ),
       ),
@@ -880,7 +880,7 @@ class _ReceptionistDashboardScreenState
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
+        color: Theme.of(context).colorScheme.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
@@ -895,18 +895,18 @@ class _ReceptionistDashboardScreenState
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: AppColors.primaryContainer.withValues(alpha: 0.1),
+              color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
               time,
               style: textTheme.labelLarge?.copyWith(
-                color: AppColors.primary,
+                color: Theme.of(context).colorScheme.primary,
                 fontWeight: FontWeight.bold,
               ),
             ),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -919,22 +919,22 @@ class _ReceptionistDashboardScreenState
                 ),
                 Text(service, style: textTheme.labelLarge),
                 if (phone != null) ...[
-                  const SizedBox(height: 2),
+                  SizedBox(height: 2),
                   Row(
                     children: [
-                      const Icon(Icons.phone, size: 12, color: AppColors.outline),
-                      const SizedBox(width: 4),
-                      Text(phone, style: textTheme.labelMedium?.copyWith(color: AppColors.outline)),
+                      Icon(Icons.phone, size: 12, color: Theme.of(context).colorScheme.outline),
+                      SizedBox(width: 4),
+                      Text(phone, style: textTheme.labelMedium?.copyWith(color: Theme.of(context).colorScheme.outline)),
                     ],
                   ),
                 ],
                 if (status != null) ...[
-                  const SizedBox(height: 2),
+                  SizedBox(height: 2),
                   Row(
                     children: [
-                      const Icon(Icons.info_outline, size: 12, color: AppColors.primary),
-                      const SizedBox(width: 4),
-                      Text(status.toUpperCase(), style: textTheme.labelMedium?.copyWith(color: AppColors.primary, fontWeight: FontWeight.bold)),
+                      Icon(Icons.info_outline, size: 12, color: Theme.of(context).colorScheme.primary),
+                      SizedBox(width: 4),
+                      Text(status.toUpperCase(), style: textTheme.labelMedium?.copyWith(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold)),
                     ],
                   ),
                 ],
@@ -943,7 +943,7 @@ class _ReceptionistDashboardScreenState
           ),
           Text(
             token,
-            style: textTheme.labelLarge?.copyWith(color: AppColors.outline),
+            style: textTheme.labelLarge?.copyWith(color: Theme.of(context).colorScheme.outline),
           ),
         ],
       ),
@@ -951,15 +951,15 @@ class _ReceptionistDashboardScreenState
   }
 
   Widget _buildTodayScheduleCard(BuildContext context, TextTheme textTheme) {
-    if (_todaySchedules.isEmpty) return const SizedBox();
+    if (_todaySchedules.isEmpty) return SizedBox();
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.surfaceContainerLowest,
+        color: Theme.of(context).colorScheme.surfaceContainerLowest,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFD1E4FA), width: 1.5),
+        border: Border.all(color: Theme.of(context).extension<AppCustomColors>()!.accentBlue, width: 1.5),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -972,20 +972,20 @@ class _ReceptionistDashboardScreenState
                   'Today\'s Schedule',
                   style: textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: const Color(0xFF0F172A),
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFD1E4FA),
+                  color: Theme.of(context).extension<AppCustomColors>()!.accentBlue,
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
                   'AVAILABILITY',
                   style: textTheme.labelSmall?.copyWith(
-                    color: const Color(0xFF00478D),
+                    color: Theme.of(context).colorScheme.primary,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 0.5,
                   ),
@@ -993,7 +993,7 @@ class _ReceptionistDashboardScreenState
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           ..._todaySchedules.map((schedule) {
             return Padding(
               padding: const EdgeInsets.only(bottom: 16),
@@ -1005,40 +1005,40 @@ class _ReceptionistDashboardScreenState
                       Container(
                         width: 8,
                         height: 8,
-                        decoration: const BoxDecoration(
-                          color: Color(0xFF00478D),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary,
                           shape: BoxShape.circle,
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8),
                       Text(
                         schedule['doctor_name'] ?? 'Doctor',
                         style: textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w600,
-                          color: const Color(0xFF64748B),
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
+                  SizedBox(height: 12),
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFEEF2F6),
+                      color: Theme.of(context).colorScheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: const Color(0xFF00478D).withValues(alpha: 0.3),
+                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
                         width: 1,
                       ),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.access_time, color: Color(0xFF64748B), size: 20),
-                        const SizedBox(width: 8),
+                        Icon(Icons.access_time, color: Theme.of(context).colorScheme.onSurfaceVariant, size: 20),
+                        SizedBox(width: 8),
                         Text(
                           schedule['schedule_time'] ?? '09:00 AM - 05:00 PM',
                           style: textTheme.titleMedium?.copyWith(
-                            color: const Color(0xFF64748B),
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -1051,7 +1051,7 @@ class _ReceptionistDashboardScreenState
                             shape: BoxShape.circle,
                           ),
                         ),
-                        const SizedBox(width: 4),
+                        SizedBox(width: 4),
                         Text(
                           schedule['schedule_status'] ?? 'ACTIVE',
                           style: textTheme.labelSmall?.copyWith(

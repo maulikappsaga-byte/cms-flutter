@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../theme.dart';
 import 'dart:convert';
 import '../services/auth_api.dart';
 
@@ -146,13 +145,13 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
         elevation: 0,
         leading: IconButton(
           onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back, color: AppColors.onSurfaceVariant),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
         title: Text(
           'ClinicOS',
           style: textTheme.headlineMedium?.copyWith(
             fontSize: 20,
-            color: AppColors.primaryContainer,
+            color: Theme.of(context).colorScheme.primaryContainer,
             fontWeight: FontWeight.w900,
             letterSpacing: -1,
           ),
@@ -168,14 +167,14 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
           children: [
             Container(
               decoration: BoxDecoration(
-                color: AppColors.surfaceContainerLowest,
+                color: Theme.of(context).colorScheme.surfaceContainerLowest,
                 borderRadius: BorderRadius.circular(12),
-                border: const Border(
-                  left: BorderSide(color: AppColors.primary, width: 4),
+                border: Border(
+                  left: BorderSide(color: Theme.of(context).colorScheme.primary, width: 4),
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primary.withValues(alpha: 0.05),
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
                     blurRadius: 20,
                     offset: const Offset(0, 4),
                   ),
@@ -190,34 +189,34 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       width: 64,
                       height: 64,
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.1),
+                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.lock_reset,
-                        color: AppColors.primary,
+                        color: Theme.of(context).colorScheme.primary,
                         size: 32,
                       ),
                     ),
-                    const SizedBox(height: 32),
+                    SizedBox(height: 32),
                     Text(
                       'Reset Password',
                       style: textTheme.headlineMedium,
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     Text(
                       'Create a new, highly secure password',
-                      style: textTheme.bodyLarge?.copyWith(color: AppColors.outline),
+                      style: textTheme.bodyLarge?.copyWith(color: Theme.of(context).colorScheme.outline),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 32),
+                    SizedBox(height: 32),
                     // Form
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('EMAIL ADDRESS', style: textTheme.labelLarge),
-                        const SizedBox(height: 8),
+                        SizedBox(height: 8),
                         TextField(
                           controller: _emailController,
                           decoration: const InputDecoration(
@@ -226,9 +225,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           ),
                           keyboardType: TextInputType.emailAddress,
                         ),
-                        const SizedBox(height: 24),
+                        SizedBox(height: 24),
                         Text('VERIFICATION CODE (4-DIGIT)', style: textTheme.labelLarge),
-                        const SizedBox(height: 8),
+                        SizedBox(height: 8),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: List.generate(
@@ -241,7 +240,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                                 keyboardType: TextInputType.number,
                                 maxLength: 1,
                                 style: textTheme.headlineMedium?.copyWith(
-                                  color: AppColors.primary,
+                                  color: Theme.of(context).colorScheme.primary,
                                 ),
                                 decoration: const InputDecoration(
                                   counterText: '',
@@ -258,9 +257,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 24),
+                        SizedBox(height: 24),
                         Text('NEW PASSWORD', style: textTheme.labelLarge),
-                        const SizedBox(height: 8),
+                        SizedBox(height: 8),
                         TextField(
                           controller: _passwordController,
                           obscureText: true,
@@ -269,9 +268,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                             hintText: '••••••••••••',
                           ),
                         ),
-                        const SizedBox(height: 24),
+                        SizedBox(height: 24),
                         Text('CONFIRM NEW PASSWORD', style: textTheme.labelLarge),
-                        const SizedBox(height: 8),
+                        SizedBox(height: 8),
                         TextField(
                           controller: _confirmPasswordController,
                           obscureText: true,
@@ -282,7 +281,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 32),
+                    SizedBox(height: 32),
                     // Update Button
                     SizedBox(
                       width: double.infinity,
@@ -294,20 +293,20 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               if (_isLoading) ...[
-                                const SizedBox(
+                                SizedBox(
                                   width: 20,
                                   height: 20,
                                   child: CircularProgressIndicator(strokeWidth: 2),
                                 ),
-                                const SizedBox(width: 8),
+                                SizedBox(width: 8),
                               ],
-                              const Text('UPDATE ACCESS'),
+                              Text('UPDATE ACCESS'),
                             ],
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 32),
+                    SizedBox(height: 32),
                     // Back to Sign In
                     TextButton(
                       onPressed: () {
@@ -316,7 +315,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       child: Text(
                         'BACK TO SIGN IN',
                         style: textTheme.labelLarge?.copyWith(
-                          color: AppColors.primary,
+                          color: Theme.of(context).colorScheme.primary,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -325,19 +324,19 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                 ),
               ),
             ),
-              const SizedBox(height: 32),
+              SizedBox(height: 32),
               // Security Badge
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
                 decoration: BoxDecoration(
-                  color: AppColors.outline.withValues(alpha: 0.05),
+                  color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(30),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.security, size: 14, color: AppColors.outline),
-                    const SizedBox(width: 8),
+                    Icon(Icons.security, size: 14, color: Theme.of(context).colorScheme.outline),
+                    SizedBox(width: 8),
                     Text(
                       'SECURE CLINICAL AUTHENTICATION PROTOCOL',
                       style: textTheme.labelLarge?.copyWith(fontSize: 10, letterSpacing: 1),

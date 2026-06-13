@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../theme.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../services/user_session.dart';
@@ -147,17 +146,17 @@ class _LoginScreenState extends State<LoginScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Column(
             children: [
-              const SizedBox(height: 60),
+              SizedBox(height: 60),
               // Header
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.medical_services_outlined,
-                    color: AppColors.primary,
+                    color: Theme.of(context).colorScheme.primary,
                     size: 40,
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8),
                   Text(
                     'CLINICOS',
                     style: textTheme.headlineLarge?.copyWith(
@@ -167,19 +166,19 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 48),
+              SizedBox(height: 48),
               // Login Card
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceContainerLowest,
+                  color: Theme.of(context).colorScheme.surfaceContainerLowest,
                   borderRadius: BorderRadius.circular(12),
-                  border: const Border(
-                    left: BorderSide(color: AppColors.primary, width: 4),
+                  border: Border(
+                    left: BorderSide(color: Theme.of(context).colorScheme.primary, width: 4),
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.05),
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
                       blurRadius: 20,
                       offset: const Offset(0, 4),
                     ),
@@ -194,12 +193,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         style: textTheme.headlineMedium?.copyWith(
                           fontSize: 32,
                           fontWeight: FontWeight.w900,
-                          color: AppColors.primary,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                         textAlign: TextAlign.center,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     Center(
                       child: Text(
                         'Please enter your clinical credentials to continue.',
@@ -209,10 +208,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         textAlign: TextAlign.center,
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    SizedBox(height: 24),
                     // Email Field
                     Text('EMAIL ADDRESS', style: textTheme.labelLarge),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     TextField(
                       controller: _emailController,
                       decoration: const InputDecoration(
@@ -221,7 +220,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       keyboardType: TextInputType.emailAddress,
                     ),
-                    const SizedBox(height: 24),
+                    SizedBox(height: 24),
                     // Password Field
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -239,13 +238,13 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: Text(
                             'FORGOT PASSWORD?',
                             style: textTheme.labelLarge?.copyWith(
-                              color: AppColors.primary,
+                              color: Theme.of(context).colorScheme.primary,
                             ),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     TextField(
                       controller: _passwordController,
                       obscureText: true,
@@ -254,7 +253,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         hintText: '••••••••',
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16),
                     // Keep Logged In
                     Row(
                       children: [
@@ -265,7 +264,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               _keepLoggedIn = value ?? false;
                             });
                           },
-                          activeColor: AppColors.primary,
+                          activeColor: Theme.of(context).colorScheme.primary,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(4),
                           ),
@@ -273,7 +272,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         Text('Keep me logged in', style: textTheme.bodyMedium),
                       ],
                     ),
-                    const SizedBox(height: 24),
+                    SizedBox(height: 24),
                     // Login Button
                     SizedBox(
                       width: double.infinity,
@@ -285,18 +284,18 @@ class _LoginScreenState extends State<LoginScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               if (_isLoading) ...[
-                                const SizedBox(
+                                SizedBox(
                                   width: 20,
                                   height: 20,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
                                   ),
                                 ),
-                                const SizedBox(width: 8),
+                                SizedBox(width: 8),
                               ],
-                              const Text('LOGIN TO DASHBOARD'),
-                              const SizedBox(width: 8),
-                              const Icon(Icons.arrow_forward, size: 20),
+                              Text('LOGIN TO DASHBOARD'),
+                              SizedBox(width: 8),
+                              Icon(Icons.arrow_forward, size: 20),
                             ],
                           ),
                         ),
@@ -305,10 +304,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               // Footer
-              const Divider(color: Color(0xFFE2E8F0)),
-              const SizedBox(height: 24),
+              Divider(color: Color(0xFFE2E8F0)),
+              SizedBox(height: 24),
               Wrap(
                 spacing: 24,
                 children: [
@@ -326,14 +325,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
               Text(
                 '© 2024 HEALTHCARE SYSTEMS. SECURE CLINICAL PORTAL.',
                 style: textTheme.labelLarge?.copyWith(
                   color: Colors.grey.withValues(alpha: 0.6),
                 ),
               ),
-              const SizedBox(height: 24),
+              SizedBox(height: 24),
             ],
           ),
         ),

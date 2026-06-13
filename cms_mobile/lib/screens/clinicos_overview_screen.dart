@@ -1,10 +1,9 @@
+import '../theme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:developer';
-import 'dart:convert';
 
 import 'package:pusher_channels_flutter/pusher_channels_flutter.dart';
-import '../theme.dart';
 import '../services/user_session.dart';
 import '../widgets/custom_snackbar.dart';
 import '../services/queue_detail_api.dart';
@@ -208,7 +207,7 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
@@ -218,22 +217,22 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: const Color(0xFFD6E3FF).withValues(alpha: 0.3),
+                color: Theme.of(context).extension<AppCustomColors>()!.accentBlue.withValues(alpha: 0.3),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.local_hospital,
-                color: Color(0xFF00478D),
+                color: Theme.of(context).colorScheme.primary,
                 size: 24,
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             Text(
               'ClinicOS',
               style: GoogleFonts.manrope(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
-                color: const Color(0xFF00478D),
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
           ],
@@ -242,17 +241,17 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
           IconButton(
             onPressed: (_isLoading || _isRefreshing) ? null : _refresh,
             icon: (_isLoading || _isRefreshing)
-                ? const SizedBox(
+                ? SizedBox(
                     width: 20,
                     height: 20,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: Color(0xFF00478D),
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   )
-                : const Icon(Icons.refresh, color: Color(0xFF00478D)),
+                : Icon(Icons.refresh, color: Theme.of(context).colorScheme.primary),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8),
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1),
@@ -262,7 +261,7 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
       body: RefreshIndicator(
         key: _refreshIndicatorKey,
         onRefresh: _refresh,
-        color: const Color(0xFF00478D),
+        color: Theme.of(context).colorScheme.primary,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Padding(
@@ -275,11 +274,11 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
               children: [
                 // Queue Indicator
                 _buildQueueIndicator(),
-                const SizedBox(height: 32),
+                SizedBox(height: 32),
 
                 // Patient Status Card
                 _buildStatusCard(),
-                const SizedBox(height: 32),
+                SizedBox(height: 32),
 
                 // Action Grid
                 _buildActionGrid(),
@@ -318,16 +317,16 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 0.5,
-                  color: AppColors.onSurfaceVariant,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: 4),
               Text(
                 'Token Number',
                 style: GoogleFonts.manrope(
                   fontSize: 24,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.onSurface,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
             ],
@@ -335,7 +334,7 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
             decoration: BoxDecoration(
-              color: const Color(0xFFD6E3FF),
+              color: Theme.of(context).extension<AppCustomColors>()!.accentBlue,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
@@ -343,7 +342,7 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
               style: GoogleFonts.manrope(
                 fontSize: 32,
                 fontWeight: FontWeight.w700,
-                color: AppColors.primary,
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
           ),
@@ -369,7 +368,7 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
           child: CustomPaint(
             painter: _CircularProgressPainter(
               backgroundColor: const Color(0xFFEDEEEF),
-              progressColor: AppColors.primary,
+              progressColor: Theme.of(context).colorScheme.primary,
               progress: progress,
             ),
           ),
@@ -383,26 +382,26 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 2.0,
-                color: AppColors.onSurfaceVariant.withValues(alpha: 0.7),
+                color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
               ),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
             Text(
               _nowServing,
               style: GoogleFonts.manrope(
                 fontSize: 100,
                 fontWeight: FontWeight.w700,
-                color: AppColors.primary,
+                color: Theme.of(context).colorScheme.primary,
                 height: 1,
               ),
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
               'Appointment No.',
               style: GoogleFonts.inter(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: AppColors.onSurfaceVariant,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ],
@@ -414,7 +413,7 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
             decoration: BoxDecoration(
-              color: AppColors.primary,
+              color: Theme.of(context).colorScheme.primary,
               borderRadius: BorderRadius.circular(999),
               border: Border.all(color: Colors.white, width: 2),
               boxShadow: [
@@ -439,7 +438,7 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
                     ),
                   ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: 8),
                 Text(
                   'LIVE',
                   style: GoogleFonts.inter(
@@ -468,7 +467,7 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
         _buildActionCard(
           icon: Icons.add_circle,
           label: 'Book\nAppointment',
-          color: AppColors.primary,
+          color: Theme.of(context).colorScheme.primary,
           iconColor: Colors.white,
           textColor: Colors.white,
           hasBgIcon: true,
@@ -480,8 +479,8 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
           icon: Icons.medical_information,
           label: 'Your\nDoctor',
           color: Colors.white,
-          iconColor: AppColors.primary,
-          textColor: AppColors.onSurface,
+          iconColor: Theme.of(context).colorScheme.primary,
+          textColor: Theme.of(context).colorScheme.onSurface,
           hasBgIcon: false,
           onTap: () {
             Navigator.pushNamed(context, '/doctors-list');
@@ -491,8 +490,8 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
           icon: Icons.business,
           label: 'Clinic\nDetails',
           color: Colors.white,
-          iconColor: AppColors.primary,
-          textColor: AppColors.onSurface,
+          iconColor: Theme.of(context).colorScheme.primary,
+          textColor: Theme.of(context).colorScheme.onSurface,
           hasBgIcon: false,
           onTap: () {
             log("Pusher: Fetched clinic ID \$_clinicId");Navigator.pushNamed(context, '/clinic-details');
@@ -546,12 +545,12 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
                 decoration: BoxDecoration(
                   color: hasBgIcon
                       ? Colors.white.withValues(alpha: 0.2)
-                      : const Color(0xFF005EB8).withValues(alpha: 0.1),
+                      : Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(icon, color: iconColor, size: 32),
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12),
               Text(
                 label,
                 textAlign: TextAlign.center,

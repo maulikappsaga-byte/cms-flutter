@@ -102,8 +102,8 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
             final dateStr = item['appointment_date'] ?? '';
             
             // Map status to color
-            Color bgColor = AppColors.primaryContainer.withValues(alpha: 0.1);
-            Color statusColor = AppColors.primary;
+            Color bgColor = Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.1);
+            Color statusColor = Theme.of(context).colorScheme.primary;
             String displayStatus = 'Upcoming';
             
             if (statusStr == 'completed') {
@@ -115,13 +115,13 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                statusColor = Colors.orange[700]!;
                displayStatus = 'Waitlist';
             } else if (statusStr == 'cancelled' || statusStr == 'no show') {
-               bgColor = AppColors.error.withValues(alpha: 0.1);
-               statusColor = AppColors.error;
+               bgColor = Theme.of(context).colorScheme.error.withValues(alpha: 0.1);
+               statusColor = Theme.of(context).colorScheme.error;
                displayStatus = 'No Show';
             } else {
                displayStatus = statusStr.isNotEmpty ? statusStr[0].toUpperCase() + statusStr.substring(1) : 'Pending';
-               bgColor = AppColors.primaryContainer.withValues(alpha: 0.2);
-               statusColor = AppColors.primary;
+               bgColor = Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.2);
+               statusColor = Theme.of(context).colorScheme.primary;
             }
 
             // Format date safely
@@ -172,13 +172,13 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
           onPressed: () {
             Navigator.pop(context);
           },
-          icon: const Icon(Icons.arrow_back, color: AppColors.onSurfaceVariant),
+          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
         title: Text(
           'ClinicOS',
           style: textTheme.headlineMedium?.copyWith(
             fontSize: 20,
-            color: AppColors.primaryContainer,
+            color: Theme.of(context).colorScheme.primaryContainer,
             fontWeight: FontWeight.w900,
             letterSpacing: -1,
           ),
@@ -203,7 +203,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: const Column(
+                    child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         CircularProgressIndicator(),
@@ -222,7 +222,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                 }
               });
             },
-            icon: const Icon(Icons.refresh, color: AppColors.onSurfaceVariant),
+            icon: Icon(Icons.refresh, color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
           Container(
             margin: const EdgeInsets.only(right: 16),
@@ -252,7 +252,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
           await _fetchAppointments(page: 1);
         },
         child: _isLoading
-            ? const Center(child: CircularProgressIndicator())
+            ? Center(child: CircularProgressIndicator())
             : Column(
           children: [
             // Search and Filters
@@ -266,11 +266,11 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                   onChanged: _onSearchChanged,
                   decoration: InputDecoration(
                     hintText: 'Search patient or token...',
-                    prefixIcon: const Icon(Icons.search, size: 20),
-                    fillColor: AppColors.inputBackground,
+                    prefixIcon: Icon(Icons.search, size: 20),
+                    fillColor: Theme.of(context).extension<AppCustomColors>()!.inputBackground,
                     suffixIcon: _searchController.text.isNotEmpty 
                       ? IconButton(
-                          icon: const Icon(Icons.clear, size: 18),
+                          icon: Icon(Icons.clear, size: 18),
                           onPressed: () {
                             _searchController.clear();
                             _onSearchChanged('');
@@ -279,17 +279,17 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                       : null,
                   ),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: 24),
                 SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
                       _buildFilterChip('All', _selectedFilter == 'All', context),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8),
                       _buildFilterChip('Today', _selectedFilter == 'Today', context),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8),
                       _buildFilterChip('This Week', _selectedFilter == 'This Week', context),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 8),
                       _buildFilterChip('Completed', _selectedFilter == 'Completed', context),
                     ],
                   ),
@@ -306,7 +306,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                   _searchQuery.isEmpty ? '$_selectedFilter\'s List' : 'Search Results', 
                   style: textTheme.headlineMedium?.copyWith(fontSize: 18)
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: 16),
                 ..._filteredAppointments.map((appt) => Padding(
                   padding: const EdgeInsets.only(bottom: 16),
                   child: _buildAppointmentCard(
@@ -332,14 +332,14 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                     child: Center(
                       child: Column(
                         children: [
-                          const Icon(Icons.search_off, size: 64, color: AppColors.outline),
-                          const SizedBox(height: 16),
+                          Icon(Icons.search_off, size: 64, color: Theme.of(context).colorScheme.outline),
+                          SizedBox(height: 16),
                           Text('No results found', style: textTheme.bodyLarge),
                         ],
                       ),
                     ),
                   ),
-                const SizedBox(height: 100),
+                SizedBox(height: 100),
               ],
             ),
           ),
@@ -363,14 +363,14 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                   children: [
                     TextButton.icon(
                       onPressed: _currentPage > 1 ? () => _fetchAppointments(page: _currentPage - 1) : null,
-                      icon: const Icon(Icons.chevron_left),
-                      label: const Text('Prev'),
+                      icon: Icon(Icons.chevron_left),
+                      label: Text('Prev'),
                     ),
                     Text('Page $_currentPage of $_lastPage', style: textTheme.labelLarge),
                     TextButton.icon(
                       onPressed: _currentPage < _lastPage ? () => _fetchAppointments(page: _currentPage + 1) : null,
-                      icon: const Icon(Icons.chevron_right),
-                      label: const Text('Next'),
+                      icon: Icon(Icons.chevron_right),
+                      label: Text('Next'),
                       iconAlignment: IconAlignment.end,
                     ),
                   ],
@@ -383,8 +383,8 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: 1,
         type: BottomNavigationBarType.fixed,
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: AppColors.outline,
+        selectedItemColor: Theme.of(context).colorScheme.primary,
+        unselectedItemColor: Theme.of(context).colorScheme.outline,
         showSelectedLabels: true,
         showUnselectedLabels: true,
         selectedLabelStyle: textTheme.labelLarge?.copyWith(fontSize: 10),
@@ -419,13 +419,13 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryContainer : AppColors.inputBackground,
+          color: isSelected ? Theme.of(context).colorScheme.primaryContainer : Theme.of(context).extension<AppCustomColors>()!.inputBackground,
           borderRadius: BorderRadius.circular(24),
         ),
         child: Text(
           label,
           style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                color: isSelected ? Colors.white : AppColors.onSurfaceVariant,
+                color: isSelected ? Colors.white : Theme.of(context).colorScheme.onSurfaceVariant,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               ),
         ),
@@ -489,13 +489,13 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
-                              color: (statusColor ?? AppColors.primaryContainer).withValues(alpha: 0.1),
+                              color: (statusColor ?? Theme.of(context).colorScheme.primaryContainer).withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
                               status.toUpperCase(),
                               style: textTheme.labelSmall?.copyWith(
-                                color: statusColor ?? AppColors.primaryContainer,
+                                color: statusColor ?? Theme.of(context).colorScheme.primaryContainer,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 10,
                               ),
@@ -503,42 +503,42 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4),
                       Text(name, style: textTheme.headlineMedium?.copyWith(fontSize: 18)),
                       if (phone != null && phone != 'N/A') ...[
-                        const SizedBox(height: 6),
+                        SizedBox(height: 6),
                         Row(
                           children: [
-                            const Icon(Icons.phone, size: 14, color: AppColors.outline),
-                            const SizedBox(width: 6),
-                            Text(phone, style: textTheme.bodyMedium?.copyWith(color: AppColors.outline)),
+                            Icon(Icons.phone, size: 14, color: Theme.of(context).colorScheme.outline),
+                            SizedBox(width: 6),
+                            Text(phone, style: textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.outline)),
                           ],
                         ),
                       ],
                       if (doctor != null && doctor != 'Not Assigned') ...[
-                        const SizedBox(height: 6),
+                        SizedBox(height: 6),
                         Row(
                           children: [
-                            const Icon(Icons.medical_services_outlined, size: 14, color: AppColors.outline),
-                            const SizedBox(width: 6),
-                            Text(doctor, style: textTheme.bodyMedium?.copyWith(color: AppColors.outline)),
+                            Icon(Icons.medical_services_outlined, size: 14, color: Theme.of(context).colorScheme.outline),
+                            SizedBox(width: 6),
+                            Text(doctor, style: textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.outline)),
                           ],
                         ),
                       ],
-                      const SizedBox(height: 16),
+                      SizedBox(height: 16),
                       Row(
                         children: [
-                          Icon(Icons.calendar_today, size: 16, color: AppColors.outline),
-                          const SizedBox(width: 8),
+                          Icon(Icons.calendar_today, size: 16, color: Theme.of(context).colorScheme.outline),
+                          SizedBox(width: 8),
                           Text(date, style: textTheme.bodyMedium),
-                          const SizedBox(width: 16),
-                          Icon(Icons.access_time, size: 16, color: AppColors.outline),
-                          const SizedBox(width: 8),
+                          SizedBox(width: 16),
+                          Icon(Icons.access_time, size: 16, color: Theme.of(context).colorScheme.outline),
+                          SizedBox(width: 8),
                           Text(time, style: textTheme.bodyMedium),
                         ],
                       ),
                       if (showCheckIn) ...[
-                        const SizedBox(height: 20),
+                        SizedBox(height: 20),
                         Row(
                           children: [
                             Expanded(
@@ -547,16 +547,16 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text('Checking in $name...'),
-                                      backgroundColor: AppColors.primaryContainer,
+                                      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
                                       behavior: SnackBarBehavior.floating,
                                     ),
                                   );
                                 },
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.primaryContainer,
+                                  backgroundColor: Theme.of(context).colorScheme.primaryContainer,
                                   padding: const EdgeInsets.symmetric(vertical: 12),
                                 ),
-                                child: const Row(
+                                child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text('CHECK IN'),
@@ -566,20 +566,20 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            SizedBox(width: 12),
                             Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: AppColors.inputBackground,
+                                color: Theme.of(context).extension<AppCustomColors>()!.inputBackground,
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: const Icon(Icons.more_vert, color: AppColors.primaryContainer),
+                              child: Icon(Icons.more_vert, color: Theme.of(context).colorScheme.primaryContainer),
                             ),
                           ],
                         ),
                       ],
                       if (footer != null) ...[
-                        const SizedBox(height: 16),
+                        SizedBox(height: 16),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                           decoration: BoxDecoration(
@@ -589,8 +589,8 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                           ),
                           child: Row(
                             children: [
-                              const Icon(Icons.info_outline, size: 14, color: Colors.green),
-                              const SizedBox(width: 8),
+                              Icon(Icons.info_outline, size: 14, color: Colors.green),
+                              SizedBox(width: 8),
                               Text(footer, style: textTheme.bodySmall?.copyWith(color: Colors.green)),
                             ],
                           ),

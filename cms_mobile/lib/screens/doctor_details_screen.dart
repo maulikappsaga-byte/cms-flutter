@@ -76,10 +76,10 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen>
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(
-        backgroundColor: Color(0xFFF8FAFC),
+      return Scaffold(
+        backgroundColor: const Color(0xFFF8FAFC),
         body: Center(
-          child: CircularProgressIndicator(color: Color(0xFF005EB8)),
+          child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primaryContainer),
         ),
       );
     }
@@ -91,12 +91,12 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline, size: 48, color: Colors.red),
-              const SizedBox(height: 16),
+              Icon(Icons.error_outline, size: 48, color: Colors.red),
+              SizedBox(height: 16),
               Text('Error: $_errorMessage'),
               TextButton(
                 onPressed: _fetchDoctorDetails,
-                child: const Text('Retry'),
+                child: Text('Retry'),
               ),
             ],
           ),
@@ -120,7 +120,7 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen>
           child: CircleAvatar(
             backgroundColor: Colors.white,
             child: IconButton(
-              icon: const Icon(
+              icon: Icon(
                 Icons.arrow_back_ios_new_rounded,
                 size: 18,
                 color: Color(0xFF1E293B),
@@ -135,10 +135,10 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen>
             child: CircleAvatar(
               backgroundColor: Colors.white,
               child: IconButton(
-                icon: const Icon(
+                icon: Icon(
                   Icons.refresh_rounded,
                   size: 22,
-                  color: Color(0xFF005EB8),
+                  color: Theme.of(context).colorScheme.primaryContainer,
                 ),
                 onPressed: () {
                   setState(() => _isLoading = true);
@@ -162,13 +162,13 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildStatsRow(data),
-                      const SizedBox(height: 32),
+                      SizedBox(height: 32),
                       _buildAboutSection(data),
-                      const SizedBox(height: 32),
+                      SizedBox(height: 32),
                       _buildContactSection(data),
-                      const SizedBox(height: 32),
+                      SizedBox(height: 32),
                       _buildScheduleSection(data['working_hours']),
-                      const SizedBox(height: 120),
+                      SizedBox(height: 120),
                     ],
                   ),
                 ),
@@ -287,7 +287,7 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen>
                 ),
                 child:
                     ApiConstants.resolveImageUrl(data['profile_photo']) == null
-                    ? const Icon(
+                    ? Icon(
                         Icons.person,
                         size: 60,
                         color: Color(0xFFCBD5E1),
@@ -315,7 +315,7 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen>
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: 20),
           Text(
             data['name'] ?? 'Dr. Unknown',
             style: GoogleFonts.manrope(
@@ -339,7 +339,7 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen>
               '${data['experience_years']}+ Yrs',
               Icons.military_tech_rounded,
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
             _buildStatItem(
               'Qualification',
               data['qualification'] ?? 'N/A',
@@ -369,8 +369,8 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen>
         ),
         child: Column(
           children: [
-            Icon(icon, size: 24, color: const Color(0xFF005EB8)),
-            const SizedBox(height: 12),
+            Icon(icon, size: 24, color: Theme.of(context).colorScheme.primaryContainer),
+            SizedBox(height: 12),
             Text(
               value,
               style: GoogleFonts.manrope(
@@ -379,7 +379,7 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen>
                 color: const Color(0xFF1E293B),
               ),
             ),
-            const SizedBox(height: 4),
+            SizedBox(height: 4),
             Text(
               label,
               style: GoogleFonts.inter(
@@ -436,7 +436,7 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen>
                 style: GoogleFonts.inter(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: const Color(0xFF005EB8),
+                  color: Theme.of(context).colorScheme.primaryContainer,
                 ),
               ),
             ),
@@ -449,7 +449,7 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen>
           child: _isScheduleExpanded
               ? Column(
                   children: [
-                    const SizedBox(height: 16),
+                    SizedBox(height: 16),
                     Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
@@ -506,7 +506,7 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen>
                                           ),
                                         ),
                                       ),
-                                      const SizedBox(width: 12),
+                                      SizedBox(width: 12),
                                       Flexible(
                                         child: Container(
                                           padding: const EdgeInsets.symmetric(
@@ -529,7 +529,7 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen>
                                               fontWeight: FontWeight.w700,
                                               color: isClosed
                                                   ? const Color(0xFFEF4444)
-                                                  : const Color(0xFF005EB8),
+                                                  : Theme.of(context).colorScheme.primaryContainer,
                                             ),
                                           ),
                                         ),
@@ -578,7 +578,7 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen>
             color: const Color(0xFF1E293B),
           ),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(16),
@@ -596,13 +596,13 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen>
                   color: Color(0xFFF0F9FF),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.person_outline_rounded,
-                  color: Color(0xFF005EB8),
+                  color: Theme.of(context).colorScheme.primaryContainer,
                   size: 20,
                 ),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -643,7 +643,7 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen>
             color: const Color(0xFF1E293B),
           ),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: 12),
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -659,13 +659,13 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen>
                   color: Color(0xFFF0F9FF),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.phone_rounded,
-                  color: Color(0xFF005EB8),
+                  color: Theme.of(context).colorScheme.primaryContainer,
                   size: 20,
                 ),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -678,7 +678,7 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen>
                         color: const Color(0xFF94A3B8),
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     Text(
                       phone.toString(),
                       style: GoogleFonts.manrope(
@@ -729,7 +729,7 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen>
               );
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF005EB8),
+              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 18),
               shape: RoundedRectangleBorder(
