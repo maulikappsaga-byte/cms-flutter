@@ -142,199 +142,224 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-          child: Column(
-            children: [
-              SizedBox(height: 60),
-              // Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.medical_services_outlined,
-                    color: Theme.of(context).colorScheme.primary,
-                    size: 40,
-                  ),
-                  SizedBox(width: 8),
-                  Text(
-                    'CLINICOS',
-                    style: textTheme.headlineLarge?.copyWith(
-                      letterSpacing: -1,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 48),
-              // Login Card
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceContainerLowest,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border(
-                    left: BorderSide(color: Theme.of(context).colorScheme.primary, width: 4),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
-                      blurRadius: 20,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Center(
-                      child: Text(
-                        'Welcome back',
-                        style: textTheme.headlineMedium?.copyWith(
-                          fontSize: 32,
-                          fontWeight: FontWeight.w900,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Center(
-                      child: Text(
-                        'Please enter your clinical credentials to continue.',
-                        style: textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    SizedBox(height: 24),
-                    // Email Field
-                    Text('EMAIL ADDRESS', style: textTheme.labelLarge),
-                    SizedBox(height: 8),
-                    TextField(
-                      controller: _emailController,
-                      decoration: const InputDecoration(
-                        prefixIcon: Icon(Icons.mail_outline),
-                        hintText: 'smith@clinicos.com',
-                      ),
-                      keyboardType: TextInputType.emailAddress,
-                    ),
-                    SizedBox(height: 24),
-                    // Password Field
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('PASSWORD', style: textTheme.labelLarge),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pushNamed(context, '/forgot-password');
-                          },
-                          style: TextButton.styleFrom(
-                            padding: EdgeInsets.zero,
-                            minimumSize: Size.zero,
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final maxHeight = constraints.maxHeight;
+            final isCompact = maxHeight < 700;
+            final isVeryCompact = maxHeight < 500;
+
+            final double space60 = isVeryCompact ? 16 : (isCompact ? 32 : 60);
+            final double space48 = isVeryCompact ? 16 : (isCompact ? 24 : 48);
+            final double space24 = isVeryCompact ? 12 : (isCompact ? 16 : 24);
+            final double cardPadding = isVeryCompact ? 16 : 24;
+
+            // Allow up to 500px width, but ensure it doesn't exceed screen width (minus 48px for horizontal padding)
+            final contentWidth = (constraints.maxWidth - 48).clamp(0.0, 500.0);
+
+            return Center(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: SizedBox(
+                  width: contentWidth,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(height: space60),
+                      // Header
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.medical_services_outlined,
+                            color: Theme.of(context).colorScheme.primary,
+                            size: 40,
                           ),
-                          child: Text(
-                            'FORGOT PASSWORD?',
-                            style: textTheme.labelLarge?.copyWith(
-                              color: Theme.of(context).colorScheme.primary,
+                          SizedBox(width: 8),
+                          Text(
+                            'CLINICOS',
+                            style: textTheme.headlineLarge?.copyWith(
+                              letterSpacing: -1,
+                              fontWeight: FontWeight.w900,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 8),
-                    TextField(
-                      controller: _passwordController,
-                      obscureText: true,
-                      decoration: const InputDecoration(
-                        prefixIcon: Icon(Icons.lock_outline),
-                        hintText: '••••••••',
+                        ],
                       ),
-                    ),
-                    SizedBox(height: 16),
-                    // Keep Logged In
-                    Row(
-                      children: [
-                        Checkbox(
-                          value: _keepLoggedIn,
-                          onChanged: (value) {
-                            setState(() {
-                              _keepLoggedIn = value ?? false;
-                            });
-                          },
-                          activeColor: Theme.of(context).colorScheme.primary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4),
+                      SizedBox(height: space48),
+                      // Login Card
+                      Container(
+                        padding: EdgeInsets.all(cardPadding),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surfaceContainerLowest,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border(
+                            left: BorderSide(color: Theme.of(context).colorScheme.primary, width: 4),
                           ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
+                              blurRadius: 20,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                         ),
-                        Text('Keep me logged in', style: textTheme.bodyMedium),
-                      ],
-                    ),
-                    SizedBox(height: 24),
-                    // Login Button
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _isLoading ? null : _login,
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              if (_isLoading) ...[
-                                SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Center(
+                              child: Text(
+                                'Welcome back',
+                                style: textTheme.headlineMedium?.copyWith(
+                                  fontSize: isVeryCompact ? 24 : 32,
+                                  fontWeight: FontWeight.w900,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            SizedBox(height: 4),
+                            Center(
+                              child: Text(
+                                'Please enter your clinical credentials to continue.',
+                                style: textTheme.bodyMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            SizedBox(height: space24),
+                            // Email Field
+                            Text('EMAIL ADDRESS', style: textTheme.labelLarge),
+                            SizedBox(height: 8),
+                            TextField(
+                              controller: _emailController,
+                              decoration: const InputDecoration(
+                                prefixIcon: Icon(Icons.mail_outline),
+                                hintText: 'smith@clinicos.com',
+                              ),
+                              keyboardType: TextInputType.emailAddress,
+                            ),
+                            SizedBox(height: space24),
+                            // Password Field
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('PASSWORD', style: textTheme.labelLarge),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pushNamed(context, '/forgot-password');
+                                  },
+                                  style: TextButton.styleFrom(
+                                    padding: EdgeInsets.zero,
+                                    minimumSize: Size.zero,
+                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                  ),
+                                  child: Text(
+                                    'FORGOT PASSWORD?',
+                                    style: textTheme.labelLarge?.copyWith(
+                                      color: Theme.of(context).colorScheme.primary,
+                                    ),
                                   ),
                                 ),
-                                SizedBox(width: 8),
                               ],
-                              Text('LOGIN TO DASHBOARD'),
-                              SizedBox(width: 8),
-                              Icon(Icons.arrow_forward, size: 20),
-                            ],
-                          ),
+                            ),
+                            SizedBox(height: 8),
+                            TextField(
+                              controller: _passwordController,
+                              obscureText: true,
+                              decoration: const InputDecoration(
+                                prefixIcon: Icon(Icons.lock_outline),
+                                hintText: '••••••••',
+                              ),
+                            ),
+                            SizedBox(height: 16),
+                            // Keep Logged In
+                            Row(
+                              children: [
+                                Checkbox(
+                                  value: _keepLoggedIn,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _keepLoggedIn = value ?? false;
+                                    });
+                                  },
+                                  activeColor: Theme.of(context).colorScheme.primary,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                ),
+                                Text('Keep me logged in', style: textTheme.bodyMedium),
+                              ],
+                            ),
+                            SizedBox(height: space24),
+                            // Login Button
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: _isLoading ? null : _login,
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      if (_isLoading) ...[
+                                        const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                      ],
+                                      const Text('LOGIN TO DASHBOARD'),
+                                      const SizedBox(width: 8),
+                                      const Icon(Icons.arrow_forward, size: 20),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                  ],
+                      SizedBox(height: space24),
+                      // Footer
+                      const Divider(color: Color(0xFFE2E8F0)),
+                      SizedBox(height: space24),
+                      Wrap(
+                        spacing: 24,
+                        alignment: WrapAlignment.center,
+                        children: [
+                          Text(
+                            'Privacy Policy',
+                            style: textTheme.labelLarge?.copyWith(color: Colors.grey),
+                          ),
+                          Text(
+                            'Terms of Service',
+                            style: textTheme.labelLarge?.copyWith(color: Colors.grey),
+                          ),
+                          Text(
+                            'Help Center',
+                            style: textTheme.labelLarge?.copyWith(color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: space24),
+                      Text(
+                        '© 2024 HEALTHCARE SYSTEMS. SECURE CLINICAL PORTAL.',
+                        style: textTheme.labelLarge?.copyWith(
+                          color: Colors.grey.withValues(alpha: 0.6),
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: space24),
+                    ],
+                  ),
                 ),
               ),
-              SizedBox(height: 24),
-              // Footer
-              Divider(color: Color(0xFFE2E8F0)),
-              SizedBox(height: 24),
-              Wrap(
-                spacing: 24,
-                children: [
-                  Text(
-                    'Privacy Policy',
-                    style: textTheme.labelLarge?.copyWith(color: Colors.grey),
-                  ),
-                  Text(
-                    'Terms of Service',
-                    style: textTheme.labelLarge?.copyWith(color: Colors.grey),
-                  ),
-                  Text(
-                    'Help Center',
-                    style: textTheme.labelLarge?.copyWith(color: Colors.grey),
-                  ),
-                ],
-              ),
-              SizedBox(height: 24),
-              Text(
-                '© 2024 HEALTHCARE SYSTEMS. SECURE CLINICAL PORTAL.',
-                style: textTheme.labelLarge?.copyWith(
-                  color: Colors.grey.withValues(alpha: 0.6),
-                ),
-              ),
-              SizedBox(height: 24),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
