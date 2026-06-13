@@ -10,6 +10,7 @@ class AuthApi {
   static Future<dynamic> resetPassword(String email, String otp, String password, String passwordConfirmation) async {
     return await ApiService.post('/auth/reset-password', {
       'email': email,
+      'token': otp,
       'otp': otp,
       'password': password,
       'password_confirmation': passwordConfirmation,

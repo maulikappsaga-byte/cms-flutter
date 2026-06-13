@@ -13,7 +13,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
-  final List<TextEditingController> _otpControllers = List.generate(4, (_) => TextEditingController());
+  final List<TextEditingController> _otpControllers = List.generate(6, (_) => TextEditingController());
   bool _isLoading = false;
   bool _emailInitialized = false;
 
@@ -46,7 +46,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     final password = _passwordController.text;
     final passwordConfirmation = _confirmPasswordController.text;
 
-    if (email.isEmpty || otp.length < 4 || password.isEmpty || passwordConfirmation.isEmpty) {
+    if (email.isEmpty || otp.length < 6 || password.isEmpty || passwordConfirmation.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill all fields')),
       );
@@ -226,33 +226,35 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           keyboardType: TextInputType.emailAddress,
                         ),
                         SizedBox(height: 24),
-                        Text('VERIFICATION CODE (4-DIGIT)', style: textTheme.labelLarge),
+                        Text('VERIFICATION CODE (6-DIGIT)', style: textTheme.labelLarge),
                         SizedBox(height: 8),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: List.generate(
-                            4,
-                            (index) => SizedBox(
-                              width: 64,
-                              child: TextField(
-                                controller: _otpControllers[index],
-                                textAlign: TextAlign.center,
-                                keyboardType: TextInputType.number,
-                                maxLength: 1,
-                                style: textTheme.headlineMedium?.copyWith(
-                                  color: Theme.of(context).colorScheme.primary,
+                            6,
+                            (index) => Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                                child: TextField(
+                                  controller: _otpControllers[index],
+                                  textAlign: TextAlign.center,
+                                  keyboardType: TextInputType.number,
+                                  maxLength: 1,
+                                  style: textTheme.headlineMedium?.copyWith(
+                                    color: Theme.of(context).colorScheme.primary,
+                                  ),
+                                  decoration: const InputDecoration(
+                                    counterText: '',
+                                    contentPadding: EdgeInsets.symmetric(vertical: 16),
+                                  ),
+                                  onChanged: (value) {
+                                    if (value.isNotEmpty && index < 5) {
+                                      FocusScope.of(context).nextFocus();
+                                    } else if (value.isEmpty && index > 0) {
+                                      FocusScope.of(context).previousFocus();
+                                    }
+                                  },
                                 ),
-                                decoration: const InputDecoration(
-                                  counterText: '',
-                                  contentPadding: EdgeInsets.symmetric(vertical: 16),
-                                ),
-                                onChanged: (value) {
-                                  if (value.isNotEmpty && index < 3) {
-                                    FocusScope.of(context).nextFocus();
-                                  } else if (value.isEmpty && index > 0) {
-                                    FocusScope.of(context).previousFocus();
-                                  }
-                                },
                               ),
                             ),
                           ),
