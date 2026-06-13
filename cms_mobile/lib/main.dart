@@ -45,21 +45,73 @@ class MainApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           theme: theme,
           initialRoute: initialRoute,
-          routes: {
-        '/': (context) => const LoginScreen(),
-        '/login': (context) => const LoginScreen(),
-        '/forgot-password': (context) => const ForgotPasswordScreen(),
-        '/reset-password': (context) => const ResetPasswordScreen(),
-        '/dashboard': (context) => const ReceptionistDashboardScreen(),
-        '/appointments': (context) => const AppointmentsScreen(),
-        '/book-appointment': (context) => const BookAppointmentScreen(),
+          onGenerateRoute: (settings) {
+            final name = settings.name;
 
-        '/clinicos-overview': (context) => const ClinicosOverviewScreen(),
-        '/clinic-details': (context) => const ClinicDetailsScreen(),
-        '/doctor-details': (context) => const DoctorDetailsScreen(),
-        '/doctors-list': (context) => const DoctorsListScreen(),
-        '/receptionist-book-appointment': (context) => const ReceptionistBookAppointmentScreen(),
-      },
+            // Check if user is an authenticated receptionist
+            final isReceptionist = UserSession.isLoggedIn && UserSession.userRole == 'receptionist';
+
+            // Define receptionist-only routes
+            final receptionistRoutes = [
+              '/dashboard',
+              '/appointments',
+              '/receptionist-book-appointment',
+            ];
+
+            // If a logged-in receptionist tries to access a non-receptionist route, redirect to dashboard
+            if (isReceptionist && !receptionistRoutes.contains(name)) {
+              return MaterialPageRoute(
+                builder: (context) => const ReceptionistDashboardScreen(),
+                settings: const RouteSettings(name: '/dashboard'),
+              );
+            }
+
+            // Route mapping
+            Widget page;
+            switch (name) {
+              case '/':
+              case '/login':
+                page = const LoginScreen();
+                break;
+              case '/forgot-password':
+                page = const ForgotPasswordScreen();
+                break;
+              case '/reset-password':
+                page = const ResetPasswordScreen();
+                break;
+              case '/dashboard':
+                page = const ReceptionistDashboardScreen();
+                break;
+              case '/appointments':
+                page = const AppointmentsScreen();
+                break;
+              case '/book-appointment':
+                page = const BookAppointmentScreen();
+                break;
+              case '/clinicos-overview':
+                page = const ClinicosOverviewScreen();
+                break;
+              case '/clinic-details':
+                page = const ClinicDetailsScreen();
+                break;
+              case '/doctor-details':
+                page = const DoctorDetailsScreen();
+                break;
+              case '/doctors-list':
+                page = const DoctorsListScreen();
+                break;
+              case '/receptionist-book-appointment':
+                page = const ReceptionistBookAppointmentScreen();
+                break;
+              default:
+                page = isReceptionist ? const ReceptionistDashboardScreen() : const ClinicosOverviewScreen();
+            }
+
+            return MaterialPageRoute(
+              builder: (context) => page,
+              settings: settings,
+            );
+          },
     );
       },
     );
