@@ -52,7 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
         Uri.parse('${ApiConstants.baseUrl}/auth/login'),
         headers: {
           'X-API-KEY':
-              'a467c9ae749554658c974ac9bdcdef787b9cc9ece425d33e2784e36c1aa37fc1',
+              '20c99fa5c4eb513ccf119cb72080b9e9f8d75c718e9d41feda3bead447d5c043',
           // 'X-API-KEY': ApiConstants.apiKey,
           'Accept': 'application/json',
           'Content-Type': 'application/json',
@@ -189,14 +189,21 @@ class _LoginScreenState extends State<LoginScreen> {
                       Container(
                         padding: EdgeInsets.all(cardPadding),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surfaceContainerLowest,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.surfaceContainerLowest,
                           borderRadius: BorderRadius.circular(12),
                           border: Border(
-                            left: BorderSide(color: Theme.of(context).colorScheme.primary, width: 4),
+                            left: BorderSide(
+                              color: Theme.of(context).colorScheme.primary,
+                              width: 4,
+                            ),
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.primary.withValues(alpha: 0.05),
                               blurRadius: 20,
                               offset: const Offset(0, 4),
                             ),
@@ -247,17 +254,23 @@ class _LoginScreenState extends State<LoginScreen> {
                                 Text('PASSWORD', style: textTheme.labelLarge),
                                 TextButton(
                                   onPressed: () {
-                                    Navigator.pushNamed(context, '/forgot-password');
+                                    Navigator.pushNamed(
+                                      context,
+                                      '/forgot-password',
+                                    );
                                   },
                                   style: TextButton.styleFrom(
                                     padding: EdgeInsets.zero,
                                     minimumSize: Size.zero,
-                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                    tapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
                                   ),
                                   child: Text(
                                     'FORGOT PASSWORD?',
                                     style: textTheme.labelLarge?.copyWith(
-                                      color: Theme.of(context).colorScheme.primary,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.primary,
                                     ),
                                   ),
                                 ),
@@ -283,12 +296,17 @@ class _LoginScreenState extends State<LoginScreen> {
                                       _keepLoggedIn = value ?? false;
                                     });
                                   },
-                                  activeColor: Theme.of(context).colorScheme.primary,
+                                  activeColor: Theme.of(
+                                    context,
+                                  ).colorScheme.primary,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(4),
                                   ),
                                 ),
-                                Text('Keep me logged in', style: textTheme.bodyMedium),
+                                Text(
+                                  'Keep me logged in',
+                                  style: textTheme.bodyMedium,
+                                ),
                               ],
                             ),
                             SizedBox(height: space24),
@@ -333,15 +351,21 @@ class _LoginScreenState extends State<LoginScreen> {
                         children: [
                           Text(
                             'Privacy Policy',
-                            style: textTheme.labelLarge?.copyWith(color: Colors.grey),
+                            style: textTheme.labelLarge?.copyWith(
+                              color: Colors.grey,
+                            ),
                           ),
                           Text(
                             'Terms of Service',
-                            style: textTheme.labelLarge?.copyWith(color: Colors.grey),
+                            style: textTheme.labelLarge?.copyWith(
+                              color: Colors.grey,
+                            ),
                           ),
                           Text(
                             'Help Center',
-                            style: textTheme.labelLarge?.copyWith(color: Colors.grey),
+                            style: textTheme.labelLarge?.copyWith(
+                              color: Colors.grey,
+                            ),
                           ),
                         ],
                       ),

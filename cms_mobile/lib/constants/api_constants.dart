@@ -13,7 +13,7 @@ class ApiConstants {
 
   static String get baseUrl => 'https://healthcare.appsaga.io/api';
   static String apiKey =
-      'a467c9ae749554658c974ac9bdcdef787b9cc9ece425d33e2784e36c1aa37fc1';
+      '20c99fa5c4eb513ccf119cb72080b9e9f8d75c718e9d41feda3bead447d5c043';
 
   // Pusher Configuration
   static const String pusherAppKey = 'bacd6dd427751c42eecc';
