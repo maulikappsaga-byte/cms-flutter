@@ -16,6 +16,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   final List<TextEditingController> _otpControllers = List.generate(6, (_) => TextEditingController());
   bool _isLoading = false;
   bool _emailInitialized = false;
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
 
   @override
   void didChangeDependencies() {
@@ -264,10 +266,20 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         SizedBox(height: 8),
                         TextField(
                           controller: _passwordController,
-                          obscureText: true,
-                          decoration: const InputDecoration(
-                            prefixIcon: Icon(Icons.lock_outline),
+                          obscureText: _obscurePassword,
+                          decoration: InputDecoration(
+                            prefixIcon: const Icon(Icons.lock_outline),
                             hintText: '••••••••••••',
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _obscurePassword = !_obscurePassword;
+                                });
+                              },
+                            ),
                           ),
                         ),
                         SizedBox(height: 24),
@@ -275,10 +287,20 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         SizedBox(height: 8),
                         TextField(
                           controller: _confirmPasswordController,
-                          obscureText: true,
-                          decoration: const InputDecoration(
-                            prefixIcon: Icon(Icons.verified_user_outlined),
+                          obscureText: _obscureConfirmPassword,
+                          decoration: InputDecoration(
+                            prefixIcon: const Icon(Icons.verified_user_outlined),
                             hintText: '••••••••••••',
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _obscureConfirmPassword = !_obscureConfirmPassword;
+                                });
+                              },
+                            ),
                           ),
                         ),
                       ],
