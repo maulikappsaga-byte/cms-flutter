@@ -119,6 +119,8 @@ class _ReceptionistDashboardScreenState
       List<Map<String, dynamic>> fetchedQueues = [];
       List<Map<String, dynamic>> fetchedSchedules = [];
 
+      List<Future<void>> futures = [];
+
       for (var doc in doctors) {
         final docId = int.tryParse(doc['id'].toString());
         if (docId == null) continue;
@@ -129,68 +131,72 @@ class _ReceptionistDashboardScreenState
         }
         final docName = docNameStr;
 
-        final queueResponse = await _queueApi.getQueueDetails(doctorId: docId);
-        
-        String currentToken = '--';
-        String currentName = 'No Patient';
-        String nextToken = 'None';
-        String nextName = '';
-        List<Map<String, String>> nextPatients = [];
+        futures.add(() async {
+          final queueResponse = await _queueApi.getQueueDetails(doctorId: docId);
+          
+          String currentToken = '--';
+          String currentName = 'No Patient';
+          String nextToken = 'None';
+          String nextName = '';
+          List<Map<String, String>> nextPatients = [];
 
-        try {
-          final scheduleResponse = await _doctorApi.getTodaySchedule(doctorId: docId);
-          if (scheduleResponse != null && scheduleResponse['data'] != null && scheduleResponse['data']['schedules'] != null) {
-            final schedules = scheduleResponse['data']['schedules'] as List;
-            for (var schedule in schedules) {
-               final start = schedule['start_time'] ?? '';
-               final end = schedule['end_time'] ?? '';
-               fetchedSchedules.add({
-                 'doctor_name': schedule['doctor_name'] ?? docName,
-                 'schedule_time': start.isNotEmpty && end.isNotEmpty ? '$start - $end' : 'N/A',
-                 'schedule_status': schedule['status']?.toString().toUpperCase() ?? 'ACTIVE',
-               });
+          try {
+            final scheduleResponse = await _doctorApi.getTodaySchedule(doctorId: docId);
+            if (scheduleResponse != null && scheduleResponse['data'] != null && scheduleResponse['data']['schedules'] != null) {
+              final schedules = scheduleResponse['data']['schedules'] as List;
+              for (var schedule in schedules) {
+                 final start = schedule['start_time'] ?? '';
+                 final end = schedule['end_time'] ?? '';
+                 fetchedSchedules.add({
+                   'doctor_name': schedule['doctor_name'] ?? docName,
+                   'schedule_time': start.isNotEmpty && end.isNotEmpty ? '$start - $end' : 'N/A',
+                   'schedule_status': schedule['status']?.toString().toUpperCase() ?? 'ACTIVE',
+                 });
+              }
+            }
+          } catch (e) {
+            debugPrint('Dashboard: Error fetching schedule for doctor $docId: $e');
+          }
+
+          if (queueResponse != null && queueResponse['data'] != null) {
+            final queueData = queueResponse['data']['queue'];
+            final currentPatient = queueData['current_patient'];
+            final waitingList = queueData['waiting_list'];
+
+            if (currentPatient != null) {
+              currentName = currentPatient['appointment']?['patient_name'] ?? currentPatient['patient_name'] ?? 'Unknown';
+              currentToken = currentPatient['token_number']?.toString() ?? '--';
+            }
+
+            if (waitingList != null && waitingList is List && waitingList.isNotEmpty) {
+              final nextPatient = waitingList[0];
+              nextToken = nextPatient['token_number']?.toString() ?? 'None';
+              nextName = nextPatient['appointment']?['patient_name'] ?? nextPatient['patient_name'] ?? '';
+
+              for (var i = 0; i < waitingList.length && i < 3; i++) {
+                final patient = waitingList[i];
+                nextPatients.add({
+                  'token': patient['token_number']?.toString() ?? 'None',
+                  'name': patient['appointment']?['patient_name'] ?? patient['patient_name'] ?? '',
+                });
+              }
             }
           }
-        } catch (e) {
-          debugPrint('Dashboard: Error fetching schedule for doctor $docId: $e');
-        }
 
-        if (queueResponse != null && queueResponse['data'] != null) {
-          final queueData = queueResponse['data']['queue'];
-          final currentPatient = queueData['current_patient'];
-          final waitingList = queueData['waiting_list'];
-
-          if (currentPatient != null) {
-            currentName = currentPatient['appointment']?['patient_name'] ?? currentPatient['patient_name'] ?? 'Unknown';
-            currentToken = currentPatient['token_number']?.toString() ?? '--';
-          }
-
-          if (waitingList != null && waitingList is List && waitingList.isNotEmpty) {
-            final nextPatient = waitingList[0];
-            nextToken = nextPatient['token_number']?.toString() ?? 'None';
-            nextName = nextPatient['appointment']?['patient_name'] ?? nextPatient['patient_name'] ?? '';
-
-            for (var i = 0; i < waitingList.length && i < 3; i++) {
-              final patient = waitingList[i];
-              nextPatients.add({
-                'token': patient['token_number']?.toString() ?? 'None',
-                'name': patient['appointment']?['patient_name'] ?? patient['patient_name'] ?? '',
-              });
-            }
-          }
-        }
-
-        fetchedQueues.add({
-          'doctor_id': docId,
-          'doctor_name': docName,
-          'is_on_hold': doc['is_on_hold'] == 1 || doc['is_on_hold'] == true,
-          'current_token': currentToken,
-          'current_name': currentName,
-          'next_token': nextToken,
-          'next_name': nextName,
-          'next_patients': nextPatients,
-        });
+          fetchedQueues.add({
+            'doctor_id': docId,
+            'doctor_name': docName,
+            'is_on_hold': doc['is_on_hold'] == 1 || doc['is_on_hold'] == true,
+            'current_token': currentToken,
+            'current_name': currentName,
+            'next_token': nextToken,
+            'next_name': nextName,
+            'next_patients': nextPatients,
+          });
+        }());
       }
+
+      await Future.wait(futures);
 
       if (mounted) {
         setState(() {
