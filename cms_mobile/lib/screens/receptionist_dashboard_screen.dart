@@ -30,6 +30,7 @@ class _ReceptionistDashboardScreenState
   List<Map<String, dynamic>> _todaySchedules = [];
   int? _actionLoadingDoctorId;
   int? _actionTransferLoadingDoctorId;
+  int? _actionToggleHoldDoctorId;
   int _completedCount = 0;
   int _pendingCount = 0;
   int _totalAppointments = 0;
@@ -182,6 +183,7 @@ class _ReceptionistDashboardScreenState
         fetchedQueues.add({
           'doctor_id': docId,
           'doctor_name': docName,
+          'is_on_hold': doc['is_on_hold'] == 1 || doc['is_on_hold'] == true,
           'current_token': currentToken,
           'current_name': currentName,
           'next_token': nextToken,
@@ -244,6 +246,37 @@ class _ReceptionistDashboardScreenState
     } finally {
       if (mounted) {
         setState(() => _actionLoadingDoctorId = null);
+      }
+    }
+  }
+
+  Future<void> _toggleHoldStatus(int doctorId) async {
+    setState(() => _actionToggleHoldDoctorId = doctorId);
+    
+    try {
+      final response = await _queueApi.toggleHold(doctorId: doctorId);
+      
+      if (response != null && response['message'] != null) {
+        if (!mounted) return;
+        CustomSnackBar.show(
+          context: context,
+          message: response['message'],
+          type: SnackBarType.success,
+        );
+      }
+      
+      // Refresh data
+      await _fetchDashboardData(silent: true);
+    } catch (e) {
+      if (!mounted) return;
+      CustomSnackBar.show(
+        context: context,
+        message: "Failed to toggle hold status.",
+        type: SnackBarType.error,
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _actionToggleHoldDoctorId = null);
       }
     }
   }
@@ -400,7 +433,7 @@ class _ReceptionistDashboardScreenState
                       decoration: BoxDecoration(
                           color: Theme.of(context).colorScheme.surfaceContainerLowest,
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Theme.of(context).extension<AppCustomColors>()!.accentBlue, width: 1.5),
+                          border: Border.all(color: queue['is_on_hold'] == true ? Colors.orange.withValues(alpha: 0.3) : Theme.of(context).extension<AppCustomColors>()!.accentBlue, width: 1.5),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withValues(alpha: 0.02),
@@ -424,7 +457,7 @@ class _ReceptionistDashboardScreenState
                                     width: 8,
                                     height: 8,
                                     decoration: BoxDecoration(
-                                      color: Theme.of(context).colorScheme.error, // Red dot
+                                      color: queue['is_on_hold'] == true ? Colors.orange : Theme.of(context).colorScheme.error, // Red or orange dot
                                       shape: BoxShape.circle,
                                     ),
                                   ),
@@ -437,6 +470,35 @@ class _ReceptionistDashboardScreenState
                                         color: Theme.of(context).colorScheme.onSurface,
                                       ),
                                       overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  GestureDetector(
+                                    onTap: _actionToggleHoldDoctorId == queue['doctor_id'] ? null : () => _toggleHoldStatus(queue['doctor_id']),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: queue['is_on_hold'] == true ? Colors.orange.withValues(alpha: 0.1) : Colors.transparent,
+                                        border: Border.all(color: queue['is_on_hold'] == true ? Colors.orange.withValues(alpha: 0.3) : Colors.grey.withValues(alpha: 0.3)),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: _actionToggleHoldDoctorId == queue['doctor_id']
+                                          ? SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2, color: queue['is_on_hold'] == true ? Colors.orange : Colors.grey))
+                                          : Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(queue['is_on_hold'] == true ? Icons.pause_circle_outline : Icons.pause_circle_outline, color: queue['is_on_hold'] == true ? Colors.orange : Colors.grey, size: 16),
+                                          SizedBox(width: 4),
+                                          Text(
+                                            'ON HOLD',
+                                            style: TextStyle(
+                                              color: queue['is_on_hold'] == true ? Colors.orange : Colors.grey,
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w900,
+                                              letterSpacing: 0.5,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -459,7 +521,7 @@ class _ReceptionistDashboardScreenState
                                   Text(
                                     queue['current_token'],
                                     style: textTheme.headlineSmall?.copyWith(
-                                      color: Theme.of(context).colorScheme.primary,
+                                      color: queue['is_on_hold'] == true ? Colors.orange : Theme.of(context).colorScheme.primary,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),
@@ -473,7 +535,34 @@ class _ReceptionistDashboardScreenState
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                  SizedBox(height: 24),
+                                  if (queue['is_on_hold'] == true) ...[
+                                    SizedBox(height: 16),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                                      decoration: BoxDecoration(
+                                        color: Colors.orange.withValues(alpha: 0.05),
+                                        border: Border.all(color: Colors.orange.withValues(alpha: 0.2)),
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(Icons.info_outline, color: Colors.orange, size: 16),
+                                          SizedBox(width: 6),
+                                          Text(
+                                            'SESSION PAUSED',
+                                            style: TextStyle(
+                                              color: Colors.orange,
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w900,
+                                              letterSpacing: 0.5,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                  SizedBox(height: queue['is_on_hold'] == true ? 16 : 24),
                                   Wrap(
                                     alignment: WrapAlignment.center,
                                     crossAxisAlignment: WrapCrossAlignment.center,
@@ -542,7 +631,7 @@ class _ReceptionistDashboardScreenState
                                     children: [
                                       Expanded(
                                         child: ElevatedButton(
-                                          onPressed: isActionLoading ? null : () => _callNextPatient(queue['doctor_id']),
+                                          onPressed: isActionLoading || queue['is_on_hold'] == true ? null : () => _callNextPatient(queue['doctor_id']),
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor: Theme.of(context).colorScheme.secondary,
                                             foregroundColor: Colors.white,
@@ -567,7 +656,7 @@ class _ReceptionistDashboardScreenState
                                       SizedBox(width: 8),
                                       Expanded(
                                         child: OutlinedButton(
-                                          onPressed: isTransferLoading ? null : () => _transferPatient(queue['doctor_id']),
+                                          onPressed: isTransferLoading || queue['is_on_hold'] == true ? null : () => _transferPatient(queue['doctor_id']),
                                           style: OutlinedButton.styleFrom(
                                             foregroundColor: Theme.of(context).colorScheme.primary,
                                             side: BorderSide(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3), width: 1.5),

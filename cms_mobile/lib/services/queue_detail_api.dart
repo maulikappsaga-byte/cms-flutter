@@ -41,6 +41,17 @@ class QueueApi {
     }
   }
 
+  Future<dynamic> toggleHold({required int doctorId}) async {
+    try {
+      return await ApiService.post(
+        '/queue/toggle-hold',
+        {"doctor_id": doctorId},
+      );
+    } catch (e) {
+      throw Exception('Error toggling hold status: $e');
+    }
+  }
+
   Future<dynamic> transferPatient({required int doctorId}) async {
     try {
       return await ApiService.post(
