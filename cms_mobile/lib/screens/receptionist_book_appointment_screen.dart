@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'dart:developer';
+import 'package:flutter/services.dart';
 import '../theme.dart';
 import '../services/appointment_api.dart';
 import '../services/doctor_detail_api.dart';
@@ -375,9 +376,12 @@ class _ReceptionistBookAppointmentScreenState extends State<ReceptionistBookAppo
                             controller: _phoneController,
                             decoration: const InputDecoration(
                               prefixIcon: Icon(Icons.phone_outlined),
-                              hintText: '+1 (555) 000-0000',
+                              hintText: '1234567890',
+                              counterText: '',
                             ),
                             keyboardType: TextInputType.phone,
+                            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                            maxLength: 10,
                           ),
                         ],
                       ),
