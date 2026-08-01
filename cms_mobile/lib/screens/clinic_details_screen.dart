@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/clinic_detail_api.dart';
 import '../services/user_session.dart';
+import '../services/subscription_service.dart';
 import '../widgets/hidden_staff_login_trigger.dart';
 import '../constants/api_constants.dart';
 
@@ -44,6 +45,9 @@ class _ClinicDetailsScreenState extends State<ClinicDetailsScreen> {
         phone: widget.phone,
         date: widget.date,
       );
+
+      // Check subscription status
+      SubscriptionService.instance.checkSubscriptionFromClinicData(data);
 
       // Dynamically extract and persist the clinic's API key if available
       final clinic = data['data']?['clinic'];

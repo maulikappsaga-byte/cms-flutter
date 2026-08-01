@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme.dart';
 import 'clinic_detail_api.dart';
+import 'subscription_service.dart';
 
 class ThemeService {
   static final ThemeService _instance = ThemeService._internal();
@@ -52,6 +53,10 @@ class ThemeService {
   Future<void> fetchAndApplyTheme() async {
     try {
       final details = await ClinicDetailApi().getClinicDetails();
+      
+      // Update subscription expiration status
+      SubscriptionService.instance.checkSubscriptionFromClinicData(details);
+
       Map<String, dynamic>? palette;
       
       // Look for palette in the response

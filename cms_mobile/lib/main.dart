@@ -14,12 +14,15 @@ import 'screens/receptionist_book_appointment_screen.dart';
 import 'services/user_session.dart';
 import 'services/pusher_service.dart';
 import 'services/theme_service.dart';
+import 'services/subscription_service.dart';
+import 'widgets/subscription_expired_dialog.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await UserSession.init();
   await ThemeService.instance.init();
   ThemeService.instance.fetchAndApplyTheme();
+  SubscriptionService.instance.checkSubscription();
   await PusherService().init();
   
   String initialRoute = '/clinicos-overview';
@@ -45,6 +48,19 @@ class MainApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           theme: theme,
           initialRoute: initialRoute,
+          builder: (context, child) {
+            return ValueListenableBuilder<bool>(
+              valueListenable: SubscriptionService.instance.isExpiredNotifier,
+              builder: (context, isExpired, _) {
+                return Stack(
+                  children: [
+                    if (child != null) child,
+                    if (isExpired) const SubscriptionExpiredOverlay(),
+                  ],
+                );
+              },
+            );
+          },
           onGenerateRoute: (settings) {
             final name = settings.name;
 
