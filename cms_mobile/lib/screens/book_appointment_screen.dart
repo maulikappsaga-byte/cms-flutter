@@ -7,6 +7,7 @@ import '../services/appointment_api.dart';
 import '../services/doctor_detail_api.dart';
 import '../services/user_session.dart';
 import '../widgets/custom_snackbar.dart';
+import '../widgets/medical_disclaimer_card.dart';
 
 class BookAppointmentScreen extends StatefulWidget {
   final int? doctorId;
@@ -403,7 +404,9 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 32),
+                    const SizedBox(height: 16),
+                    const MedicalDisclaimerCard(),
+                    const SizedBox(height: 16),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(

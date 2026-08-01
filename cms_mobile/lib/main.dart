@@ -54,7 +54,7 @@ class MainApp extends StatelessWidget {
               builder: (context, isExpired, _) {
                 return Stack(
                   children: [
-                    if (child != null) child,
+                    ?child,
                     if (isExpired) const SubscriptionExpiredOverlay(),
                   ],
                 );
