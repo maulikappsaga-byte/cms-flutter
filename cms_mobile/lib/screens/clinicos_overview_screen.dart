@@ -9,6 +9,7 @@ import '../widgets/custom_snackbar.dart';
 import '../services/queue_detail_api.dart';
 import '../services/pusher_service.dart';
 import '../services/doctor_detail_api.dart';
+import '../services/clinic_detail_api.dart';
 
 
 class ClinicosOverviewScreen extends StatefulWidget {
@@ -38,9 +39,11 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
   String _nowServing = '--';
   String _yourToken = '--';
   String _patientNameDisplay = 'Guest';
+  String _clinicName = UserSession.clinicName ?? 'ClinicOS';
 
   final _queueApi = QueueApi();
   final _doctorApi = DoctorDetailApi();
+  final _clinicApi = ClinicDetailApi();
   int? _doctorId;
 
   @override
@@ -116,6 +119,18 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
     if (mounted && !silent) setState(() => _isLoading = true);
 
     try {
+      try {
+        final clinicResponse = await _clinicApi.getClinicDetails();
+        final name = clinicResponse['data']?['clinic']?['name']?.toString();
+        if (name != null && name.trim().isNotEmpty) {
+          final trimmed = name.trim();
+          _clinicName = trimmed;
+          UserSession.saveClinicName(trimmed);
+        }
+      } catch (e) {
+        log("ClinicosOverview: Error fetching clinic details: $e");
+      }
+
       if (_doctorId == null) {
         final doctorResponse = await _doctorApi.getDoctors();
         if (doctorResponse != null && doctorResponse['status'] == true) {
@@ -227,12 +242,16 @@ class _ClinicosOverviewScreenState extends State<ClinicosOverviewScreen>
               ),
             ),
             SizedBox(width: 12),
-            Text(
-              'ClinicOS',
-              style: GoogleFonts.manrope(
-                fontSize: 20,
-                fontWeight: FontWeight.w800,
-                color: Theme.of(context).colorScheme.primary,
+            Expanded(
+              child: Text(
+                _clinicName,
+                style: GoogleFonts.manrope(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],

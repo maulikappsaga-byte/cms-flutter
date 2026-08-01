@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/clinic_detail_api.dart';
+import '../services/user_session.dart';
 
 class MedicalDisclaimerCard extends StatefulWidget {
   final String? clinicName;
@@ -17,7 +18,7 @@ class MedicalDisclaimerCard extends StatefulWidget {
 }
 
 class _MedicalDisclaimerCardState extends State<MedicalDisclaimerCard> {
-  String _resolvedClinicName = 'ClinicOS';
+  String _resolvedClinicName = UserSession.clinicName ?? 'ClinicOS';
 
   @override
   void initState() {
@@ -34,9 +35,11 @@ class _MedicalDisclaimerCardState extends State<MedicalDisclaimerCard> {
       final response = await ClinicDetailApi().getClinicDetails();
       final name = response['data']?['clinic']?['name']?.toString();
       if (name != null && name.trim().isNotEmpty) {
+        final trimmed = name.trim();
+        UserSession.saveClinicName(trimmed);
         if (mounted) {
           setState(() {
-            _resolvedClinicName = name.trim();
+            _resolvedClinicName = trimmed;
           });
         }
       }

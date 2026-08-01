@@ -7,6 +7,7 @@ class UserSession {
   static String? lastToken;
   static String? lastAppointmentId;
   static String? lastBookingDate;
+  static String? clinicName;
 
   // Authentication session fields
   static bool isLoggedIn = false;
@@ -19,6 +20,7 @@ class UserSession {
   static const String _keyAppointmentId = 'last_appointment_id';
   static const String _keyBookingDate = 'last_booking_date';
   static const String _keyApiKey = 'api_key';
+  static const String _keyClinicName = 'clinic_name';
   
   static const String _keyIsLoggedIn = 'is_logged_in';
   static const String _keyUserRole = 'user_role';
@@ -32,6 +34,7 @@ class UserSession {
     lastToken = prefs.getString(_keyToken);
     lastAppointmentId = prefs.getString(_keyAppointmentId);
     lastBookingDate = prefs.getString(_keyBookingDate);
+    clinicName = prefs.getString(_keyClinicName);
 
     isLoggedIn = prefs.getBool(_keyIsLoggedIn) ?? false;
     userRole = prefs.getString(_keyUserRole);
@@ -41,6 +44,12 @@ class UserSession {
     if (storedApiKey != null && storedApiKey.isNotEmpty) {
       ApiConstants.apiKey = storedApiKey;
     }
+  }
+
+  static Future<void> saveClinicName(String name) async {
+    clinicName = name;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_keyClinicName, name);
   }
 
   static Future<void> saveLoginSession(String token, String role) async {
