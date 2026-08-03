@@ -11,6 +11,8 @@ import 'screens/clinic_details_screen.dart';
 import 'screens/doctor_details_screen.dart';
 import 'screens/doctors_list_screen.dart';
 import 'screens/receptionist_book_appointment_screen.dart';
+import 'screens/privacy_policy_screen.dart';
+import 'screens/terms_of_service_screen.dart';
 import 'services/user_session.dart';
 import 'services/pusher_service.dart';
 import 'services/theme_service.dart';
@@ -118,6 +120,12 @@ class MainApp extends StatelessWidget {
                 break;
               case '/receptionist-book-appointment':
                 page = const ReceptionistBookAppointmentScreen();
+                break;
+              case '/privacy-policy':
+                page = const PrivacyPolicyScreen();
+                break;
+              case '/terms-of-service':
+                page = const TermsOfServiceScreen();
                 break;
               default:
                 page = isReceptionist ? const ReceptionistDashboardScreen() : const ClinicosOverviewScreen();

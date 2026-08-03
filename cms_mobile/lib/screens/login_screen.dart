@@ -357,25 +357,77 @@ class _LoginScreenState extends State<LoginScreen> {
                       const Divider(color: Color(0xFFE2E8F0)),
                       SizedBox(height: space24),
                       Wrap(
-                        spacing: 24,
+                        spacing: 16,
+                        runSpacing: 12,
                         alignment: WrapAlignment.center,
                         children: [
-                          Text(
-                            'Privacy Policy',
-                            style: textTheme.labelLarge?.copyWith(
-                              color: Colors.grey,
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pushNamed(context, '/privacy-policy');
+                            },
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 6,
+                              ),
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            child: Text(
+                              'Privacy Policy',
+                              style: textTheme.labelLarge?.copyWith(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.bold,
+                                decoration: TextDecoration.underline,
+                              ),
                             ),
                           ),
-                          Text(
-                            'Terms of Service',
-                            style: textTheme.labelLarge?.copyWith(
-                              color: Colors.grey,
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pushNamed(context, '/terms-of-service');
+                            },
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 6,
+                              ),
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            child: Text(
+                              'Terms of Service',
+                              style: textTheme.labelLarge?.copyWith(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontWeight: FontWeight.bold,
+                                decoration: TextDecoration.underline,
+                              ),
                             ),
                           ),
-                          Text(
-                            'Help Center',
-                            style: textTheme.labelLarge?.copyWith(
-                              color: Colors.grey,
+                          TextButton(
+                            onPressed: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Help Center: Please contact support@clinicos.com',
+                                  ),
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                            },
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 6,
+                              ),
+                              minimumSize: Size.zero,
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                            child: Text(
+                              'Help Center',
+                              style: textTheme.labelLarge?.copyWith(
+                                color: Colors.grey[700],
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ],
