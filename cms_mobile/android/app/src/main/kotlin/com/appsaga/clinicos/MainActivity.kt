@@ -1,4 +1,4 @@
-package com.example.cms_mobile
+package com.appsaga.clinicos
 
 import io.flutter.embedding.android.FlutterActivity
 
